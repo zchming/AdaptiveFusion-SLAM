@@ -1,29 +1,237 @@
 # AdaptiveFusion-SLAM
 
-**Confidence-Aware Hybrid Visual SLAM**
+**Proactive Tracking-Failure Forecasting and Risk-Adaptive Map Updating for Robust RGB-D SLAM**
 
-AdaptiveFusion-SLAM is a visual SLAM system that combines ORB feature matching
-and LK optical-flow tracking through an adaptive confidence-aware frontend.
+AdaptiveFusion-SLAM is a research-oriented RGB-D visual SLAM system designed to predict tracking degradation before complete failure and proactively protect the map from unreliable observations.
 
-## Project Goals
+The project is implemented incrementally from a minimal SLAM pipeline instead of directly modifying an existing complete system. Its long-term goal is to provide a reproducible platform for studying tracking-failure forecasting, risk-aware frontend control, and selective map updating.
 
-- Build a complete visual SLAM pipeline from scratch.
-- Estimate camera trajectories and construct a sparse 3D map.
-- Dynamically select ORB matching or LK optical flow according to tracking quality.
-- Evaluate accuracy and efficiency using ATE, RPE, tracking success rate, and FPS.
+> Current status: early development. The research hypotheses and modules described below have not yet been experimentally validated.
 
-## Planned Pipeline
+## Motivation
 
-1. Image sequence loading
-2. ORB feature extraction and matching
-3. LK optical-flow tracking
-4. Confidence-aware frontend selection
-5. Camera pose estimation
-6. Triangulation and map-point management
-7. Keyframe selection
-8. Local bundle adjustment
-9. Trajectory and runtime evaluation
+Conventional visual SLAM systems usually react after tracking quality has already deteriorated:
 
-## Current Status
+- the number of valid matches becomes insufficient;
+- pose estimation fails;
+- the tracker enters a lost state;
+- unreliable observations have already contaminated the map.
 
-Project initialization in progress.
+AdaptiveFusion-SLAM investigates a proactive alternative:
+
+> Can recent geometric health signals be used to predict tracking failure several frames in advance, allowing the system to intervene before unreliable observations damage the trajectory and map?
+
+## Research Hypothesis
+
+Compared with reactive decisions based only on the current frame, short-horizon failure forecasting from temporal geometric health signals can:
+
+- reduce the number of tracking failures;
+- prevent unreliable map updates;
+- improve trajectory accuracy and recovery performance;
+- retain real-time execution.
+
+## Proposed Method
+
+### 1. Geometric Health Monitoring
+
+For every frame, the system records a geometric health vector:
+
+\[
+h_t =
+[
+r_{\text{inlier}},
+e_{\text{reproj}},
+e_{\text{fb}},
+H_{\text{spatial}},
+p_{\text{parallax}},
+r_{\text{depth}},
+\kappa
+]
+\]
+
+where:
+
+- \(r_{\text{inlier}}\): RANSAC inlier ratio;
+- \(e_{\text{reproj}}\): reprojection error;
+- \(e_{\text{fb}}\): forward-backward optical-flow error;
+- \(H_{\text{spatial}}\): spatial coverage of tracked features;
+- \(p_{\text{parallax}}\): frame-to-frame parallax;
+- \(r_{\text{depth}}\): valid-depth ratio;
+- \(\kappa\): geometric conditioning indicator.
+
+### 2. Short-Horizon Failure Forecasting
+
+Instead of examining only the current frame, the system uses a temporal window of recent health vectors to estimate:
+
+\[
+P(F_{t+1:t+H}=1 \mid h_{t-L+1:t})
+\]
+
+This represents the probability that tracking will fail within the next \(H\) frames, based on the previous \(L\) frames.
+
+Failure labels will be generated automatically from future tracking states and trajectory errors, avoiding manual frame-by-frame annotation.
+
+### 3. Risk-Adaptive Intervention
+
+The predicted failure risk controls the frontend and mapping policies:
+
+| Risk level | Planned intervention |
+|---|---|
+| Low | Continue efficient LK optical-flow tracking and normal map updates |
+| Medium | Add local ORB verification and evaluate early keyframe insertion |
+| High | Perform global ORB redetection and suspend unreliable map-point insertion |
+| Critical | Preserve the latest trusted map state and initiate recovery from a reference keyframe |
+
+The main purpose is not merely to report that tracking is unreliable, but to prevent uncertain observations from corrupting the map.
+
+## System Pipeline
+
+```text
+RGB-D image sequence
+        |
+        v
+Camera model and dataset synchronization
+        |
+        v
+ORB features + LK optical-flow tracking
+        |
+        v
+Pose estimation using RANSAC and PnP
+        |
+        v
+Per-frame geometric health vector
+        |
+        v
+Temporal tracking-failure predictor
+        |
+        v
+Risk-adaptive frontend and map-update policy
+        |
+        v
+Keyframes, map points, and local bundle adjustment
+        |
+        v
+Trajectory, sparse map, and evaluation results
+```
+
+## Evaluation Plan
+
+The system will be evaluated on real RGB-D sequences, including:
+
+- TUM RGB-D;
+- Bonn RGB-D Dynamic;
+- OpenLORIS-Scene.
+
+Controlled degradation experiments will additionally study:
+
+- motion blur;
+- reduced illumination;
+- partial occlusion;
+- dropped frames;
+- image noise.
+
+### SLAM Metrics
+
+- Absolute Trajectory Error (ATE);
+- Relative Pose Error (RPE);
+- tracking success rate;
+- number of tracking failures;
+- recovery time;
+- runtime per frame and FPS.
+
+### Forecasting Metrics
+
+- AUROC and AUPRC;
+- false-positive and false-negative rates;
+- Brier score;
+- expected calibration error;
+- average failure-warning lead time;
+- cross-dataset generalization.
+
+## Planned Ablation Study
+
+The final evaluation will compare:
+
+1. baseline RGB-D SLAM;
+2. reactive current-frame thresholding;
+3. temporal failure forecasting without intervention;
+4. forecasting with adaptive frontend control;
+5. forecasting with selective map updating;
+6. the complete AdaptiveFusion-SLAM system.
+
+## Development Roadmap
+
+- [x] Initialize the repository and build system
+- [x] Verify the minimal executable
+- [ ] Implement the pinhole camera model
+- [ ] Add TUM RGB-D dataset loading and synchronization
+- [ ] Implement ORB feature extraction and matching
+- [ ] Implement LK optical-flow tracking
+- [ ] Estimate camera pose using RGB-D correspondences and PnP
+- [ ] Add frame, keyframe, and map-point representations
+- [ ] Implement local bundle adjustment
+- [ ] Record per-frame geometric health signals
+- [ ] Build the tracking-failure event dataset
+- [ ] Implement and calibrate the temporal risk predictor
+- [ ] Add risk-adaptive frontend and map-update policies
+- [ ] Perform benchmark and ablation experiments
+- [ ] Release reproducible results and documentation
+
+## Build
+
+The project currently requires:
+
+- Ubuntu 24.04
+- C++17
+- CMake
+- Eigen3
+
+OpenCV, g2o, and additional dependencies will be enabled as their corresponding modules are implemented.
+
+```bash
+mkdir -p build
+cd build
+cmake ..
+cmake --build .
+./run_slam
+```
+
+Expected output at the current stage:
+
+```text
+AdaptiveFusion-SLAM initialized successfully.
+```
+
+## Project Structure
+
+```text
+AdaptiveFusion-SLAM/
+├── app/
+├── include/
+├── src/
+├── config/
+├── evaluation/
+├── experiments/
+├── docs/
+├── results/
+├── CMakeLists.txt
+└── README.md
+```
+
+The structure will grow incrementally as each module becomes runnable and testable.
+
+## Reproducibility Policy
+
+Each runnable development stage will include:
+
+- source code and configuration;
+- a dedicated Git commit;
+- updated documentation;
+- experiment commands;
+- quantitative results when available.
+
+Large datasets and generated build files will not be stored in the repository. Download instructions and evaluation scripts will be provided instead.
+
+## License
+
+A license will be selected before the first public release.
