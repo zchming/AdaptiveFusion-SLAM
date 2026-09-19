@@ -199,6 +199,39 @@ and `depth.txt`:
 The optional second argument sets the maximum RGB-to-depth timestamp difference
 in seconds. Its default value is `0.02`.
 
+Run the current feature frontend on a synchronized RGB-D frame:
+
+```bash
+./build/run_feature_frontend /path/to/tum_sequence 0
+```
+
+The final argument is the zero-based synchronized frame index. The program
+loads that frame and reports the number and dimensions of its ORB features.
+
+## Current Runnable Pipeline
+
+The implemented frontend currently connects these modules:
+
+```text
+TUM rgb.txt + depth.txt
+        |
+        v
+One-to-one timestamp synchronization
+        |
+        v
+RGB image + 16-bit depth image loading
+        |
+        v
+Grayscale conversion and ORB extraction
+        |
+        v
+2D keypoints + 256-bit binary descriptors
+```
+
+The camera projection model is implemented and tested separately. It will join
+this pipeline after feature correspondences and valid per-keypoint depths are
+available for 3D-to-2D pose estimation.
+
 ## Project Structure
 
 ```text

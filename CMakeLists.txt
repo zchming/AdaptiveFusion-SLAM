@@ -8,10 +8,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Eigen3 REQUIRED)
-find_package(OpenCV 4.6 REQUIRED COMPONENTS core imgcodecs)
+find_package(OpenCV 4.6 REQUIRED COMPONENTS core features2d imgcodecs imgproc)
 
 add_library(adaptivefusion_slam
     src/camera.cpp
+    src/orb_feature_extractor.cpp
     src/tum_rgbd_dataset.cpp
 )
 
@@ -39,6 +40,15 @@ add_executable(inspect_tum_dataset
     app/inspect_tum_dataset.cpp
 )
 
+add_executable(run_feature_frontend
+    app/run_feature_frontend.cpp
+)
+
+target_link_libraries(run_feature_frontend
+    PRIVATE
+        adaptivefusion_slam
+)
+
 target_link_libraries(inspect_tum_dataset
     PRIVATE
         adaptivefusion_slam
@@ -62,4 +72,15 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME tum_rgbd_dataset COMMAND test_tum_rgbd_dataset)
+
+    add_executable(test_orb_feature_extractor
+        tests/test_orb_feature_extractor.cpp
+    )
+
+    target_link_libraries(test_orb_feature_extractor
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(NAME orb_feature_extractor COMMAND test_orb_feature_extractor)
 endif()
