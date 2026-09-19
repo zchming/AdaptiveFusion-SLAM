@@ -189,17 +189,20 @@ The project currently requires:
 OpenCV, g2o, and additional dependencies will be enabled as their corresponding modules are implemented.
 
 ```bash
-mkdir -p build
-cd build
-cmake ..
-cmake --build .
-./run_slam
+cmake -S . -B build
+cmake --build build
+./build/run_slam
+ctest --test-dir build --output-on-failure
 ```
 
 Expected output at the current stage:
 
 ```text
-AdaptiveFusion-SLAM initialized successfully.
+Original pixel: 320 240
+3D point in camera coordinates: 0.00541272 -0.0592449 2
+Projected pixel: 320 240
+Round-trip error: 0
+Camera model test passed.
 ```
 
 ## Project Structure
