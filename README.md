@@ -167,8 +167,10 @@ The project currently requires:
 - C++17
 - CMake
 - Eigen3
+- OpenCV 4.6
 
-OpenCV, g2o, and additional dependencies will be enabled as their corresponding modules are implemented.
+OpenCV is used for RGB and depth image loading. g2o, Ceres, and additional
+dependencies will be enabled as their corresponding modules are implemented.
 
 ```bash
 cmake -S . -B build
@@ -186,6 +188,16 @@ Projected pixel: 320 240
 Round-trip error: 0
 Camera model test passed.
 ```
+
+Inspect a TUM RGB-D sequence by passing the directory that contains `rgb.txt`
+and `depth.txt`:
+
+```bash
+./build/inspect_tum_dataset /path/to/tum_sequence
+```
+
+The optional second argument sets the maximum RGB-to-depth timestamp difference
+in seconds. Its default value is `0.02`.
 
 ## Project Structure
 

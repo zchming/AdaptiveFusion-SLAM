@@ -1,0 +1,5 @@
+# timestamp filename
+0.999 depth/sample.pgm
+1.035 depth/sample.pgm
+1.080 depth/sample.pgm
+3.000 depth/sample.pgm

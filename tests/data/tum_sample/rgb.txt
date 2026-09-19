@@ -1,0 +1,5 @@
+# timestamp filename
+1.000 rgb/sample.ppm
+1.033 rgb/sample.ppm
+1.066 rgb/sample.ppm
+2.000 rgb/sample.ppm
