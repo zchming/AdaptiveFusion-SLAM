@@ -163,7 +163,7 @@ The final evaluation will compare:
 
 - [x] Initialize the repository and build system
 - [x] Verify the minimal executable
-- [ ] Implement the pinhole camera model
+- [x] Implement the pinhole camera model
 - [ ] Add TUM RGB-D dataset loading and synchronization
 - [ ] Implement ORB feature extraction and matching
 - [ ] Implement LK optical-flow tracking
