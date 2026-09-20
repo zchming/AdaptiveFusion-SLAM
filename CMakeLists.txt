@@ -13,6 +13,7 @@ find_package(OpenCV 4.6 REQUIRED COMPONENTS core features2d imgcodecs imgproc)
 add_library(adaptivefusion_slam
     src/camera.cpp
     src/orb_feature_extractor.cpp
+    src/orb_feature_matcher.cpp
     src/tum_rgbd_dataset.cpp
 )
 
@@ -83,4 +84,15 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME orb_feature_extractor COMMAND test_orb_feature_extractor)
+
+    add_executable(test_orb_feature_matcher
+        tests/test_orb_feature_matcher.cpp
+    )
+
+    target_link_libraries(test_orb_feature_matcher
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(NAME orb_feature_matcher COMMAND test_orb_feature_matcher)
 endif()
