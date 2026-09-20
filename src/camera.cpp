@@ -47,4 +47,20 @@ Eigen::Vector2d Camera::cameraToPixel(
     return Eigen::Vector2d(u, v);
 }
 
+double Camera::fx() const {
+    return fx_;
+}
+
+double Camera::fy() const {
+    return fy_;
+}
+
+double Camera::cx() const {
+    return cx_;
+}
+
+double Camera::cy() const {
+    return cy_;
+}
+
 }  // namespace adaptive_fusion_slam

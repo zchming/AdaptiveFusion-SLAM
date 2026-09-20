@@ -8,13 +8,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Eigen3 REQUIRED)
-find_package(OpenCV 4.6 REQUIRED COMPONENTS core features2d imgcodecs imgproc video)
+find_package(OpenCV 4.6 REQUIRED COMPONENTS calib3d core features2d imgcodecs imgproc video)
 
 add_library(adaptivefusion_slam
     src/camera.cpp
     src/lk_optical_flow_tracker.cpp
     src/orb_feature_extractor.cpp
     src/orb_feature_matcher.cpp
+    src/pnp_pose_estimator.cpp
     src/rgbd_correspondence_builder.cpp
     src/tum_rgbd_dataset.cpp
 )
@@ -122,4 +123,15 @@ if(BUILD_TESTING)
         NAME rgbd_correspondence_builder
         COMMAND test_rgbd_correspondence_builder
     )
+
+    add_executable(test_pnp_pose_estimator
+        tests/test_pnp_pose_estimator.cpp
+    )
+
+    target_link_libraries(test_pnp_pose_estimator
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(NAME pnp_pose_estimator COMMAND test_pnp_pose_estimator)
 endif()

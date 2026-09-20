@@ -15,6 +15,11 @@ public:
     Eigen::Vector2d cameraToPixel(
         const Eigen::Vector3d& point_camera) const;
 
+    double fx() const;
+    double fy() const;
+    double cx() const;
+    double cy() const;
+
 private:
     double fx_;
     double fy_;

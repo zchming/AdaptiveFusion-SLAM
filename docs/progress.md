@@ -449,3 +449,96 @@ The computed 3D point agrees with the expected pinhole equations. CTest reported
 The demo currently uses TUM Freiburg 1 RGB intrinsics and the standard TUM depth
 scale. The builder itself is configurable; calibration-file loading will be
 needed before running sequences with different camera intrinsics.
+
+## Stage 7: PnP/RANSAC Relative Pose Estimation
+
+### Goal
+
+Estimate the rigid transformation from the previous camera coordinate frame to
+the current camera coordinate frame from metric 3D-to-2D correspondences, reject
+outliers with RANSAC, refine the pose on the inliers, and expose geometric
+quality metrics.
+
+### Transform Convention
+
+The returned rotation and translation satisfy:
+
+```text
+P_current = R_current_from_previous * P_previous
+            + t_current_from_previous
+```
+
+This transform changes the coordinates of a static scene point from the
+previous camera frame into the current camera frame. It is not yet a global
+camera trajectory pose; trajectory accumulation will require composing or
+inverting relative transforms with a clearly defined world-frame convention.
+
+### RANSAC and Refinement
+
+The estimator uses EPnP inside RANSAC. Each hypothesis projects transformed 3D
+points into the current image and treats observations within 3 pixels as
+inliers. Defaults are 100 iterations, 99% confidence, at least six input
+correspondences, and at least six final inliers.
+
+After RANSAC, iterative PnP refines rotation and translation using only the
+accepted inliers. If refinement fails, the original RANSAC pose is retained.
+Invalid, non-finite, or behind-camera 3D inputs fail cleanly.
+
+### Health Metrics
+
+The estimator reports:
+
+```text
+inlier_ratio = number_of_inliers / number_of_correspondences
+```
+
+and the mean Euclidean reprojection residual:
+
+```text
+e_reproj = mean(||project(R * P + t) - observed_pixel||_2)
+```
+
+These provide the planned geometric health variables `r_inlier` and
+`e_reproj` for future tracking-failure forecasting.
+
+### Reproduction Commands
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+ctest --test-dir build --output-on-failure
+./build/test_pnp_pose_estimator
+./build/run_feature_frontend tests/data/tum_sample 0
+```
+
+### Controlled Test Result
+
+The test generates 60 non-coplanar metric 3D points, transforms them with a
+known rotation and translation, projects them into the current image, and then
+corrupts 10 observations with large pixel offsets.
+
+```text
+PnP pose test passed with 50/60 inliers,
+rotation error 1.47473e-12 radians,
+translation error 4.14648e-12 meters,
+and mean reprojection error 5.25902e-11 pixels.
+```
+
+RANSAC rejected all 10 artificial outliers and retained all 50 true inliers.
+Insufficient input returns an unsuccessful estimate without throwing. CTest
+reported 7/7 passing tests with warning-enabled Release compilation.
+
+### Implemented Pipeline After Stage 7
+
+1. Synchronize and load two RGB-D frames.
+2. Extract ORB features and compute ORB matches plus LK tracks.
+3. Validate first-frame depth and build metric 3D-to-2D correspondences.
+4. Estimate a relative pose with EPnP inside RANSAC.
+5. Refine the pose using only RANSAC inliers.
+6. Return rotation, translation, inlier indices, inlier ratio, and mean
+   reprojection error.
+
+The minimal two-frame RGB-D visual odometry chain is now present. It still needs
+validation on a natural sequence, calibration-file loading, persistent frame
+state, trajectory accumulation, and map representations before it constitutes
+a basic SLAM system.
