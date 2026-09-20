@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+#include "lk_optical_flow_tracker.h"
 #include "orb_feature_extractor.h"
 #include "orb_feature_matcher.h"
 #include "tum_rgbd_dataset.h"
@@ -33,12 +34,26 @@ int main(int argc, char* argv[]) {
             first_features.descriptors,
             second_features.descriptors);
 
+        const adaptive_fusion_slam::LkOpticalFlowTracker optical_flow_tracker;
+        const auto tracks = optical_flow_tracker.track(
+            first_frame.rgb_image,
+            second_frame.rgb_image,
+            first_features.keypoints);
+
         double mean_hamming_distance = 0.0;
         for (const auto& match : matches) {
             mean_hamming_distance += match.distance;
         }
         if (!matches.empty()) {
             mean_hamming_distance /= static_cast<double>(matches.size());
+        }
+
+        double mean_forward_backward_error = 0.0;
+        for (const auto& track : tracks) {
+            mean_forward_backward_error += track.forward_backward_error;
+        }
+        if (!tracks.empty()) {
+            mean_forward_backward_error /= static_cast<double>(tracks.size());
         }
 
         std::cout << std::fixed << std::setprecision(6)
@@ -52,7 +67,10 @@ int main(int argc, char* argv[]) {
                   << "Second-frame keypoints: "
                   << second_features.keypoints.size() << '\n'
                   << "Accepted matches: " << matches.size() << '\n'
-                  << "Mean Hamming distance: " << mean_hamming_distance
+                  << "Mean Hamming distance: " << mean_hamming_distance << '\n'
+                  << "Accepted LK tracks: " << tracks.size() << '\n'
+                  << "Mean forward-backward error: "
+                  << mean_forward_backward_error << " pixels"
                   << std::endl;
     } catch (const std::exception& error) {
         std::cerr << "Feature frontend failed: " << error.what() << std::endl;
