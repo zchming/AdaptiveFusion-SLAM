@@ -168,6 +168,7 @@ The final evaluation will compare:
 - [x] Implement ORB feature extraction
 - [x] Implement ORB descriptor matching
 - [x] Implement LK optical-flow tracking
+- [x] Build metric RGB-D 3D-to-2D correspondences
 - [ ] Estimate camera pose using RGB-D correspondences and PnP
 - [ ] Add frame, keyframe, and map-point representations
 - [ ] Implement local bundle adjustment
@@ -227,7 +228,9 @@ Run the current feature frontend on two consecutive synchronized RGB-D frames:
 
 The final argument is the zero-based index of the first frame. The program
 loads that frame and the following frame, extracts ORB features, and reports
-the accepted descriptor matches and their mean Hamming distance.
+ORB matches, LK tracks, and valid metric RGB-D correspondences. The current
+demo uses the TUM Freiburg 1 RGB intrinsics `(517.3, 516.5, 318.6, 255.3)` and
+the TUM depth scale `5000`; other sequences require their own calibration.
 
 ## Current Runnable Pipeline
 
@@ -257,12 +260,23 @@ Ratio + mutual filtering      Forward-backward filtering
                       |
                       v
          Accepted 2D-to-2D correspondences
+                      |
+                      v
+      First-frame 16-bit depth validation
+                      |
+                      v
+       Raw depth / 5000 = metric depth
+                      |
+                      v
+          Camera::pixelToCamera()
+                      |
+                      v
+         Metric 3D-to-2D correspondences
 ```
 
-The camera projection model is implemented and tested separately. Descriptor
-matching and LK optical flow now supply complementary feature correspondences;
-depth scaling and per-keypoint depth validation are the remaining bridge to
-3D-to-2D pose estimation.
+The camera projection model is now connected to LK tracks through validated
+depth measurements. The resulting metric 3D-to-2D correspondences are the
+direct input required by the next PnP/RANSAC pose-estimation stage.
 
 ## Project Structure
 

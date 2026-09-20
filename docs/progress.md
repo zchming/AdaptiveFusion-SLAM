@@ -359,3 +359,93 @@ LK will serve as the efficient normal tracking path. ORB matching will support
 verification, larger motion, and redetection when predicted failure risk rises.
 The next geometric bridge is depth validation and metric 3D correspondence
 construction before PnP pose estimation.
+
+## Stage 6: Metric RGB-D 3D-to-2D Correspondences
+
+### Goal
+
+Connect tracked first-frame pixels to their depth measurements, convert raw TUM
+depth values into meters, back-project them through the camera model, and pair
+the resulting 3D points with their tracked second-frame pixels.
+
+### Physical Meaning
+
+LK optical flow provides only image motion from pixel `p1` to pixel `p2`. The
+first frame's aligned depth image supplies the distance along the camera Z axis
+at `p1`. Combining this distance with the camera intrinsics turns `p1` into a
+metric 3D point. The pair `(3D point in frame 1, 2D pixel in frame 2)` is the
+observation required by PnP to estimate camera motion.
+
+### Key Variables and Validation
+
+- `depth_scale`: raw TUM depth units per meter; default 5000.
+- `min_depth_meters`: nearest accepted depth; default 0.1 m.
+- `max_depth_meters`: farthest accepted depth; default 8.0 m.
+- `previous_pixel`: first-frame feature location used for depth lookup.
+- `current_pixel`: second-frame tracked observation used by PnP.
+- `point_previous_camera`: metric 3D point in the first camera frame.
+- `depth_meters`: converted metric Z value.
+
+Depth is sampled at the nearest integer pixel to the subpixel feature location:
+
+```text
+column = round(u)
+row    = round(v)
+Z      = raw_depth / depth_scale
+```
+
+The builder conservatively rejects non-finite pixels, image-boundary failures,
+raw depth zero, current-frame pixels outside the image, and metric depths outside
+`[0.1, 8.0]` meters. It does not fill missing depth from neighboring pixels,
+avoiding accidental depth transfer across object boundaries.
+
+For valid depth, the existing camera model computes:
+
+```text
+X = (u - cx) * Z / fx
+Y = (v - cy) * Z / fy
+```
+
+The subpixel feature coordinate is used in this back-projection even though the
+depth sample comes from the nearest integer pixel.
+
+### Reproduction Commands
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+ctest --test-dir build --output-on-failure
+./build/test_rgbd_correspondence_builder
+./build/run_feature_frontend tests/data/tum_sample 0
+```
+
+### Controlled Test Result
+
+Seven candidates exercise valid depth, zero depth, a previous pixel outside the
+image, a current pixel outside the image, a 9-meter out-of-range depth, and a
+NaN coordinate. Two candidates are valid.
+
+```text
+RGB-D correspondence test passed with 2 valid correspondences from 7 candidates.
+First depth: 2 meters.
+First 3D point: 0.00618601 -0.0604066 2
+```
+
+The first raw value is 10000, so division by 5000 produces exactly 2 meters.
+The computed 3D point agrees with the expected pinhole equations. CTest reported
+6/6 passing tests with warning-enabled Release compilation.
+
+### Implemented Pipeline After Stage 6
+
+1. Synchronize and load two consecutive RGB-D frames.
+2. Extract ORB features and obtain ORB matches plus LK tracks.
+3. Convert accepted LK tracks into generic pixel correspondences.
+4. Sample the first frame's 16-bit depth at each previous pixel.
+5. Validate and convert raw depth into meters.
+6. Back-project the first-frame pixel with `Camera::pixelToCamera()`.
+7. Preserve the tracked current-frame pixel as the 2D observation.
+8. Return metric `RgbdCorrespondence` records ready for PnP.
+
+The demo currently uses TUM Freiburg 1 RGB intrinsics and the standard TUM depth
+scale. The builder itself is configurable; calibration-file loading will be
+needed before running sequences with different camera intrinsics.

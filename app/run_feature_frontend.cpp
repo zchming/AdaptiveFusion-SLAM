@@ -6,6 +6,7 @@
 #include "lk_optical_flow_tracker.h"
 #include "orb_feature_extractor.h"
 #include "orb_feature_matcher.h"
+#include "rgbd_correspondence_builder.h"
 #include "tum_rgbd_dataset.h"
 
 int main(int argc, char* argv[]) {
@@ -40,6 +41,25 @@ int main(int argc, char* argv[]) {
             second_frame.rgb_image,
             first_features.keypoints);
 
+        std::vector<adaptive_fusion_slam::PixelCorrespondence>
+            pixel_correspondences;
+        pixel_correspondences.reserve(tracks.size());
+        for (const auto& track : tracks) {
+            pixel_correspondences.push_back({
+                track.source_index,
+                track.previous_point,
+                track.current_point,
+            });
+        }
+
+        const adaptive_fusion_slam::Camera camera(
+            517.3, 516.5, 318.6, 255.3);
+        const adaptive_fusion_slam::RgbdCorrespondenceBuilder
+            correspondence_builder(camera);
+        const auto rgbd_correspondences = correspondence_builder.build(
+            first_frame.depth_image,
+            pixel_correspondences);
+
         double mean_hamming_distance = 0.0;
         for (const auto& match : matches) {
             mean_hamming_distance += match.distance;
@@ -56,6 +76,11 @@ int main(int argc, char* argv[]) {
             mean_forward_backward_error /= static_cast<double>(tracks.size());
         }
 
+        const double valid_depth_ratio = tracks.empty()
+            ? 0.0
+            : static_cast<double>(rgbd_correspondences.size()) /
+                  static_cast<double>(tracks.size());
+
         std::cout << std::fixed << std::setprecision(6)
                   << "First frame index: " << first_frame_index << '\n'
                   << "First RGB timestamp: "
@@ -70,7 +95,10 @@ int main(int argc, char* argv[]) {
                   << "Mean Hamming distance: " << mean_hamming_distance << '\n'
                   << "Accepted LK tracks: " << tracks.size() << '\n'
                   << "Mean forward-backward error: "
-                  << mean_forward_backward_error << " pixels"
+                  << mean_forward_backward_error << " pixels\n"
+                  << "Valid RGB-D correspondences: "
+                  << rgbd_correspondences.size() << '\n'
+                  << "Valid-depth ratio: " << valid_depth_ratio
                   << std::endl;
     } catch (const std::exception& error) {
         std::cerr << "Feature frontend failed: " << error.what() << std::endl;
