@@ -6,6 +6,7 @@
 #include "lk_optical_flow_tracker.h"
 #include "orb_feature_extractor.h"
 #include "orb_feature_matcher.h"
+#include "pnp_pose_estimator.h"
 #include "rgbd_correspondence_builder.h"
 #include "tum_rgbd_dataset.h"
 
@@ -60,6 +61,9 @@ int main(int argc, char* argv[]) {
             first_frame.depth_image,
             pixel_correspondences);
 
+        const adaptive_fusion_slam::PnpPoseEstimator pose_estimator(camera);
+        const auto pose = pose_estimator.estimate(rgbd_correspondences);
+
         double mean_hamming_distance = 0.0;
         for (const auto& match : matches) {
             mean_hamming_distance += match.distance;
@@ -98,7 +102,15 @@ int main(int argc, char* argv[]) {
                   << mean_forward_backward_error << " pixels\n"
                   << "Valid RGB-D correspondences: "
                   << rgbd_correspondences.size() << '\n'
-                  << "Valid-depth ratio: " << valid_depth_ratio
+                  << "Valid-depth ratio: " << valid_depth_ratio << '\n'
+                  << "Pose estimation succeeded: "
+                  << std::boolalpha << pose.success << '\n'
+                  << "PnP inliers: " << pose.inlier_indices.size() << '\n'
+                  << "PnP inlier ratio: " << pose.inlier_ratio << '\n'
+                  << "Mean reprojection error: "
+                  << pose.mean_reprojection_error_pixels << " pixels\n"
+                  << "Translation current-from-previous: "
+                  << pose.translation_current_from_previous.transpose()
                   << std::endl;
     } catch (const std::exception& error) {
         std::cerr << "Feature frontend failed: " << error.what() << std::endl;

@@ -252,11 +252,20 @@ Ratio + mutual filtering      Forward-backward filtering
                       |
                       v
          Metric 3D-to-2D correspondences
+                      |
+                      v
+               PnP + RANSAC
+                      |
+                      v
+       Inlier-refined relative camera pose
+                      |
+                      v
+     Inlier ratio + mean reprojection error
 ```
 
 The camera projection model is now connected to LK tracks through validated
-depth measurements. The resulting metric 3D-to-2D correspondences are the
-direct input required by the next PnP/RANSAC pose-estimation stage.
+depth measurements. PnP/RANSAC now converts the metric correspondences into a
+relative rotation and translation while rejecting geometric outliers.
 
 ## Project Structure
 
