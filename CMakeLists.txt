@@ -17,6 +17,8 @@ add_library(adaptivefusion_slam
     src/orb_feature_matcher.cpp
     src/pnp_pose_estimator.cpp
     src/rgbd_correspondence_builder.cpp
+    src/rgbd_odometry.cpp
+    src/trajectory.cpp
     src/tum_rgbd_dataset.cpp
 )
 
@@ -46,6 +48,15 @@ add_executable(inspect_tum_dataset
 
 add_executable(run_feature_frontend
     app/run_feature_frontend.cpp
+)
+
+add_executable(run_rgbd_odometry
+    app/run_rgbd_odometry.cpp
+)
+
+target_link_libraries(run_rgbd_odometry
+    PRIVATE
+        adaptivefusion_slam
 )
 
 target_link_libraries(run_feature_frontend
@@ -134,4 +145,15 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME pnp_pose_estimator COMMAND test_pnp_pose_estimator)
+
+    add_executable(test_rgbd_odometry
+        tests/test_rgbd_odometry.cpp
+    )
+
+    target_link_libraries(test_rgbd_odometry
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(NAME rgbd_odometry COMMAND test_rgbd_odometry)
 endif()

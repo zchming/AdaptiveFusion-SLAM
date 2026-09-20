@@ -542,3 +542,112 @@ The minimal two-frame RGB-D visual odometry chain is now present. It still needs
 validation on a natural sequence, calibration-file loading, persistent frame
 state, trajectory accumulation, and map representations before it constitutes
 a basic SLAM system.
+
+## Stage 8: Continuous RGB-D Odometry and Trajectory State
+
+### Goal
+
+Turn the two-frame frontend into a stateful sequence processor that stores
+frame data and poses, tracks from the latest trusted frame, falls back from LK
+to ORB matching when necessary, accumulates world-frame poses, protects the
+trusted state after failure, and writes a TUM-format trajectory.
+
+### Frame State
+
+Each `Frame` now stores its sequential id, RGB/depth association, loaded images,
+ORB features, `T_world_from_camera`, and a pose-valid flag. The first accepted
+frame defines the world coordinate system and receives the identity pose.
+
+The PnP result maps previous-camera coordinates into current-camera coordinates:
+
+```text
+P_current = T_current_from_previous * P_previous
+```
+
+The stored trajectory pose maps current-camera coordinates into the world. It
+is accumulated using:
+
+```text
+T_world_from_current = T_world_from_previous
+                       * inverse(T_current_from_previous)
+```
+
+The inverse is essential because PnP and the trajectory use opposite transform
+directions.
+
+### Tracking State Machine
+
+- First valid input: status `Initialized`, identity world pose.
+- Normal path: track trusted-frame keypoints with LK and estimate PnP.
+- Fallback path: if LK/PnP fails, match trusted and current ORB descriptors and
+  retry RGB-D correspondence construction plus PnP.
+- Success: status `Tracked`; accumulate pose and replace the trusted reference.
+- Failure: status `Lost`; keep the current pose invalid, omit it from the
+  trajectory, and retain the previous trusted reference frame.
+
+This is the first implemented map-protection behavior: failed observations are
+prevented from changing the persistent tracking reference or trajectory.
+
+### TUM Trajectory Format
+
+Each valid pose is written as:
+
+```text
+timestamp tx ty tz qx qy qz qw
+```
+
+The translation and quaternion represent `T_world_from_camera`. Timestamps must
+be strictly increasing, invalid poses are rejected, and quaternions are
+normalized before output.
+
+### Reproduction Commands
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+ctest --test-dir build --output-on-failure
+./build/test_rgbd_odometry
+./build/run_rgbd_odometry tests/data/tum_sample /tmp/trajectory.txt 3
+```
+
+### Controlled Test Result
+
+A deterministic 640 x 480 textured RGB-D frame with constant 2-meter depth was
+followed by a frame translated 5 pixels horizontally and 3 pixels vertically.
+A third uniform frame deliberately removed all usable visual structure.
+
+```text
+Frame 0: initialized at identity
+Frame 1: tracked with 996 LK/PnP inliers
+Accumulated translation: (-0.0193323, -0.0116166, -9.55013e-08) meters
+Forced LK failure: ORB fallback recovered pose with 481 inliers
+Frame 2: lost and excluded from trajectory
+Valid TUM poses: 2
+CTest: 8/8 passed
+```
+
+For a fronto-parallel plane at 2 meters, the expected world-frame translation
+from `(5, 3)` pixels is approximately `(-5*2/fx, -3*2/fy, 0)`, matching the
+estimated pose within 1 millimeter. The test also confirms that a lost frame
+does not replace the trusted reference and that both timestamps appear in TUM
+output.
+
+The repository's tiny 2 x 2 fixture processed three frames, wrote only the
+initial identity pose, and marked the remaining frames lost as expected because
+ORB cannot form a 31-pixel patch on that image.
+
+### Implemented Pipeline After Stage 8
+
+1. Load synchronized RGB-D frames sequentially.
+2. Create a persistent `Frame` with features and pose state.
+3. Track from the latest trusted reference with LK.
+4. Build metric correspondences and estimate relative pose with PnP/RANSAC.
+5. If that fails, retry with globally matched ORB features.
+6. On success, invert and compose the relative transform into the world pose.
+7. On failure, preserve the trusted reference and omit the frame from output.
+8. Write every valid world pose in TUM trajectory format.
+
+The system is now a minimal continuous RGB-D visual odometry implementation.
+It still lacks native calibration loading, real-sequence validation, keyframes,
+map points, local optimization, and the temporal risk predictor required for the
+final AdaptiveFusion-SLAM system.
