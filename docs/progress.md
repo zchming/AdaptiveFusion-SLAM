@@ -190,3 +190,85 @@ order:
 The `Camera` module remains independently verified. It will be connected after
 feature matching supplies 2D correspondences and the depth image supplies the
 metric depth required to lift selected pixels into 3D camera coordinates.
+
+## Stage 4: ORB Descriptor Matching
+
+### Goal
+
+Establish candidate 2D-to-2D correspondences between consecutive RGB frames by
+comparing their ORB descriptors, while rejecting ambiguous or one-sided
+associations before geometric pose estimation.
+
+### Physical Meaning
+
+Each accepted match hypothesizes that one keypoint in the earlier frame and one
+keypoint in the later frame observe the same physical scene location. ORB
+descriptors contain 256 binary tests, so their difference is measured with
+Hamming distance: the number of bit positions that disagree.
+
+A small distance alone is insufficient in repetitive scenes. The matcher also
+requires the best candidate to be clearly better than the second-best candidate
+and, by default, requires the reverse search to select the original feature.
+
+### Key Variables and Filters
+
+- `query_index`: keypoint and descriptor row in the first frame.
+- `train_index`: matched keypoint and descriptor row in the second frame.
+- `distance`: Hamming distance between the two 256-bit descriptors.
+- `ratio_threshold`: best-to-second-best distance ratio; default 0.75.
+- `max_hamming_distance`: absolute distance limit; default 64 bits.
+- `require_mutual_consistency`: enables the forward/backward best-match check.
+
+For best distance `d1` and second-best distance `d2`, a match must satisfy:
+
+```text
+d1 < 0.75 * d2
+d1 <= 64
+```
+
+With mutual consistency enabled, first-frame feature `i` may match second-frame
+feature `j` only when the reverse nearest-neighbor search maps `j` back to `i`.
+
+### Reproduction Commands
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+ctest --test-dir build --output-on-failure
+./build/test_orb_feature_matcher
+./build/run_feature_frontend tests/data/tum_sample 0
+```
+
+### Controlled Test Result
+
+The test creates a deterministic textured 640 x 480 image and translates it by
+6 pixels horizontally and 4 pixels vertically. Because the motion is known,
+accepted matches can be checked against the expected displacement.
+
+```text
+ORB matcher test passed with 357 matches, 356 translation-consistent matches,
+and mean Hamming distance 18.1961.
+```
+
+The translation-consistent fraction was 99.72%, above the required 90% test
+threshold. Empty descriptor input correctly returned no matches. CTest reported
+4/4 passing tests with warning-enabled Release compilation.
+
+The repository's 2 x 2 RGB-D fixture exercised the full two-frame application
+path and produced zero matches because neither tiny image can contain an ORB
+patch. Evaluation on natural consecutive TUM images remains required.
+
+### Implemented Pipeline After Stage 4
+
+1. Synchronize RGB and depth timestamps.
+2. Load two consecutive RGB-D frames.
+3. Extract ORB keypoints and 256-bit descriptors from both RGB images.
+4. Find the two nearest descriptor candidates with Hamming distance.
+5. Apply the 0.75 ratio test and 64-bit absolute-distance limit.
+6. Apply forward/backward mutual consistency.
+7. Return accepted `FeatureMatch` records connecting keypoint indices across
+   the two frames.
+
+The accepted indices now provide 2D-to-2D visual correspondences. The next
+bridge is to validate and scale the first-frame depth at each matched keypoint,
+then use `Camera::pixelToCamera()` to create metric 3D points for PnP.

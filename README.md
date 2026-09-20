@@ -166,7 +166,7 @@ The final evaluation will compare:
 - [x] Implement the pinhole camera model
 - [x] Add TUM RGB-D dataset loading and synchronization
 - [x] Implement ORB feature extraction
-- [ ] Implement ORB descriptor matching
+- [x] Implement ORB descriptor matching
 - [ ] Implement LK optical-flow tracking
 - [ ] Estimate camera pose using RGB-D correspondences and PnP
 - [ ] Add frame, keyframe, and map-point representations
@@ -218,14 +218,15 @@ and `depth.txt`:
 The optional second argument sets the maximum RGB-to-depth timestamp difference
 in seconds. Its default value is `0.02`.
 
-Run the current feature frontend on a synchronized RGB-D frame:
+Run the current feature frontend on two consecutive synchronized RGB-D frames:
 
 ```bash
 ./build/run_feature_frontend /path/to/tum_sequence 0
 ```
 
-The final argument is the zero-based synchronized frame index. The program
-loads that frame and reports the number and dimensions of its ORB features.
+The final argument is the zero-based index of the first frame. The program
+loads that frame and the following frame, extracts ORB features, and reports
+the accepted descriptor matches and their mean Hamming distance.
 
 ## Current Runnable Pipeline
 
@@ -241,15 +242,21 @@ One-to-one timestamp synchronization
 RGB image + 16-bit depth image loading
         |
         v
-Grayscale conversion and ORB extraction
+Grayscale conversion and ORB extraction in both frames
         |
         v
-2D keypoints + 256-bit binary descriptors
+Hamming-distance descriptor matching
+        |
+        v
+Ratio filtering + mutual consistency filtering
+        |
+        v
+Accepted 2D-to-2D feature correspondences
 ```
 
-The camera projection model is implemented and tested separately. It will join
-this pipeline after feature correspondences and valid per-keypoint depths are
-available for 3D-to-2D pose estimation.
+The camera projection model is implemented and tested separately. Descriptor
+matching now supplies feature correspondences; depth scaling and per-keypoint
+depth validation are the remaining bridge to 3D-to-2D pose estimation.
 
 ## Project Structure
 
