@@ -272,3 +272,90 @@ patch. Evaluation on natural consecutive TUM images remains required.
 The accepted indices now provide 2D-to-2D visual correspondences. The next
 bridge is to validate and scale the first-frame depth at each matched keypoint,
 then use `Camera::pixelToCamera()` to create metric 3D points for PnP.
+
+## Stage 5: Pyramidal LK Optical-Flow Tracking
+
+### Goal
+
+Track first-frame ORB keypoints into the next RGB frame using local image
+intensity changes, then reject tracks that fail status, image-boundary, or
+forward-backward consistency checks.
+
+### Physical Meaning
+
+For a small time interval, the brightness pattern around a physical scene point
+is assumed to remain similar while its image position moves. Lucas-Kanade optical
+flow estimates the displacement that best aligns a local window in the two
+frames. An image pyramid permits larger motion to be estimated first at coarse
+resolution and refined at finer resolutions.
+
+Every forward track is run backward from the current frame into the previous
+frame. If the returned point does not land close to the original point, the
+track is considered unstable and rejected.
+
+### Key Variables
+
+- `window_size`: local square tracking window; default 21 pixels.
+- `max_pyramid_level`: highest additional pyramid level; default 3.
+- `termination_count`: maximum refinement iterations; default 30.
+- `termination_epsilon`: minimum update size before convergence; default 0.01.
+- `min_eigenvalue_threshold`: rejects weak local image structure; default
+  `1e-4`.
+- `max_forward_backward_error`: maximum return-to-origin error; default 1 pixel.
+- `source_index`: index of the original first-frame ORB keypoint.
+- `previous_point` and `current_point`: the tracked 2D pixel positions.
+- `forward_backward_error`: Euclidean return-to-origin error in pixels.
+
+For original point `p`, forward result `q`, and backward result `p_back`, the
+quality signal is:
+
+```text
+e_fb = ||p_back - p||_2
+```
+
+The default tracker accepts the result only when `e_fb <= 1.0` pixel and both
+forward and backward positions remain inside their images.
+
+### Reproduction Commands
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+ctest --test-dir build --output-on-failure
+./build/test_lk_optical_flow_tracker
+./build/run_feature_frontend tests/data/tum_sample 0
+```
+
+### Controlled Test Result
+
+A fixed-seed textured 640 x 480 image was translated by 5 pixels horizontally
+and 3 pixels vertically. ORB supplied 800 starting keypoints.
+
+```text
+LK optical-flow test passed with 800 tracks, 800 translation-consistent tracks,
+and mean forward-backward error 0.00047618 pixels.
+```
+
+All accepted tracks agreed with the known translation to within 1 pixel. Empty
+keypoint input returned no tracks. CTest reported 5/5 passing tests with
+warning-enabled Release compilation.
+
+The repository's 2 x 2 fixture again produced no tracks because it contains no
+valid ORB starting features. Natural-sequence tests must still measure retention
+under rotation, depth variation, occlusion, blur, illumination change, and
+nonrigid motion.
+
+### Implemented Pipeline After Stage 5
+
+1. Synchronize and load two consecutive RGB-D frames.
+2. Extract first-frame and second-frame ORB features.
+3. Use ORB descriptors to produce globally checked feature matches.
+4. Use first-frame keypoints as LK starting positions.
+5. Track forward through a four-scale pyramid and backward to the first frame.
+6. Reject failed, out-of-bounds, and high forward-backward-error tracks.
+7. Report both ORB matches and LK tracks as complementary 2D-to-2D evidence.
+
+LK will serve as the efficient normal tracking path. ORB matching will support
+verification, larger motion, and redetection when predicted failure risk rises.
+The next geometric bridge is depth validation and metric 3D correspondence
+construction before PnP pose estimation.

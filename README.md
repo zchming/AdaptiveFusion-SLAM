@@ -167,7 +167,7 @@ The final evaluation will compare:
 - [x] Add TUM RGB-D dataset loading and synchronization
 - [x] Implement ORB feature extraction
 - [x] Implement ORB descriptor matching
-- [ ] Implement LK optical-flow tracking
+- [x] Implement LK optical-flow tracking
 - [ ] Estimate camera pose using RGB-D correspondences and PnP
 - [ ] Add frame, keyframe, and map-point representations
 - [ ] Implement local bundle adjustment
@@ -188,8 +188,9 @@ The project currently requires:
 - Eigen3
 - OpenCV 4.6
 
-OpenCV is used for RGB and depth image loading. g2o, Ceres, and additional
-dependencies will be enabled as their corresponding modules are implemented.
+OpenCV is used for RGB-D image loading, ORB features, descriptor matching, and
+LK optical flow. g2o, Ceres, and additional dependencies will be enabled as
+their corresponding modules are implemented.
 
 ```bash
 cmake -S . -B build
@@ -244,19 +245,24 @@ RGB image + 16-bit depth image loading
         v
 Grayscale conversion and ORB extraction in both frames
         |
-        v
-Hamming-distance descriptor matching
-        |
-        v
-Ratio filtering + mutual consistency filtering
-        |
-        v
-Accepted 2D-to-2D feature correspondences
+        +---------------------------+
+        |                           |
+        v                           v
+Hamming descriptor matching   Pyramidal LK optical flow
+        |                           |
+        v                           v
+Ratio + mutual filtering      Forward-backward filtering
+        |                           |
+        +-------------+-------------+
+                      |
+                      v
+         Accepted 2D-to-2D correspondences
 ```
 
 The camera projection model is implemented and tested separately. Descriptor
-matching now supplies feature correspondences; depth scaling and per-keypoint
-depth validation are the remaining bridge to 3D-to-2D pose estimation.
+matching and LK optical flow now supply complementary feature correspondences;
+depth scaling and per-keypoint depth validation are the remaining bridge to
+3D-to-2D pose estimation.
 
 ## Project Structure
 
