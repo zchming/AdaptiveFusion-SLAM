@@ -212,6 +212,16 @@ ORB matches, LK tracks, and valid metric RGB-D correspondences. The current
 demo uses the TUM Freiburg 1 RGB intrinsics `(517.3, 516.5, 318.6, 255.3)` and
 the TUM depth scale `5000`; other sequences require their own calibration.
 
+Run the current RGB-D visual odometry loop and write a TUM-format trajectory:
+
+```bash
+./build/run_rgbd_odometry /path/to/tum_sequence trajectory.txt
+```
+
+An optional third argument limits the number of processed frames. Only
+initialized or successfully tracked frames enter the trajectory; lost frames
+do not replace the latest trusted reference frame.
+
 ## Current Runnable Pipeline
 
 The implemented frontend currently connects these modules:
@@ -261,11 +271,23 @@ Ratio + mutual filtering      Forward-backward filtering
                       |
                       v
      Inlier ratio + mean reprojection error
+                      |
+                      v
+      Invert and accumulate relative pose
+                      |
+                      v
+        World-from-camera trajectory
+                      |
+                      v
+            TUM trajectory file
 ```
 
 The camera projection model is now connected to LK tracks through validated
 depth measurements. PnP/RANSAC now converts the metric correspondences into a
 relative rotation and translation while rejecting geometric outliers.
+The odometry loop keeps a trusted reference frame, uses LK as its normal path,
+falls back to ORB matching after LK/PnP failure, and excludes lost frames from
+the accumulated trajectory.
 
 ## Project Structure
 
