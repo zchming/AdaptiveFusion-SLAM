@@ -15,6 +15,7 @@ add_library(adaptivefusion_slam
     src/lk_optical_flow_tracker.cpp
     src/orb_feature_extractor.cpp
     src/orb_feature_matcher.cpp
+    src/rgbd_correspondence_builder.cpp
     src/tum_rgbd_dataset.cpp
 )
 
@@ -107,4 +108,18 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME lk_optical_flow_tracker COMMAND test_lk_optical_flow_tracker)
+
+    add_executable(test_rgbd_correspondence_builder
+        tests/test_rgbd_correspondence_builder.cpp
+    )
+
+    target_link_libraries(test_rgbd_correspondence_builder
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(
+        NAME rgbd_correspondence_builder
+        COMMAND test_rgbd_correspondence_builder
+    )
 endif()
