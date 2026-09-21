@@ -536,6 +536,33 @@ The committed model is trained only on synthetic data and exists to verify the
 online plumbing. It must not be treated as a calibrated real-scene model. The
 next requirement is paired baseline/adaptive evaluation on natural sequences.
 
+## Stage 17: TUM Trajectory Evaluation and First Real-Sequence Run
+
+The evaluation module reads TUM trajectories, performs one-to-one timestamp
+association, estimates a rigid SE(3) alignment without changing metric scale,
+and reports translational ATE RMSE plus consecutive-pose RPE translation and
+rotation RMSE. It also reports estimated-pose match ratio and ground-truth
+duration coverage so a short or incomplete trajectory cannot be judged by
+accuracy alone.
+
+```bash
+./build/evaluate_trajectory groundtruth.txt estimate.txt 0.02 report.csv
+./build/compare_slam_trajectories \
+    groundtruth.txt baseline.txt adaptive.txt comparison.csv
+```
+
+On the first 200 frames of the real TUM `rgbd_dataset_freiburg1_xyz` sequence,
+the baseline produces all 200 poses; 198 associate within 0.02 seconds. Its ATE
+is `0.0241339 m`, RPE translation is `0.00492338 m`, and RPE rotation is
+`0.00610731 rad`. Duration coverage is `0.227318` because this run intentionally
+uses only the first 200 frames.
+
+The same frames with the synthetic Stage 16 model produce ATE `0.024611 m` and
+655 fewer map points. This slight accuracy decrease is reported rather than
+hidden: the model is synthetic and uncalibrated for TUM. The result verifies the
+paired experiment path, not an adaptive-method improvement claim. The Release
+suite passes 15/15 tests.
+
 ## Reproducibility Policy
 
 Each runnable development stage will include:

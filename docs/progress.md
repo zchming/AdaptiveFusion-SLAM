@@ -1158,3 +1158,76 @@ The saved model and fixture validate persistence and causality only. The model
 was trained on synthetic episodes, while the 2-by-2 fixture cannot produce
 visual tracks. Real paired evaluation, model calibration, recovery-state exit,
 and runtime profiling remain.
+
+## Stage 17: Trajectory Evaluation and Real TUM Smoke Experiment
+
+### Evaluation Definitions
+
+Estimated poses are associated one-to-one with nearest ground-truth timestamps
+within 0.02 seconds. A rigid Umeyama alignment maps the estimated world frame to
+the ground-truth world frame without scale correction.
+
+Absolute Trajectory Error is:
+
+```text
+ATE_RMSE = sqrt(mean(||p_gt - (R_align * p_est + t_align)||^2))
+```
+
+Relative Pose Error compares consecutive matched motions:
+
+```text
+delta_gt  = inverse(T_gt_i)  * T_gt_(i+1)
+delta_est = inverse(T_est_i) * T_est_(i+1)
+error     = inverse(delta_gt) * delta_est
+```
+
+Translation RPE uses the norm of `error.translation`; rotation RPE uses its
+angle-axis magnitude. Match ratio is matched estimates divided by all estimated
+poses. Duration coverage is matched ground-truth time span divided by the full
+ground-truth span.
+
+### Controlled Geometry Test
+
+A synthetic ten-pose path is transformed by an arbitrary global rigid pose.
+Alignment reduces ATE to `2.89389e-16 m`. Adding nonlinear translation and
+rotation drift produces:
+
+```text
+ATE translation RMSE: 0.00661266 m
+RPE translation RMSE: 0.0248341 m
+RPE rotation RMSE:    0.010401 rad
+```
+
+This confirms that global frame offset is removed while real drift remains.
+
+### Real TUM Freiburg1 XYZ, First 200 Frames
+
+The dataset already present at
+`/home/zchming/slam_learning/rgbd_dataset_freiburg1_xyz` was processed twice.
+Both modes use identical images, calibration, timestamp tolerance, and frame
+limit. Adaptive mode loads the synthetic Stage 16 model.
+
+```text
+metric                      baseline       adaptive
+processed frames                 200            200
+valid trajectory poses           200            200
+matched ground-truth poses       198            198
+estimated match ratio           0.99           0.99
+duration coverage           0.227318       0.227318
+ATE RMSE (m)               0.0241339       0.024611
+RPE translation RMSE (m) 0.00492338     0.00498389
+RPE rotation RMSE (rad)  0.00610731     0.00611786
+keyframes                         17             18
+map points                     11950          11295
+local BA runs                     16             17
+```
+
+Adaptive applied 178 low, 2 medium, 3 high, and 17 critical decisions. It froze
+map updates on 17 frames and reduced map growth by 655 points, while trajectory
+accuracy became slightly worse. Because the model learned only synthetic
+patterns and the run covers 22.7% of the sequence duration, this is an
+integration result rather than evidence for the research hypothesis.
+
+The next stage should process the full sequence, add frame runtime and failure
+statistics to the report, then generate real-sequence training/validation data
+before calibrating and rerunning the adaptive model.

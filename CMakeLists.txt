@@ -30,6 +30,7 @@ add_library(adaptivefusion_slam
     src/temporal_risk_predictor.cpp
     src/sparse_map.cpp
     src/trajectory.cpp
+    src/trajectory_evaluator.cpp
     src/tum_rgbd_dataset.cpp
 )
 
@@ -78,6 +79,14 @@ add_executable(simulate_risk_adaptive_mapping
     app/simulate_risk_adaptive_mapping.cpp
 )
 
+add_executable(evaluate_trajectory
+    app/evaluate_trajectory.cpp
+)
+
+add_executable(compare_slam_trajectories
+    app/compare_slam_trajectories.cpp
+)
+
 target_link_libraries(run_rgbd_odometry
     PRIVATE
         adaptivefusion_slam
@@ -97,6 +106,9 @@ target_link_libraries(simulate_risk_adaptive_mapping
     PRIVATE
         adaptivefusion_slam
 )
+
+target_link_libraries(evaluate_trajectory PRIVATE adaptivefusion_slam)
+target_link_libraries(compare_slam_trajectories PRIVATE adaptivefusion_slam)
 
 target_link_libraries(run_feature_frontend
     PRIVATE
@@ -267,4 +279,15 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME risk_adaptive_policy COMMAND test_risk_adaptive_policy)
+
+    add_executable(test_trajectory_evaluator
+        tests/test_trajectory_evaluator.cpp
+    )
+
+    target_link_libraries(test_trajectory_evaluator
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(NAME trajectory_evaluator COMMAND test_trajectory_evaluator)
 endif()
