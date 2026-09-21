@@ -52,9 +52,17 @@ int main(int argc, char* argv[]) {
         const adaptive_fusion_slam::KeyframePolicy keyframe_policy;
         std::size_t bundle_adjustment_runs = 0;
         double latest_bundle_adjustment_rmse = 0.0;
+        const std::string health_path = std::string(argv[2]) + ".health.csv";
+        std::ofstream health_output(health_path);
+        if (!health_output) {
+            throw std::runtime_error("Cannot open geometric-health CSV file.");
+        }
+        adaptive_fusion_slam::writeGeometricHealthCsvHeader(health_output);
 
         for (std::size_t index = 0; index < frame_count; ++index) {
             const auto result = odometry.process(dataset.loadFrame(index));
+            adaptive_fusion_slam::writeGeometricHealthCsvRow(
+                health_output, result.health);
             trajectory.addFrame(result.frame);
             if (keyframe_policy.shouldInsert(
                     result.frame, sparse_map.lastKeyframe())) {
@@ -90,6 +98,7 @@ int main(int argc, char* argv[]) {
                   << "Local BA runs: " << bundle_adjustment_runs << '\n'
                   << "Latest local BA RMSE: "
                   << latest_bundle_adjustment_rmse << " pixels\n"
+                  << "Geometric health file: " << health_path << '\n'
                   << "Trajectory file: " << argv[2]
                   << std::endl;
     } catch (const std::exception& error) {

@@ -5,6 +5,7 @@
 
 #include "camera.h"
 #include "frame.h"
+#include "geometric_health.h"
 #include "lk_optical_flow_tracker.h"
 #include "orb_feature_extractor.h"
 #include "orb_feature_matcher.h"
@@ -30,6 +31,7 @@ struct RgbdOdometryConfig {
     OrbFeatureConfig orb_features;
     OrbMatcherConfig orb_matching;
     LkOpticalFlowConfig lk_tracking;
+    GeometricHealthConfig geometric_health;
     DepthConversionConfig depth_conversion;
     PnpRansacConfig pnp;
 };
@@ -42,6 +44,7 @@ struct OdometryResult {
     std::size_t orb_matches = 0;
     std::size_t rgbd_correspondences = 0;
     PoseEstimate relative_pose;
+    GeometricHealth health;
 };
 
 class RgbdOdometry {
@@ -58,6 +61,7 @@ private:
     LkOpticalFlowTracker optical_flow_tracker_;
     RgbdCorrespondenceBuilder correspondence_builder_;
     PnpPoseEstimator pose_estimator_;
+    GeometricHealthMonitor health_monitor_;
     std::optional<Frame> reference_frame_;
     std::size_t next_frame_id_ = 0;
 };

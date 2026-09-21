@@ -52,7 +52,8 @@ RgbdOdometry::RgbdOdometry(Camera camera, RgbdOdometryConfig config)
       feature_matcher_(config.orb_matching),
       optical_flow_tracker_(config.lk_tracking),
       correspondence_builder_(camera_, config.depth_conversion),
-      pose_estimator_(camera_, config.pnp) {}
+      pose_estimator_(camera_, config.pnp),
+      health_monitor_(config.geometric_health) {}
 
 OdometryResult RgbdOdometry::process(const RgbdFrame& rgbd_frame) {
     OdometryResult result;
@@ -61,11 +62,15 @@ OdometryResult RgbdOdometry::process(const RgbdFrame& rgbd_frame) {
     result.frame.rgb_image = rgbd_frame.rgb_image;
     result.frame.depth_image = rgbd_frame.depth_image;
     result.frame.features = feature_extractor_.extract(rgbd_frame.rgb_image);
+    result.health.frame_id = result.frame.id;
+    result.health.timestamp = result.frame.association.rgb_timestamp;
+    result.health.feature_count = result.frame.features.keypoints.size();
 
     if (!reference_frame_) {
         result.frame.pose_world_from_camera = Eigen::Isometry3d::Identity();
         result.frame.pose_valid = true;
         result.status = TrackingStatus::Initialized;
+        result.health.tracking_success = true;
         reference_frame_ = result.frame;
         return result;
     }
@@ -82,9 +87,11 @@ OdometryResult RgbdOdometry::process(const RgbdFrame& rgbd_frame) {
         pixel_correspondences);
     result.rgbd_correspondences = rgbd_correspondences.size();
     result.relative_pose = pose_estimator_.estimate(rgbd_correspondences);
+    bool orb_fallback_attempted = false;
     if (result.relative_pose.success) {
         result.method = TrackingMethod::LkOpticalFlow;
     } else {
+        orb_fallback_attempted = true;
         const auto matches = feature_matcher_.match(
             reference_frame_->features.descriptors,
             result.frame.features.descriptors);
@@ -100,6 +107,17 @@ OdometryResult RgbdOdometry::process(const RgbdFrame& rgbd_frame) {
             result.method = TrackingMethod::OrbMatching;
         }
     }
+
+    result.health = health_monitor_.compute(
+        result.frame.rgb_image.size(),
+        pixel_correspondences,
+        rgbd_correspondences.size(),
+        tracks,
+        result.relative_pose);
+    result.health.frame_id = result.frame.id;
+    result.health.timestamp = result.frame.association.rgb_timestamp;
+    result.health.feature_count = result.frame.features.keypoints.size();
+    result.health.used_orb_fallback = orb_fallback_attempted;
 
     if (!result.relative_pose.success) {
         result.status = TrackingStatus::Lost;
