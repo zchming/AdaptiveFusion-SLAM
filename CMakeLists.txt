@@ -25,6 +25,7 @@ add_library(adaptivefusion_slam
     src/pnp_pose_estimator.cpp
     src/rgbd_correspondence_builder.cpp
     src/rgbd_odometry.cpp
+    src/temporal_risk_predictor.cpp
     src/sparse_map.cpp
     src/trajectory.cpp
     src/tum_rgbd_dataset.cpp
@@ -67,12 +68,21 @@ add_executable(simulate_failure_dataset
     app/simulate_failure_dataset.cpp
 )
 
+add_executable(simulate_risk_prediction
+    app/simulate_risk_prediction.cpp
+)
+
 target_link_libraries(run_rgbd_odometry
     PRIVATE
         adaptivefusion_slam
 )
 
 target_link_libraries(simulate_failure_dataset
+    PRIVATE
+        adaptivefusion_slam
+)
+
+target_link_libraries(simulate_risk_prediction
     PRIVATE
         adaptivefusion_slam
 )
@@ -220,5 +230,19 @@ if(BUILD_TESTING)
     add_test(
         NAME failure_prediction_dataset
         COMMAND test_failure_prediction_dataset
+    )
+
+    add_executable(test_temporal_risk_predictor
+        tests/test_temporal_risk_predictor.cpp
+    )
+
+    target_link_libraries(test_temporal_risk_predictor
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(
+        NAME temporal_risk_predictor
+        COMMAND test_temporal_risk_predictor
     )
 endif()

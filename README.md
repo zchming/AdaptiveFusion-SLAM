@@ -176,7 +176,8 @@ The final evaluation will compare:
 - [x] Implement local bundle adjustment
 - [x] Record per-frame geometric health signals
 - [x] Build the tracking-failure event dataset
-- [ ] Implement and calibrate the temporal risk predictor
+- [x] Implement the first temporal risk prediction baseline
+- [ ] Calibrate the temporal risk predictor on real sequences
 - [ ] Add risk-adaptive frontend and map-update policies
 - [ ] Perform benchmark and ablation experiments
 - [ ] Release reproducible results and documentation
@@ -441,6 +442,36 @@ frames. The Release suite passes 12/12 tests.
 The current dataset contains deterministic labels and unnormalized raw
 features. It does not yet train a predictor, balance classes, split sequences
 without leakage, or calibrate output probabilities.
+
+## Stage 14: Interpretable Temporal Risk Baseline
+
+The first predictor converts each five-frame health window into 21 explanatory
+variables: the latest value, temporal mean, and least-squares slope of each of
+the seven health signals. A class-balanced, L2-regularized logistic regression
+then outputs the probability of failure within the three-frame horizon.
+
+Feature means and standard deviations are fitted only on training sequences.
+Training uses stable sigmoid evaluation and balanced class weights so the fewer
+failure-warning samples are not ignored. Evaluation reports accuracy, AUROC,
+AUPRC, Brier score, and mean lead time among correctly warned failures.
+
+The held-out simulation uses separate episodes with unseen failure times and
+degradation lengths:
+
+```bash
+./build/simulate_risk_prediction results/my_risk_predictions.csv
+```
+
+It trains on 202 windows and evaluates 119 held-out windows, including 15
+positives. Results are `0.957983` accuracy, `0.997436` AUROC, `0.983824` AUPRC,
+`0.0366757` Brier score, and 2-frame mean warning lead. All 15 positives are
+detected at threshold 0.5, with five false warnings. The Release suite passes
+13/13 tests.
+
+These strong values are expected on controlled synthetic trends and are not
+evidence of real-world performance. Model persistence, real-sequence fitting,
+probability calibration, threshold selection, and cross-dataset validation
+remain to be implemented.
 
 ## Reproducibility Policy
 

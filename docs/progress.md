@@ -964,3 +964,66 @@ The next stage will normalize these temporal features and implement a first
 probabilistic risk baseline. Real predictive claims require multiple natural
 sequences, sequence-level train/test separation, class balancing, and AUROC,
 AUPRC, calibration, and warning-lead-time evaluation.
+
+## Stage 14: Interpretable Temporal Risk Prediction Baseline
+
+### Model Input
+
+For each of the seven health signals, the encoder calculates:
+
+- `latest`: the value available at the current frame;
+- `mean`: average condition across the complete history window;
+- `slope`: least-squares change per frame across the window.
+
+This creates 21 variables from a five-frame window. The slope distinguishes a
+stable mediocre observation from a rapidly deteriorating sequence.
+
+### Training
+
+The baseline is binary logistic regression:
+
+```text
+risk = sigmoid(bias + weights * normalized_temporal_features)
+```
+
+Normalization mean and standard deviation are computed from training samples
+only. Batch gradient descent uses balanced positive/negative class weights and
+L2 regularization. Both classes are required, feature dimensions are checked,
+and numerically stable sigmoid branches prevent overflow.
+
+### Metrics
+
+- Accuracy measures decisions at risk threshold 0.5.
+- AUROC measures ranking across all possible thresholds.
+- AUPRC emphasizes the less frequent future-failure class.
+- Brier score measures probability error and is lower when probabilities are
+  both discriminative and well calibrated.
+- Mean warning lead counts frames from a true positive warning to first failure.
+
+### Held-Out Simulation
+
+Training and test windows come from separate synthetic episodes. Failure time,
+degradation duration, and small baseline variations change between episodes.
+No window from a test episode participates in normalization or fitting.
+
+```text
+Training samples:          202
+Held-out test samples:     119
+Positive test samples:      15
+True positives:             15
+False negatives:             0
+False positives:             5
+True negatives:             99
+Accuracy:              0.957983
+AUROC:                 0.997436
+AUPRC:                 0.983824
+Brier score:           0.0366757
+Mean warning lead:             2 frames
+Release CTest:             13/13 passed
+```
+
+The five false positives occur in late but still negative degradation windows,
+showing the threshold tradeoff that later calibration must address. Synthetic
+metrics validate implementation and experimental plumbing only. The next stage
+will connect live risk values to explicit low/medium/high/critical policies and
+measure whether interventions reduce failure or map contamination.
