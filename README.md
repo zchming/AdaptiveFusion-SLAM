@@ -6,7 +6,11 @@ AdaptiveFusion-SLAM is a research-oriented RGB-D visual SLAM system designed to 
 
 The project is implemented incrementally from a minimal SLAM pipeline instead of directly modifying an existing complete system. Its long-term goal is to provide a reproducible platform for studying tracking-failure forecasting, risk-aware frontend control, and selective map updating.
 
-> Current status: early development. The research hypotheses and modules described below have not yet been experimentally validated.
+> Current status: v0.1 research prototype. The complete causal RGB-D pipeline,
+> risk-adaptive policy, trajectory evaluation, runtime profiling, and controlled
+> degradation benchmark are runnable. The predictor is still trained on
+> synthetic episodes, so the research hypothesis is not yet validated across
+> real datasets.
 
 ## Motivation
 
@@ -180,8 +184,9 @@ The final evaluation will compare:
 - [ ] Calibrate the temporal risk predictor on real sequences
 - [x] Add risk-adaptive frontend and map-update policies
 - [x] Add model persistence and causal online risk control
-- [ ] Perform benchmark and ablation experiments
-- [ ] Release reproducible results and documentation
+- [x] Add baseline/adaptive benchmarks and controlled degradation experiments
+- [x] Release reproducible v0.1 results and documentation
+- [ ] Calibrate and validate on multiple real-world datasets
 
 ## Build
 
@@ -256,8 +261,19 @@ adaptive loop with:
 ```
 
 Set `1000` to the desired maximum frame count; omitting the model keeps baseline
-mode. The runner additionally writes `.health.csv`, `.failure_dataset.csv`, and
-`.risk.csv` files beside the trajectory.
+mode. The runner additionally writes `.health.csv`, `.failure_dataset.csv`,
+`.risk.csv`, and `.summary.csv` files beside the trajectory. The summary
+contains tracking failures and recoveries, map size, runtime percentiles, and
+FPS. Add an optional degradation mode for a reproducible stress test:
+
+```bash
+./build/run_rgbd_odometry \
+    /path/to/tum_sequence degraded.txt 200 - blur
+```
+
+The supported modes are `none`, `blur`, `dark`, `occlusion`, `noise`, and
+`drop`. Passing `-` keeps baseline control while retaining the fifth argument
+position.
 
 ## Current Runnable Pipeline
 
@@ -562,6 +578,24 @@ The same frames with the synthetic Stage 16 model produce ATE `0.024611 m` and
 hidden: the model is synthetic and uncalibrated for TUM. The result verifies the
 paired experiment path, not an adaptive-method improvement claim. The Release
 suite passes 15/15 tests.
+
+## Stage 18: Reproducible v0.1 Benchmark
+
+The full 792-frame TUM Freiburg1 XYZ RGB-D sequence now runs in both baseline
+and adaptive modes. Adaptive control keeps all poses, reduces keyframes from
+114 to 92 and map points from 79,790 to 63,983, and increases measured
+throughput from 16.65 to 20.87 FPS. Aligned ATE changes from 0.06208 m to
+0.06244 m, so this experiment supports lower mapping cost rather than an
+accuracy-improvement claim.
+
+The runner can deterministically inject motion blur, low light, central
+occlusion, Gaussian noise, or every-tenth-frame loss. Baseline and adaptive
+200-frame results for all five conditions are committed in
+`results/stage_18_degradation_comparison.csv`. The drop experiment causes 20
+lost frames and 19 one-frame recoveries in both modes; adaptive mapping stores
+10,710 points instead of 12,015 while preserving the same 90% tracking success
+rate. See `results/stage_18_v0.1_release.md` for commands, tables, scope, and
+interpretation. Release CTest passes 16/16 tests.
 
 ## Reproducibility Policy
 

@@ -1231,3 +1231,51 @@ integration result rather than evidence for the research hypothesis.
 The next stage should process the full sequence, add frame runtime and failure
 statistics to the report, then generate real-sequence training/validation data
 before calibrating and rerunning the adaptive model.
+
+## Stage 18: Controlled Degradation, Runtime Profiling, and v0.1 Closure
+
+### Goal
+
+Finish the first end-to-end research prototype with deterministic sensor-stress
+experiments and enough runtime and recovery measurements to compare baseline
+and adaptive operation reproducibly.
+
+### Implementation
+
+`ImageDegrader` operates on each synchronized frame before feature extraction.
+Motion blur convolves a horizontal line kernel; low light scales intensity;
+occlusion masks the image center; Gaussian noise uses a frame-index seed; and
+drop replaces every tenth RGB frame with a uniform image. The depth image is
+left unchanged, which isolates visual degradation.
+
+`run_rgbd_odometry` now measures end-to-end per-frame time including loading,
+degradation, tracking, policy evaluation, mapping, and local BA. It counts lost
+frames, completed recoveries, lost-streak length, map size, and optimization
+runs, then writes a sidecar `.summary.csv`.
+
+### Full-Sequence Result
+
+On all 792 associated frames of TUM Freiburg1 XYZ, both modes retain 792 poses
+and achieve 100% tracking success. Baseline/adaptive ATE is 0.062081/0.062442 m.
+Adaptive control reduces keyframes from 114 to 92, landmarks from 79,790 to
+63,983, BA runs from 113 to 90, and runtime from 47.57 to 37.94 seconds.
+Throughput rises from 16.65 to 20.87 FPS.
+
+### Degradation Result
+
+Baseline and adaptive modes were each run on the first 200 frames under blur,
+darkness, occlusion, noise, and every-tenth-frame loss. The first four retain
+100% tracking success. Frame loss produces 20 lost frames, 19 completed
+one-frame recoveries, and 90% success in both modes. Adaptive mode reduces the
+drop-case map from 12,015 to 10,710 points and changes ATE from 0.024499 to
+0.023557 m. Other conditions show mixed small accuracy changes, which is
+expected because the committed model is synthetic and uncalibrated.
+
+### Test and Project Status
+
+Release CTest passes 16/16 tests. Version 0.1 now provides a runnable loop from
+RGB-D input through trajectory/map output and quantitative evaluation. The
+engineering prototype is complete. Validation of the research hypothesis
+still requires sequence-level real training splits, probability calibration,
+reactive and component ablations, loop closure/relocalization, additional
+datasets, and physical-camera integration.

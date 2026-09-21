@@ -15,6 +15,7 @@ add_library(adaptivefusion_slam
     src/camera.cpp
     src/failure_prediction_dataset.cpp
     src/geometric_health.cpp
+    src/image_degradation.cpp
     src/keyframe.cpp
     src/keyframe_policy.cpp
     src/lk_optical_flow_tracker.cpp
@@ -290,4 +291,10 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME trajectory_evaluator COMMAND test_trajectory_evaluator)
+
+    add_executable(test_image_degradation
+        tests/test_image_degradation.cpp
+    )
+    target_link_libraries(test_image_degradation PRIVATE adaptivefusion_slam)
+    add_test(NAME image_degradation COMMAND test_image_degradation)
 endif()
