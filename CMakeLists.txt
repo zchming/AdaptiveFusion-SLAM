@@ -13,6 +13,7 @@ find_package(Ceres 2.2 REQUIRED)
 
 add_library(adaptivefusion_slam
     src/camera.cpp
+    src/failure_prediction_dataset.cpp
     src/geometric_health.cpp
     src/keyframe.cpp
     src/keyframe_policy.cpp
@@ -62,7 +63,16 @@ add_executable(run_rgbd_odometry
     app/run_rgbd_odometry.cpp
 )
 
+add_executable(simulate_failure_dataset
+    app/simulate_failure_dataset.cpp
+)
+
 target_link_libraries(run_rgbd_odometry
+    PRIVATE
+        adaptivefusion_slam
+)
+
+target_link_libraries(simulate_failure_dataset
     PRIVATE
         adaptivefusion_slam
 )
@@ -197,4 +207,18 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME geometric_health COMMAND test_geometric_health)
+
+    add_executable(test_failure_prediction_dataset
+        tests/test_failure_prediction_dataset.cpp
+    )
+
+    target_link_libraries(test_failure_prediction_dataset
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(
+        NAME failure_prediction_dataset
+        COMMAND test_failure_prediction_dataset
+    )
 endif()

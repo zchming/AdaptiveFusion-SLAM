@@ -898,3 +898,69 @@ zero while the failure flags remain available for label generation.
 The next stage will maintain a fixed-length temporal health window and generate
 short-horizon future-failure labels. A geometric conditioning measure and
 benchmark-derived normalization statistics are not implemented yet.
+
+## Stage 13: Temporal Health Windows and Failure Labels
+
+### Goal and Label Definition
+
+A predictor must use only information available at the current time while its
+training target comes from the future. For history length `L` and horizon `H`,
+the sample anchored at frame `t` is:
+
+```text
+input  = [health_(t-L+1), ..., health_t]
+label  = 1 if any tracking failure occurs in [t+1, ..., t+H]
+```
+
+The default is `L=5`, `H=3`. Every history frame must have a real tracking
+measurement and successful pose, so a sample cannot use an already-lost state
+to predict that tracking is failing. Initialization and windows containing a
+past failure are skipped.
+
+### Feature Layout
+
+Each time step contains seven ordered values:
+
+```text
+[inlier ratio, reprojection error, forward-backward error,
+ spatial coverage, median parallax, valid-depth ratio, ORB fallback]
+```
+
+`frames_until_failure` records the first lost-frame offset from 1 through `H`.
+For negative samples, `H+1` is the explicit no-failure sentinel. CSV columns
+are flattened as `h0_*` through `h(L-1)_*` for later model training.
+
+### Real and Simulated Integration
+
+After sequence processing, `run_rgbd_odometry` now generates:
+
+```text
+trajectory.txt
+trajectory.txt.health.csv
+trajectory.txt.failure_dataset.csv
+```
+
+The standalone simulator creates 24 health frames. Geometry is stable through
+frame 8, degrades progressively from frames 9 to 14, fails at frame 15, and
+then recovers. The current frame remains successful at every positive anchor.
+
+```text
+Usable temporal samples:        11
+Negative samples:                8
+Positive samples:                3
+Frame 12 warning lead time:      3
+Frame 13 warning lead time:      2
+Frame 14 warning lead time:      1
+Release CTest:                   12/12 passed
+```
+
+At frame 12, inlier ratio has fallen to `0.578571` and reprojection error has
+risen to `1.84286` pixels, but ORB fallback has not yet occurred. At frames 13
+and 14, fallback is active while the remaining lead time falls to two and one
+frames. This demonstrates the intended distinction between a current failure
+detector and a future-failure label.
+
+The next stage will normalize these temporal features and implement a first
+probabilistic risk baseline. Real predictive claims require multiple natural
+sequences, sequence-level train/test separation, class balancing, and AUROC,
+AUPRC, calibration, and warning-lead-time evaluation.

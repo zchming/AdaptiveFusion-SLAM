@@ -175,7 +175,7 @@ The final evaluation will compare:
 - [x] Associate map points across adjacent keyframes
 - [x] Implement local bundle adjustment
 - [x] Record per-frame geometric health signals
-- [ ] Build the tracking-failure event dataset
+- [x] Build the tracking-failure event dataset
 - [ ] Implement and calibrate the temporal risk predictor
 - [ ] Add risk-adaptive frontend and map-update policies
 - [ ] Perform benchmark and ablation experiments
@@ -411,6 +411,36 @@ The Release suite passes 11/11 tests.
 These are raw per-frame signals. Temporal windows, conditioning indicators,
 future-failure labels, normalization, prediction, and risk calibration remain
 for subsequent stages.
+
+## Stage 13: Temporal Windows and Future-Failure Labels
+
+The dataset builder converts per-frame health records into fixed temporal
+windows. With default history length `L=5` and prediction horizon `H=3`, a
+sample anchored at frame `t` contains health from `[t-4, t]` and receives a
+positive label when any frame in `[t+1, t+3]` is lost. Only anchors with a
+complete measured and successful history are retained, ensuring that each
+positive sample represents a warning made before failure.
+
+Each time step contributes seven features: inlier ratio, reprojection error,
+LK forward-backward error, spatial coverage, median parallax, valid-depth
+ratio, and ORB-fallback use. `frames_until_failure` stores the warning lead
+time; `H+1` denotes no failure inside the prediction horizon.
+
+`run_rgbd_odometry` now writes `<trajectory>.failure_dataset.csv` after the
+health log. A standalone `simulate_failure_dataset` executable creates a
+24-frame controlled sequence with gradual degradation and failure at frame 15:
+
+```bash
+./build/simulate_failure_dataset results/my_simulation.csv
+```
+
+It produces 11 usable samples: eight negative samples and three positive
+warnings anchored at frames 12, 13, and 14, with lead times of 3, 2, and 1
+frames. The Release suite passes 12/12 tests.
+
+The current dataset contains deterministic labels and unnormalized raw
+features. It does not yet train a predictor, balance classes, split sequences
+without leakage, or calibrate output probabilities.
 
 ## Reproducibility Policy
 
