@@ -171,7 +171,7 @@ The final evaluation will compare:
 - [x] Build metric RGB-D 3D-to-2D correspondences
 - [x] Estimate camera pose using RGB-D correspondences and PnP
 - [x] Add persistent frame state and trajectory accumulation
-- [ ] Add keyframe and map-point representations
+- [x] Add keyframe and map-point representations
 - [ ] Implement local bundle adjustment
 - [ ] Record per-frame geometric health signals
 - [ ] Build the tracking-failure event dataset
@@ -301,6 +301,15 @@ Ratio + mutual filtering      Forward-backward filtering
                       |
                       v
             TUM trajectory file
+                      |
+                      v
+     Trusted-pose keyframe selection
+                      |
+                      v
+ Valid-depth features transformed to world
+                      |
+                      v
+       Sparse map points + observations
 ```
 
 The camera projection model is now connected to LK tracks through validated
@@ -309,6 +318,9 @@ relative rotation and translation while rejecting geometric outliers.
 The odometry loop keeps a trusted reference frame, uses LK as its normal path,
 falls back to ORB matching after LK/PnP failure, and excludes lost frames from
 the accumulated trajectory.
+Trusted poses may become keyframes after minimum spacing and motion checks.
+Only their valid-depth ORB features create metric world map points; invalid
+frames cannot enter the sparse map.
 
 ## Project Structure
 

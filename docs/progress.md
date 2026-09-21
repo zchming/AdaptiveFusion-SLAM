@@ -651,3 +651,99 @@ The system is now a minimal continuous RGB-D visual odometry implementation.
 It still lacks native calibration loading, real-sequence validation, keyframes,
 map points, local optimization, and the temporal risk predictor required for the
 final AdaptiveFusion-SLAM system.
+
+## Stage 9: Keyframes and Sparse Map Points
+
+### Goal
+
+Introduce persistent keyframes, world-coordinate map points, feature-to-point
+associations, observation records, and a conservative keyframe selection policy
+without allowing failed tracking frames to modify the map.
+
+### Keyframe State
+
+A keyframe copies the trusted source frame's id, RGB timestamp, world pose,
+RGB-D images, ORB keypoints, and descriptors. It also owns one optional map-point
+id for every feature index. Construction rejects invalid or non-finite poses and
+inconsistent keypoint/descriptor counts.
+
+### Map-Point State
+
+Each map point stores:
+
+- a stable numeric id;
+- a finite 3D position in the world coordinate system;
+- one representative 32-byte ORB descriptor;
+- observations identified by `(keyframe_id, feature_index)`.
+
+For a valid-depth keyframe feature, the camera-frame point is transformed by:
+
+```text
+P_world = T_world_from_camera * P_camera
+```
+
+The originating keyframe feature stores the new map-point id, while the map
+point stores the reverse observation. This bidirectional relation is required
+for later reprojection, local optimization, and observation counting.
+
+### Keyframe Selection
+
+The default policy requires at least five frames since the previous keyframe.
+After that spacing, a frame is selected when translation reaches 0.15 meters or
+rotation reaches 0.15 radians. A keyframe is forced after 20 frames even when
+motion is smaller. The first valid frame is always selected; a frame with an
+invalid pose is never selected.
+
+Selection thresholds limit redundant map growth. They are baseline engineering
+values rather than experimentally optimized parameters and will later be
+modified by predicted tracking risk.
+
+### Transactional Map Insertion
+
+Keyframe construction, depth validation, map-point creation, and associations
+are completed in temporary objects first. The new objects are committed to the
+sparse map only after the entire insertion succeeds, preventing partially
+written map state after an exception.
+
+### Reproduction Commands
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+ctest --test-dir build --output-on-failure
+./build/test_sparse_map
+./build/run_rgbd_odometry tests/data/tum_sample /tmp/trajectory.txt 3
+```
+
+### Controlled Test Result
+
+A trusted frame contains three ORB features. Two have valid depths of 2 and 1
+meters, while the third has zero depth. The frame pose translates camera points
+by `(1, 2, 0)` meters into the world.
+
+```text
+Sparse-map test passed with 1 keyframe and 2 metric map points;
+invalid and redundant frame insertion was rejected.
+CTest: 9/9 passed
+```
+
+The test verifies camera-to-world conversion, descriptor retention, the
+keyframe-feature to map-point link, the reverse observation, motion-based
+selection, and rejection of invalid poses. The repository's 2 x 2 fixture
+creates one initial keyframe but zero points because it contains no ORB features.
+
+### Implemented Pipeline After Stage 9
+
+1. Process the RGB-D sequence and estimate trusted world poses.
+2. Evaluate frame gap, translation, and rotation against the latest keyframe.
+3. Reject lost frames and nearby redundant frames.
+4. Copy an accepted frame into persistent keyframe state.
+5. Validate feature depths and back-project camera-frame points.
+6. Transform valid points into world coordinates.
+7. Store one descriptor and initial observation per new map point.
+8. Link every originating keyframe feature to its map-point id.
+
+This is a sparse-map foundation, not yet a complete map-management system.
+Points observed in different keyframes are not yet fused into shared landmarks,
+and keyframe poses or point positions are not yet jointly optimized. Those are
+the next requirements for local bundle adjustment and risk-adaptive map updates.
