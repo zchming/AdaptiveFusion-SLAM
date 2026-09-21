@@ -12,6 +12,42 @@ The project is implemented incrementally from a minimal SLAM pipeline instead of
 > synthetic episodes, so the research hypothesis is not yet validated across
 > real datasets.
 
+## Quantitative Results
+
+Full TUM `rgbd_dataset_freiburg1_xyz` sequence:
+
+| Metric | Baseline | Adaptive | Change |
+|---|---:|---:|---:|
+| Valid poses | 792 | 792 | maintained |
+| Tracking success | 100% | 100% | maintained |
+| ATE RMSE | 0.062081 m | 0.062442 m | +0.58% |
+| RPE translation | 0.005518 m | 0.005537 m | +0.34% |
+| Keyframes | 114 | 92 | -19.3% |
+| Map points | 79,790 | 63,983 | -19.8% |
+| Local BA runs | 113 | 90 | -20.4% |
+| Mean frame time | 60.07 ms | 47.91 ms | -20.2% |
+| Throughput | 16.65 FPS | 20.87 FPS | +25.4% |
+
+Five controlled RGB degradation experiments are included: motion blur, low
+light, central occlusion, Gaussian noise, and every-tenth-frame loss.
+
+| Degradation | Mode | Success | ATE (m) | Keyframes | Map points | FPS |
+|---|---|---:|---:|---:|---:|---:|
+| Blur | baseline | 100% | 0.032742 | 17 | 10,046 | 14.66 |
+| Blur | adaptive | 100% | 0.032108 | 17 | 9,252 | 14.24 |
+| Dark | baseline | 100% | 0.025468 | 16 | 10,046 | 25.53 |
+| Dark | adaptive | 100% | 0.025000 | 17 | 10,099 | 24.80 |
+| Occlusion | baseline | 100% | 0.052648 | 22 | 17,623 | 23.70 |
+| Occlusion | adaptive | 100% | 0.054455 | 20 | 15,289 | 24.78 |
+| Noise | baseline | 100% | 0.025805 | 17 | 12,625 | 18.26 |
+| Noise | adaptive | 100% | 0.026300 | 18 | 11,933 | 17.85 |
+| Drop | baseline | 90% | 0.024499 | 17 | 12,015 | 23.38 |
+| Drop | adaptive | 90% | 0.023557 | 16 | 10,710 | 23.55 |
+
+See the [Chinese resume-ready description](docs/resume_project_zh.md), the
+[full v0.1 report](results/stage_18_v0.1_release.md), and the
+[machine-readable experiment table](results/stage_18_degradation_comparison.csv).
+
 ## Motivation
 
 Conventional visual SLAM systems usually react after tracking quality has already deteriorated:
