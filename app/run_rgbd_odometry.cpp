@@ -3,8 +3,10 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "camera.h"
+#include "failure_prediction_dataset.h"
 #include "keyframe_policy.h"
 #include "rgbd_odometry.h"
 #include "sparse_map.h"
@@ -52,6 +54,7 @@ int main(int argc, char* argv[]) {
         const adaptive_fusion_slam::KeyframePolicy keyframe_policy;
         std::size_t bundle_adjustment_runs = 0;
         double latest_bundle_adjustment_rmse = 0.0;
+        std::vector<adaptive_fusion_slam::GeometricHealth> health_sequence;
         const std::string health_path = std::string(argv[2]) + ".health.csv";
         std::ofstream health_output(health_path);
         if (!health_output) {
@@ -63,6 +66,7 @@ int main(int argc, char* argv[]) {
             const auto result = odometry.process(dataset.loadFrame(index));
             adaptive_fusion_slam::writeGeometricHealthCsvRow(
                 health_output, result.health);
+            health_sequence.push_back(result.health);
             trajectory.addFrame(result.frame);
             if (keyframe_policy.shouldInsert(
                     result.frame, sparse_map.lastKeyframe())) {
@@ -90,6 +94,21 @@ int main(int argc, char* argv[]) {
             throw std::runtime_error("Cannot open trajectory output file.");
         }
         trajectory.writeTum(trajectory_output);
+        const adaptive_fusion_slam::FailurePredictionDatasetBuilder
+            dataset_builder;
+        const auto prediction_samples =
+            dataset_builder.build(health_sequence);
+        const std::string prediction_dataset_path =
+            std::string(argv[2]) + ".failure_dataset.csv";
+        std::ofstream prediction_dataset_output(prediction_dataset_path);
+        if (!prediction_dataset_output) {
+            throw std::runtime_error(
+                "Cannot open failure-prediction dataset file.");
+        }
+        adaptive_fusion_slam::writeFailurePredictionCsv(
+            prediction_dataset_output,
+            prediction_samples,
+            dataset_builder.config().history_length);
         std::cout << "Processed frames: " << frame_count << '\n'
                   << "Valid trajectory poses: " << trajectory.poses().size()
                   << '\n'
@@ -99,6 +118,10 @@ int main(int argc, char* argv[]) {
                   << "Latest local BA RMSE: "
                   << latest_bundle_adjustment_rmse << " pixels\n"
                   << "Geometric health file: " << health_path << '\n'
+                  << "Failure dataset samples: "
+                  << prediction_samples.size() << '\n'
+                  << "Failure dataset file: "
+                  << prediction_dataset_path << '\n'
                   << "Trajectory file: " << argv[2]
                   << std::endl;
     } catch (const std::exception& error) {
