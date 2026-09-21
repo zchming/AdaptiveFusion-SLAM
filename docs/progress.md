@@ -787,3 +787,60 @@ Release CTest with warnings:         9/9 passed
 The next stage is local bundle adjustment over shared observations. Association
 currently searches only the latest keyframe; it does not update landmark
 descriptors or positions, cull outliers, or search a covisibility neighborhood.
+
+## Stage 11: Local Bundle Adjustment
+
+### Goal and Physical Meaning
+
+Tracking estimates each camera motion locally, so small errors accumulate.
+Bundle adjustment uses the fact that one physical point is seen by several
+keyframes: camera poses and point positions are changed together until their
+predicted image locations agree with all measured keypoints.
+
+For observation `i,j`, the residual is:
+
+```text
+e_ij = measured_pixel_ij
+       - project(T_camera_i_from_world * point_world_j)
+```
+
+`pose_camera_from_world` contains a three-value angle-axis rotation followed by
+three translation values. `point_world` contains the map point's `x, y, z`.
+Each residual contributes horizontal and vertical pixel error.
+
+### Implementation
+
+- Ceres Solver 2.2 supplies automatic differentiation and nonlinear solving.
+- The default local window contains the latest five keyframes.
+- Only landmarks observed by at least two window keyframes are optimized.
+- The oldest window pose is fixed, removing the unconstrained global gauge.
+- `DENSE_SCHUR` exploits the camera/landmark block structure.
+- Valid 16-bit RGB-D values add weighted metric-depth residuals, preventing the
+  camera translation and scene depth from changing by a common scale.
+- A Huber loss with 2-pixel transition limits outlier influence.
+- The solver runs for at most 20 iterations by default.
+- Results are written into copied keyframes and points, then swapped into the
+  sparse map only when Ceres reports a usable solution.
+- The sequence runner starts local BA after a new keyframe reobserves existing
+  landmarks and reports optimization count and final pixel RMSE.
+
+### Controlled Result
+
+Two cameras observe six 3D points, producing 12 observations. The second camera
+pose and all points begin with deterministic perturbations.
+
+```text
+Initial true reprojection RMSE: 11.797 pixels
+Final true reprojection RMSE:   8.54062e-06 pixels
+Keyframes in local window:      2
+Shared points optimized:        6
+Observations used:              12
+Depth observations used:        12
+Metric translation error:       1.07056e-07 m
+Anchor pose unchanged:          yes
+Release CTest:                  10/10 passed
+```
+
+This validates the local optimizer on controlled geometry. Natural-sequence
+accuracy, runtime, outlier removal, covisibility selection,
+and trajectory/map state synchronization still require later stages.

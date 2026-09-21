@@ -173,7 +173,7 @@ The final evaluation will compare:
 - [x] Add persistent frame state and trajectory accumulation
 - [x] Add keyframe and map-point representations
 - [x] Associate map points across adjacent keyframes
-- [ ] Implement local bundle adjustment
+- [x] Implement local bundle adjustment
 - [ ] Record per-frame geometric health signals
 - [ ] Build the tracking-failure event dataset
 - [ ] Implement and calibrate the temporal risk predictor
@@ -190,10 +190,11 @@ The project currently requires:
 - CMake
 - Eigen3
 - OpenCV 4.6
+- Ceres Solver 2.2
 
 OpenCV is used for RGB-D image loading, ORB features, descriptor matching, and
-LK optical flow. g2o, Ceres, and additional dependencies will be enabled as
-their corresponding modules are implemented.
+LK optical flow. Ceres performs local bundle adjustment. g2o and additional
+dependencies will be enabled when their corresponding modules are implemented.
 
 ```bash
 cmake -S . -B build
@@ -359,6 +360,31 @@ tracking, PnP trajectory accumulation, keyframe selection, metric map creation,
 and cross-keyframe landmark association. Association currently searches only
 the latest keyframe; local bundle adjustment, covisibility search, landmark
 culling, geometric-health history, and proactive failure prediction remain.
+
+## Stage 11: Local Bundle Adjustment
+
+Ceres Solver 2.2 now jointly refines the poses and shared map points in the
+latest five-keyframe window. For every observation it minimizes the 2D
+reprojection residual between the measured ORB keypoint and the projection of
+the world point through the current camera pose. Only points with at least two
+window observations participate.
+
+The first pose in the window is fixed to preserve the world coordinate gauge.
+The remaining poses use angle-axis rotation plus translation, map points use
+three world coordinates, and valid RGB-D samples add depth residuals that lock
+the reconstruction to metric scale. A 2-pixel Huber loss reduces outlier
+influence. A usable solution is copied back transactionally. The RGB-D runner
+invokes local BA after a keyframe reobserves existing landmarks.
+
+In the deterministic test, two cameras observe six points through 12 image
+measurements. Starting with perturbed pose and point estimates, true pixel RMSE
+falls from `11.797` to `8.54062e-06`; the fixed anchor remains unchanged. The
+complete Release test suite passes 10/10 tests.
+
+Current BA uses visual reprojection and RGB-D depth residuals in a small latest-
+keyframe window. It does not yet remove outlier observations, construct a
+covisibility window, or synchronize optimized keyframe poses back
+into the already-written odometry trajectory.
 
 ## Reproducibility Policy
 

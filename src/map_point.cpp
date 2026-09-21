@@ -33,6 +33,13 @@ const Eigen::Vector3d& MapPoint::positionWorld() const {
     return position_world_;
 }
 
+void MapPoint::setPositionWorld(const Eigen::Vector3d& position_world) {
+    if (!position_world.allFinite()) {
+        throw std::invalid_argument("Map-point position must be finite.");
+    }
+    position_world_ = position_world;
+}
+
 const cv::Mat& MapPoint::descriptor() const {
     return descriptor_;
 }

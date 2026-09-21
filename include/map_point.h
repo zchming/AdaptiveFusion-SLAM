@@ -23,6 +23,7 @@ public:
 
     std::size_t id() const;
     const Eigen::Vector3d& positionWorld() const;
+    void setPositionWorld(const Eigen::Vector3d& position_world);
     const cv::Mat& descriptor() const;
     const std::vector<MapObservation>& observations() const;
     bool addObservation(MapObservation observation);
