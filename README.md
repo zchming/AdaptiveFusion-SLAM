@@ -6,7 +6,11 @@ AdaptiveFusion-SLAM is a research-oriented RGB-D visual SLAM system designed to 
 
 The project is implemented incrementally from a minimal SLAM pipeline instead of directly modifying an existing complete system. Its long-term goal is to provide a reproducible platform for studying tracking-failure forecasting, risk-aware frontend control, and selective map updating.
 
-> Current status: early development. The research hypotheses and modules described below have not yet been experimentally validated.
+> Current status: v0.1 research prototype. The complete causal RGB-D pipeline,
+> risk-adaptive policy, trajectory evaluation, runtime profiling, and controlled
+> degradation benchmark are runnable. The predictor is still trained on
+> synthetic episodes, so the research hypothesis is not yet validated across
+> real datasets.
 
 ## Motivation
 
@@ -232,8 +236,19 @@ adaptive loop with:
 ```
 
 Set `1000` to the desired maximum frame count; omitting the model keeps baseline
-mode. The runner additionally writes `.health.csv`, `.failure_dataset.csv`, and
-`.risk.csv` files beside the trajectory.
+mode. The runner additionally writes `.health.csv`, `.failure_dataset.csv`,
+`.risk.csv`, and `.summary.csv` files beside the trajectory. The summary
+contains tracking failures and recoveries, map size, runtime percentiles, and
+FPS. Add an optional degradation mode for a reproducible stress test:
+
+```bash
+./build/run_rgbd_odometry \
+    /path/to/tum_sequence degraded.txt 200 - blur
+```
+
+The supported modes are `none`, `blur`, `dark`, `occlusion`, `noise`, and
+`drop`. Passing `-` keeps baseline control while retaining the fifth argument
+position.
 
 ## Current Runnable Pipeline
 

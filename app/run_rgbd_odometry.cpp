@@ -1,14 +1,17 @@
 #include <algorithm>
+#include <chrono>
 #include <exception>
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <numeric>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "camera.h"
 #include "failure_prediction_dataset.h"
+#include "image_degradation.h"
 #include "keyframe_policy.h"
 #include "online_risk_controller.h"
 #include "rgbd_odometry.h"
@@ -34,9 +37,10 @@ const char* statusName(adaptive_fusion_slam::TrackingStatus status) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    if (argc < 3 || argc > 5) {
+    if (argc < 3 || argc > 6) {
         std::cerr << "Usage: run_rgbd_odometry <dataset_root> "
-                     "<trajectory.txt> [max_frames] [risk_model.txt]"
+                     "<trajectory.txt> [max_frames] [risk_model.txt|-] "
+                     "[none|blur|dark|occlusion|noise|drop]"
                   << std::endl;
         return 1;
     }
@@ -57,7 +61,7 @@ int main(int argc, char* argv[]) {
         const adaptive_fusion_slam::KeyframePolicy keyframe_policy;
         std::unique_ptr<adaptive_fusion_slam::OnlineRiskController>
             risk_controller;
-        if (argc == 5) {
+        if (argc >= 5 && std::string(argv[4]) != "-") {
             std::ifstream model_input(argv[4]);
             if (!model_input) {
                 throw std::runtime_error("Cannot open risk model file.");
@@ -68,10 +72,22 @@ int main(int argc, char* argv[]) {
                 std::make_unique<adaptive_fusion_slam::OnlineRiskController>(
                     std::move(predictor));
         }
+        adaptive_fusion_slam::ImageDegradationConfig degradation_config;
+        if (argc == 6) {
+            degradation_config.type =
+                adaptive_fusion_slam::parseImageDegradationType(argv[5]);
+        }
+        const adaptive_fusion_slam::ImageDegrader degrader(degradation_config);
         adaptive_fusion_slam::RiskAdaptiveDecision current_decision;
         std::size_t bundle_adjustment_runs = 0;
         double latest_bundle_adjustment_rmse = 0.0;
         std::vector<adaptive_fusion_slam::GeometricHealth> health_sequence;
+        std::vector<double> frame_times_ms;
+        std::size_t lost_frames = 0;
+        std::size_t current_lost_streak = 0;
+        std::size_t recovery_events = 0;
+        std::size_t total_recovery_frames = 0;
+        std::size_t maximum_recovery_frames = 0;
         const std::string health_path = std::string(argv[2]) + ".health.csv";
         std::ofstream health_output(health_path);
         if (!health_output) {
@@ -88,11 +104,14 @@ int main(int argc, char* argv[]) {
                        "allow_new_map_points,map_frozen\n";
 
         for (std::size_t index = 0; index < frame_count; ++index) {
+            const auto frame_start = std::chrono::steady_clock::now();
             const auto applied_decision = current_decision;
+            const auto input_frame =
+                degrader.apply(dataset.loadFrame(index), index);
             const auto result = risk_controller
                 ? odometry.process(
-                      dataset.loadFrame(index), applied_decision)
-                : odometry.process(dataset.loadFrame(index));
+                      input_frame, applied_decision)
+                : odometry.process(input_frame);
             adaptive_fusion_slam::OnlineRiskResult next_risk;
             if (risk_controller) {
                 next_risk = risk_controller->observe(result.health);
@@ -135,6 +154,19 @@ int main(int argc, char* argv[]) {
                     }
                 }
             }
+            if (result.status == adaptive_fusion_slam::TrackingStatus::Lost) {
+                ++lost_frames;
+                ++current_lost_streak;
+            } else if (current_lost_streak > 0) {
+                ++recovery_events;
+                total_recovery_frames += current_lost_streak;
+                maximum_recovery_frames = std::max(
+                    maximum_recovery_frames, current_lost_streak);
+                current_lost_streak = 0;
+            }
+            const auto frame_end = std::chrono::steady_clock::now();
+            frame_times_ms.push_back(std::chrono::duration<double, std::milli>(
+                frame_end - frame_start).count());
             std::cerr << "Frame " << index << ": "
                       << statusName(result.status)
                       << ", RGB-D correspondences "
@@ -149,6 +181,8 @@ int main(int argc, char* argv[]) {
             throw std::runtime_error("Cannot open trajectory output file.");
         }
         trajectory.writeTum(trajectory_output);
+        maximum_recovery_frames = std::max(
+            maximum_recovery_frames, current_lost_streak);
         const adaptive_fusion_slam::FailurePredictionDatasetBuilder
             dataset_builder;
         const auto prediction_samples =
@@ -164,6 +198,53 @@ int main(int argc, char* argv[]) {
             prediction_dataset_output,
             prediction_samples,
             dataset_builder.config().history_length);
+        std::vector<double> sorted_frame_times = frame_times_ms;
+        std::sort(sorted_frame_times.begin(), sorted_frame_times.end());
+        const double total_runtime_seconds =
+            std::accumulate(frame_times_ms.begin(), frame_times_ms.end(), 0.0) /
+            1000.0;
+        const double mean_frame_time_ms = frame_times_ms.empty()
+            ? 0.0
+            : total_runtime_seconds * 1000.0 / frame_times_ms.size();
+        const auto percentile = [&sorted_frame_times](double fraction) {
+            if (sorted_frame_times.empty()) return 0.0;
+            const std::size_t index = static_cast<std::size_t>(
+                fraction * static_cast<double>(sorted_frame_times.size() - 1));
+            return sorted_frame_times[index];
+        };
+        const double tracking_success_rate = frame_count == 0
+            ? 0.0
+            : static_cast<double>(frame_count - lost_frames) /
+                  static_cast<double>(frame_count);
+        const std::string summary_path = std::string(argv[2]) + ".summary.csv";
+        std::ofstream summary_output(summary_path);
+        if (!summary_output) {
+            throw std::runtime_error("Cannot open runtime summary file.");
+        }
+        summary_output << "mode,degradation,processed_frames,valid_poses,"
+                          "lost_frames,tracking_success_rate,recovery_events,"
+                          "mean_recovery_frames,max_recovery_frames,keyframes,"
+                          "map_points,local_ba_runs,total_runtime_s,mean_frame_ms,"
+                          "p50_frame_ms,p95_frame_ms,fps\n"
+                       << (risk_controller ? "adaptive" : "baseline") << ','
+                       << adaptive_fusion_slam::imageDegradationName(
+                              degradation_config.type) << ','
+                       << frame_count << ',' << trajectory.poses().size() << ','
+                       << lost_frames << ',' << tracking_success_rate << ','
+                       << recovery_events << ','
+                       << (recovery_events == 0
+                               ? 0.0
+                               : static_cast<double>(total_recovery_frames) /
+                                     recovery_events) << ','
+                       << maximum_recovery_frames << ','
+                       << sparse_map.keyframes().size() << ','
+                       << sparse_map.mapPoints().size() << ','
+                       << bundle_adjustment_runs << ',' << total_runtime_seconds
+                       << ',' << mean_frame_time_ms << ',' << percentile(0.50)
+                       << ',' << percentile(0.95) << ','
+                       << (total_runtime_seconds > 0.0
+                               ? frame_count / total_runtime_seconds
+                               : 0.0) << '\n';
         std::cout << "Processed frames: " << frame_count << '\n'
                   << "Valid trajectory poses: " << trajectory.poses().size()
                   << '\n'
@@ -176,6 +257,18 @@ int main(int argc, char* argv[]) {
                   << "Online risk mode: "
                   << (risk_controller ? "adaptive" : "baseline") << '\n'
                   << "Online risk file: " << risk_path << '\n'
+                  << "Degradation: "
+                  << adaptive_fusion_slam::imageDegradationName(
+                         degradation_config.type) << '\n'
+                  << "Lost frames: " << lost_frames << '\n'
+                  << "Tracking success rate: " << tracking_success_rate << '\n'
+                  << "Mean frame time: " << mean_frame_time_ms << " ms\n"
+                  << "P95 frame time: " << percentile(0.95) << " ms\n"
+                  << "FPS: "
+                  << (total_runtime_seconds > 0.0
+                          ? frame_count / total_runtime_seconds
+                          : 0.0) << '\n'
+                  << "Runtime summary file: " << summary_path << '\n'
                   << "Failure dataset samples: "
                   << prediction_samples.size() << '\n'
                   << "Failure dataset file: "
