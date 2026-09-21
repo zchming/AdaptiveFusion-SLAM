@@ -7,6 +7,7 @@
 
 #include "camera.h"
 #include "rgbd_odometry.h"
+#include "risk_adaptive_policy.h"
 #include "trajectory.h"
 
 namespace {
@@ -141,6 +142,28 @@ int main() {
         fallback_result.method ==
             adaptive_fusion_slam::TrackingMethod::OrbMatching,
         "failed LK tracking should select ORB matching fallback");
+
+    adaptive_fusion_slam::RgbdOdometry risk_odometry(camera);
+    risk_odometry.process(makeRgbdFrame(3.0, first_image));
+    const adaptive_fusion_slam::RiskAdaptivePolicy risk_policy;
+    const auto high_risk_result = risk_odometry.process(
+        makeRgbdFrame(3.1, second_image), risk_policy.decide(0.70));
+    passed &= check(
+        high_risk_result.status ==
+                adaptive_fusion_slam::TrackingStatus::Tracked &&
+            high_risk_result.method ==
+                adaptive_fusion_slam::TrackingMethod::OrbMatching,
+        "high risk should force ORB redetection even when LK is available");
+
+    adaptive_fusion_slam::RgbdOdometry critical_odometry(camera);
+    critical_odometry.process(makeRgbdFrame(4.0, first_image));
+    const auto critical_result = critical_odometry.process(
+        makeRgbdFrame(4.1, second_image), risk_policy.decide(0.90));
+    passed &= check(
+        critical_result.status == adaptive_fusion_slam::TrackingStatus::Tracked &&
+            critical_odometry.referenceFrame() != nullptr &&
+            critical_odometry.referenceFrame()->id == 0,
+        "critical risk should preserve the last trusted reference frame");
 
     if (!passed) {
         return 1;

@@ -11,6 +11,7 @@
 #include "orb_feature_matcher.h"
 #include "pnp_pose_estimator.h"
 #include "rgbd_correspondence_builder.h"
+#include "risk_adaptive_policy.h"
 #include "tum_rgbd_dataset.h"
 
 namespace adaptive_fusion_slam {
@@ -52,6 +53,9 @@ public:
     RgbdOdometry(Camera camera, RgbdOdometryConfig config = {});
 
     OdometryResult process(const RgbdFrame& rgbd_frame);
+    OdometryResult process(
+        const RgbdFrame& rgbd_frame,
+        const RiskAdaptiveDecision& decision);
     const Frame* referenceFrame() const;
 
 private:

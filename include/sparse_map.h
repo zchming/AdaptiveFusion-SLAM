@@ -17,6 +17,12 @@ struct KeyframeInsertionResult {
     std::size_t keyframe_id;
     std::size_t map_points_created;
     std::size_t existing_map_points_observed;
+    std::size_t map_points_suppressed;
+};
+
+struct MapUpdatePermission {
+    bool allow_existing_observations = true;
+    bool allow_new_map_points = true;
 };
 
 struct MapAssociationConfig {
@@ -33,7 +39,9 @@ public:
         OrbMatcherConfig matcher_config = {},
         MapAssociationConfig association_config = {});
 
-    KeyframeInsertionResult insertKeyframe(const Frame& frame);
+    KeyframeInsertionResult insertKeyframe(
+        const Frame& frame,
+        MapUpdatePermission permission = {});
     LocalBundleAdjustmentResult optimizeLocalMap(
         LocalBundleAdjustmentConfig config = {});
     const std::vector<Keyframe>& keyframes() const;

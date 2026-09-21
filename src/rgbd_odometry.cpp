@@ -56,6 +56,12 @@ RgbdOdometry::RgbdOdometry(Camera camera, RgbdOdometryConfig config)
       health_monitor_(config.geometric_health) {}
 
 OdometryResult RgbdOdometry::process(const RgbdFrame& rgbd_frame) {
+    return process(rgbd_frame, RiskAdaptiveDecision{});
+}
+
+OdometryResult RgbdOdometry::process(
+    const RgbdFrame& rgbd_frame,
+    const RiskAdaptiveDecision& decision) {
     OdometryResult result;
     result.frame.id = next_frame_id_++;
     result.frame.association = rgbd_frame.association;
@@ -81,14 +87,18 @@ OdometryResult RgbdOdometry::process(const RgbdFrame& rgbd_frame) {
         reference_frame_->features.keypoints);
     result.lk_tracks = tracks.size();
 
-    auto pixel_correspondences = makeLkCorrespondences(tracks);
-    auto rgbd_correspondences = correspondence_builder_.build(
+    const auto lk_pixel_correspondences = makeLkCorrespondences(tracks);
+    const auto lk_rgbd_correspondences = correspondence_builder_.build(
         reference_frame_->depth_image,
-        pixel_correspondences);
+        lk_pixel_correspondences);
+    auto pixel_correspondences = lk_pixel_correspondences;
+    auto rgbd_correspondences = lk_rgbd_correspondences;
     result.rgbd_correspondences = rgbd_correspondences.size();
-    result.relative_pose = pose_estimator_.estimate(rgbd_correspondences);
+    if (!decision.force_orb_redetection) {
+        result.relative_pose = pose_estimator_.estimate(rgbd_correspondences);
+    }
     bool orb_fallback_attempted = false;
-    if (result.relative_pose.success) {
+    if (result.relative_pose.success && !decision.enable_orb_verification) {
         result.method = TrackingMethod::LkOpticalFlow;
     } else {
         orb_fallback_attempted = true;
@@ -102,9 +112,22 @@ OdometryResult RgbdOdometry::process(const RgbdFrame& rgbd_frame) {
             reference_frame_->depth_image,
             pixel_correspondences);
         result.rgbd_correspondences = rgbd_correspondences.size();
-        result.relative_pose = pose_estimator_.estimate(rgbd_correspondences);
-        if (result.relative_pose.success) {
+        const PoseEstimate orb_pose =
+            pose_estimator_.estimate(rgbd_correspondences);
+        const bool prefer_orb = orb_pose.success &&
+            (!result.relative_pose.success ||
+             orb_pose.inlier_ratio > result.relative_pose.inlier_ratio ||
+             (orb_pose.inlier_ratio == result.relative_pose.inlier_ratio &&
+              orb_pose.mean_reprojection_error_pixels <
+                  result.relative_pose.mean_reprojection_error_pixels));
+        if (prefer_orb) {
+            result.relative_pose = orb_pose;
             result.method = TrackingMethod::OrbMatching;
+        } else if (result.relative_pose.success) {
+            result.method = TrackingMethod::LkOpticalFlow;
+            pixel_correspondences = lk_pixel_correspondences;
+            rgbd_correspondences = lk_rgbd_correspondences;
+            result.rgbd_correspondences = rgbd_correspondences.size();
         }
     }
 
@@ -131,7 +154,9 @@ OdometryResult RgbdOdometry::process(const RgbdFrame& rgbd_frame) {
         current_from_previous.inverse();
     result.frame.pose_valid = true;
     result.status = TrackingStatus::Tracked;
-    reference_frame_ = result.frame;
+    if (!decision.preserve_trusted_reference) {
+        reference_frame_ = result.frame;
+    }
     return result;
 }
 

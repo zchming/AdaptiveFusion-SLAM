@@ -4,6 +4,7 @@
 
 #include "frame.h"
 #include "keyframe.h"
+#include "risk_adaptive_policy.h"
 
 namespace adaptive_fusion_slam {
 
@@ -19,6 +20,10 @@ public:
     explicit KeyframePolicy(KeyframePolicyConfig config = {});
 
     bool shouldInsert(const Frame& frame, const Keyframe* last_keyframe) const;
+    bool shouldInsert(
+        const Frame& frame,
+        const Keyframe* last_keyframe,
+        const RiskAdaptiveDecision& decision) const;
     const KeyframePolicyConfig& config() const;
 
 private:
