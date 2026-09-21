@@ -57,6 +57,8 @@ int main() {
                     "first keyframe id should be zero");
     passed &= check(insertion.map_points_created == 2,
                     "only two features should have valid depth");
+    passed &= check(insertion.existing_map_points_observed == 0,
+                    "first keyframe cannot observe an existing point");
     passed &= check(sparse_map.keyframes().size() == 1,
                     "map should contain one keyframe");
     passed &= check(sparse_map.mapPoints().size() == 2,
@@ -125,15 +127,61 @@ int main() {
                         sparse_map.mapPoints().size() == 2,
                     "failed insertion must not partially modify the map");
 
+    adaptive_fusion_slam::Frame second_frame = frame;
+    second_frame.id = 10;
+    second_frame.association.rgb_timestamp = 1.1;
+    second_frame.features.keypoints.push_back(
+        cv::KeyPoint(500.0F, 350.0F, 31.0F));
+    cv::Mat second_descriptors(4, 32, CV_8UC1);
+    frame.features.descriptors.copyTo(second_descriptors.rowRange(0, 3));
+    second_descriptors.row(3).setTo(cv::Scalar(40));
+    second_frame.features.descriptors = second_descriptors;
+    second_frame.depth_image.at<std::uint16_t>(350, 500) = 7500;
+
+    const auto second_insertion = sparse_map.insertKeyframe(second_frame);
+    passed &= check(second_insertion.keyframe_id == 1,
+                    "second keyframe id should be one");
+    passed &= check(second_insertion.existing_map_points_observed == 2,
+                    "two geometrically consistent points should be reused");
+    passed &= check(second_insertion.map_points_created == 1,
+                    "only the unmatched valid-depth feature should create a point");
+    passed &= check(sparse_map.keyframes().size() == 2 &&
+                        sparse_map.mapPoints().size() == 3,
+                    "association should prevent duplicate map points");
+    passed &= check(sparse_map.mapPoints()[0].observations().size() == 2 &&
+                        sparse_map.mapPoints()[1].observations().size() == 2,
+                    "reused map points should record both observations");
+    const auto& second_ids = sparse_map.keyframes()[1].mapPointIds();
+    passed &= check(second_ids[0] && *second_ids[0] == 0 &&
+                        second_ids[1] && *second_ids[1] == 1 &&
+                        second_ids[3] && *second_ids[3] == 2,
+                    "second keyframe should link reused and new map points");
+
+    adaptive_fusion_slam::SparseMap geometry_checked_map(camera);
+    geometry_checked_map.insertKeyframe(frame);
+    adaptive_fusion_slam::Frame inconsistent_frame = frame;
+    inconsistent_frame.id = 11;
+    inconsistent_frame.features.keypoints[0].pt.x += 50.0F;
+    inconsistent_frame.depth_image.at<std::uint16_t>(240, 370) = 10000;
+    const auto inconsistent_insertion =
+        geometry_checked_map.insertKeyframe(inconsistent_frame);
+    passed &= check(inconsistent_insertion.existing_map_points_observed == 1 &&
+                        inconsistent_insertion.map_points_created == 1,
+                    "descriptor agreement must not override a bad reprojection");
+    passed &= check(
+        geometry_checked_map.keyframes()[1].mapPointIds()[0] &&
+            *geometry_checked_map.keyframes()[1].mapPointIds()[0] == 2,
+        "geometrically inconsistent feature should create a separate point");
+
     if (!passed) {
         return 1;
     }
 
     std::cout << "Sparse-map test passed with "
-              << sparse_map.keyframes().size() << " keyframe and "
+              << sparse_map.keyframes().size() << " keyframes and "
               << sparse_map.mapPoints().size()
-              << " metric map points; invalid and redundant frame insertion "
-                 "was rejected."
+              << " metric map points; cross-keyframe observations were "
+                 "associated and failed insertions were isolated."
               << std::endl;
     return 0;
 }
