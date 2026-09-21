@@ -9,12 +9,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV 4.6 REQUIRED COMPONENTS calib3d core features2d imgcodecs imgproc video)
+find_package(Ceres 2.2 REQUIRED)
 
 add_library(adaptivefusion_slam
     src/camera.cpp
     src/keyframe.cpp
     src/keyframe_policy.cpp
     src/lk_optical_flow_tracker.cpp
+    src/local_bundle_adjuster.cpp
     src/map_point.cpp
     src/orb_feature_extractor.cpp
     src/orb_feature_matcher.cpp
@@ -34,6 +36,7 @@ target_include_directories(adaptivefusion_slam
 target_link_libraries(adaptivefusion_slam
     PUBLIC
         Eigen3::Eigen
+        Ceres::ceres
         ${OpenCV_LIBS}
 )
 
@@ -171,4 +174,15 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME sparse_map COMMAND test_sparse_map)
+
+    add_executable(test_local_bundle_adjuster
+        tests/test_local_bundle_adjuster.cpp
+    )
+
+    target_link_libraries(test_local_bundle_adjuster
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(NAME local_bundle_adjuster COMMAND test_local_bundle_adjuster)
 endif()

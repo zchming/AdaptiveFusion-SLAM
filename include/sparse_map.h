@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "frame.h"
 #include "keyframe.h"
+#include "local_bundle_adjuster.h"
 #include "map_point.h"
 #include "orb_feature_matcher.h"
 #include "rgbd_correspondence_builder.h"
@@ -33,6 +34,8 @@ public:
         MapAssociationConfig association_config = {});
 
     KeyframeInsertionResult insertKeyframe(const Frame& frame);
+    LocalBundleAdjustmentResult optimizeLocalMap(
+        LocalBundleAdjustmentConfig config = {});
     const std::vector<Keyframe>& keyframes() const;
     const std::vector<MapPoint>& mapPoints() const;
     const Keyframe* lastKeyframe() const;

@@ -65,6 +65,13 @@ const std::vector<std::optional<std::size_t>>& Keyframe::mapPointIds() const {
     return map_point_ids_;
 }
 
+void Keyframe::setPoseWorldFromCamera(const Eigen::Isometry3d& pose) {
+    if (!pose.matrix().allFinite()) {
+        throw std::invalid_argument("Keyframe pose must be finite.");
+    }
+    pose_world_from_camera_ = pose;
+}
+
 void Keyframe::associateMapPoint(
     std::size_t feature_index,
     std::size_t map_point_id) {

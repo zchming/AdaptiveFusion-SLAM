@@ -157,6 +157,12 @@ KeyframeInsertionResult SparseMap::insertKeyframe(const Frame& frame) {
     };
 }
 
+LocalBundleAdjustmentResult SparseMap::optimizeLocalMap(
+    LocalBundleAdjustmentConfig config) {
+    LocalBundleAdjuster optimizer(camera_, config);
+    return optimizer.optimize(keyframes_, map_points_);
+}
+
 const std::vector<Keyframe>& SparseMap::keyframes() const {
     return keyframes_;
 }

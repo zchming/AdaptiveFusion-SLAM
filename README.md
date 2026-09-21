@@ -168,10 +168,11 @@ The project currently requires:
 - CMake
 - Eigen3
 - OpenCV 4.6
+- Ceres Solver 2.2
 
 OpenCV is used for RGB-D image loading, ORB features, descriptor matching, and
-LK optical flow. g2o, Ceres, and additional dependencies will be enabled as
-their corresponding modules are implemented.
+LK optical flow. Ceres performs local bundle adjustment. g2o and additional
+dependencies will be enabled when their corresponding modules are implemented.
 
 ```bash
 cmake -S . -B build

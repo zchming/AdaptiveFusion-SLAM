@@ -50,13 +50,23 @@ int main(int argc, char* argv[]) {
         adaptive_fusion_slam::Trajectory trajectory;
         adaptive_fusion_slam::SparseMap sparse_map(camera);
         const adaptive_fusion_slam::KeyframePolicy keyframe_policy;
+        std::size_t bundle_adjustment_runs = 0;
+        double latest_bundle_adjustment_rmse = 0.0;
 
         for (std::size_t index = 0; index < frame_count; ++index) {
             const auto result = odometry.process(dataset.loadFrame(index));
             trajectory.addFrame(result.frame);
             if (keyframe_policy.shouldInsert(
                     result.frame, sparse_map.lastKeyframe())) {
-                sparse_map.insertKeyframe(result.frame);
+                const auto insertion = sparse_map.insertKeyframe(result.frame);
+                if (insertion.existing_map_points_observed > 0) {
+                    const auto optimization = sparse_map.optimizeLocalMap();
+                    if (optimization.optimized) {
+                        ++bundle_adjustment_runs;
+                        latest_bundle_adjustment_rmse =
+                            optimization.final_reprojection_rmse;
+                    }
+                }
             }
             std::cerr << "Frame " << index << ": "
                       << statusName(result.status)
@@ -77,6 +87,9 @@ int main(int argc, char* argv[]) {
                   << '\n'
                   << "Keyframes: " << sparse_map.keyframes().size() << '\n'
                   << "Map points: " << sparse_map.mapPoints().size() << '\n'
+                  << "Local BA runs: " << bundle_adjustment_runs << '\n'
+                  << "Latest local BA RMSE: "
+                  << latest_bundle_adjustment_rmse << " pixels\n"
                   << "Trajectory file: " << argv[2]
                   << std::endl;
     } catch (const std::exception& error) {

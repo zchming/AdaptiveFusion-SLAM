@@ -25,6 +25,7 @@ public:
     const std::vector<cv::KeyPoint>& keypoints() const;
     const cv::Mat& descriptors() const;
     const std::vector<std::optional<std::size_t>>& mapPointIds() const;
+    void setPoseWorldFromCamera(const Eigen::Isometry3d& pose);
     void associateMapPoint(std::size_t feature_index, std::size_t map_point_id);
 
 private:
