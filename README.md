@@ -172,6 +172,7 @@ The final evaluation will compare:
 - [x] Estimate camera pose using RGB-D correspondences and PnP
 - [x] Add persistent frame state and trajectory accumulation
 - [x] Add keyframe and map-point representations
+- [x] Associate map points across adjacent keyframes
 - [ ] Implement local bundle adjustment
 - [ ] Record per-frame geometric health signals
 - [ ] Build the tracking-failure event dataset
@@ -339,6 +340,25 @@ AdaptiveFusion-SLAM/
 ```
 
 The structure will grow incrementally as each module becomes runnable and testable.
+
+## Stage 10: Cross-Keyframe Map-Point Association
+
+The sparse map now reuses a world landmark when the latest keyframe and a new
+keyframe observe the same scene point. ORB appearance proposes correspondence;
+positive camera depth, a 3-pixel reprojection gate, and optional RGB-D depth
+agreement verify that the match is physically plausible.
+
+Accepted features reuse the old map-point id and append an observation.
+Remaining features with valid depth create new world points. A controlled test
+reobserves two points, adds one new point, and keeps the total at three rather
+than creating duplicates. A descriptor-identical observation shifted by 50
+pixels is rejected by the geometry gate. The full suite passes 9/9 tests.
+
+The implemented chain now runs from synchronized RGB-D input through ORB/LK
+tracking, PnP trajectory accumulation, keyframe selection, metric map creation,
+and cross-keyframe landmark association. Association currently searches only
+the latest keyframe; local bundle adjustment, covisibility search, landmark
+culling, geometric-health history, and proactive failure prediction remain.
 
 ## Reproducibility Policy
 

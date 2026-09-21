@@ -747,3 +747,43 @@ This is a sparse-map foundation, not yet a complete map-management system.
 Points observed in different keyframes are not yet fused into shared landmarks,
 and keyframe poses or point positions are not yet jointly optimized. Those are
 the next requirements for local bundle adjustment and risk-adaptive map updates.
+
+## Stage 10: Cross-Keyframe Map-Point Association
+
+### Goal and Physical Meaning
+
+A physical scene point should keep one stable map identity when several
+keyframes observe it. Appearance proposes a correspondence, then geometry
+checks whether the existing 3D point predicts the new 2D observation and depth.
+
+### Implementation
+
+- ORB matching connects the latest and incoming keyframe descriptors.
+- `predicted_camera_point = T_camera_from_world * P_world` expresses an old
+  landmark in the incoming camera coordinate system.
+- Projection provides `predicted_pixel`; its distance from the keypoint must be
+  at most 3 pixels.
+- Valid incoming depth must agree within `max(0.15 m, 0.10 * predicted_depth)`.
+- Accepted observations reuse the existing id; unmatched valid-depth features
+  create new points.
+- A map point may have at most one observation from each keyframe.
+- Copied state is swapped into the live map only after the insertion succeeds.
+
+### Verification
+
+Two landmarks are observed again and one new valid-depth feature is introduced.
+The result is two keyframes and three points instead of five duplicate points.
+A separate descriptor-identical keypoint shifted by 50 pixels is rejected by
+the reprojection gate and becomes a distinct landmark.
+
+```text
+Existing points reobserved:          2
+New points created:                  1
+Total points after two keyframes:    3
+Descriptor-only false reuse blocked: yes
+Release CTest with warnings:         9/9 passed
+```
+
+The next stage is local bundle adjustment over shared observations. Association
+currently searches only the latest keyframe; it does not update landmark
+descriptors or positions, cull outliers, or search a covisibility neighborhood.

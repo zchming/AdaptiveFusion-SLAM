@@ -42,15 +42,18 @@ const std::vector<MapObservation>& MapPoint::observations() const {
 }
 
 bool MapPoint::addObservation(MapObservation observation) {
-    const auto duplicate = std::find_if(
+    const auto same_keyframe = std::find_if(
         observations_.begin(),
         observations_.end(),
         [&observation](const MapObservation& existing) {
-            return existing.keyframe_id == observation.keyframe_id &&
-                   existing.feature_index == observation.feature_index;
+            return existing.keyframe_id == observation.keyframe_id;
         });
-    if (duplicate != observations_.end()) {
-        return false;
+    if (same_keyframe != observations_.end()) {
+        if (same_keyframe->feature_index == observation.feature_index) {
+            return false;
+        }
+        throw std::logic_error(
+            "A map point cannot be observed twice in one keyframe.");
     }
     observations_.push_back(observation);
     return true;
