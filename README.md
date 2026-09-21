@@ -174,7 +174,7 @@ The final evaluation will compare:
 - [x] Add keyframe and map-point representations
 - [x] Associate map points across adjacent keyframes
 - [x] Implement local bundle adjustment
-- [ ] Record per-frame geometric health signals
+- [x] Record per-frame geometric health signals
 - [ ] Build the tracking-failure event dataset
 - [ ] Implement and calibrate the temporal risk predictor
 - [ ] Add risk-adaptive frontend and map-update policies
@@ -385,6 +385,32 @@ Current BA uses visual reprojection and RGB-D depth residuals in a small latest-
 keyframe window. It does not yet remove outlier observations, construct a
 covisibility window, or synchronize optimized keyframe poses back
 into the already-written odometry trajectory.
+
+## Stage 12: Per-Frame Geometric Health Monitoring
+
+Every processed frame now carries a `GeometricHealth` record. After the first
+initialization frame, it records tracking success and fallback use together
+with PnP inlier ratio, reprojection error, LK forward-backward error, feature
+coverage over a 4-by-3 image grid, median feature parallax, and valid-depth
+ratio. Counts for extracted features, candidate correspondences, and PnP
+inliers preserve the raw evidence behind normalized metrics.
+
+The odometry executable writes one row per input frame to
+`<trajectory-path>.health.csv`, including lost frames. Initialization is marked
+with `has_tracking_measurement=0`; later failed frames retain zero/partial
+measurements and `tracking_success=0` instead of disappearing from the dataset.
+This distinction is required to create future-failure labels without selection
+bias.
+
+A controlled four-correspondence test produces an inlier ratio of `0.75`, mean
+forward-backward error of `0.3` pixels, spatial coverage of `0.333333`, median
+parallax of `5` pixels, and valid-depth ratio of `0.5`. The continuous odometry
+test verifies both strong tracked-frame health and retained lost-frame evidence.
+The Release suite passes 11/11 tests.
+
+These are raw per-frame signals. Temporal windows, conditioning indicators,
+future-failure labels, normalization, prediction, and risk calibration remain
+for subsequent stages.
 
 ## Reproducibility Policy
 

@@ -13,6 +13,7 @@ find_package(Ceres 2.2 REQUIRED)
 
 add_library(adaptivefusion_slam
     src/camera.cpp
+    src/geometric_health.cpp
     src/keyframe.cpp
     src/keyframe_policy.cpp
     src/lk_optical_flow_tracker.cpp
@@ -185,4 +186,15 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME local_bundle_adjuster COMMAND test_local_bundle_adjuster)
+
+    add_executable(test_geometric_health
+        tests/test_geometric_health.cpp
+    )
+
+    target_link_libraries(test_geometric_health
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(NAME geometric_health COMMAND test_geometric_health)
 endif()

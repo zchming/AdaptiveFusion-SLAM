@@ -82,6 +82,11 @@ int main() {
         second_result.method ==
             adaptive_fusion_slam::TrackingMethod::LkOpticalFlow,
         "normal tracking should use LK optical flow");
+    passed &= check(second_result.health.has_tracking_measurement &&
+                        second_result.health.tracking_success &&
+                        second_result.health.inlier_ratio > 0.9 &&
+                        second_result.health.valid_depth_ratio > 0.9,
+                    "tracked frame should expose strong geometric health");
     passed &= check(trajectory.poses().size() == 2,
                     "trajectory should contain two valid poses");
     const Eigen::Vector3d expected_world_translation(
@@ -113,6 +118,10 @@ int main() {
     passed &= check(
         lost_result.status == adaptive_fusion_slam::TrackingStatus::Lost,
         "blank frame should be reported as lost");
+    passed &= check(lost_result.health.has_tracking_measurement &&
+                        !lost_result.health.tracking_success &&
+                        lost_result.health.used_orb_fallback,
+                    "lost frame should retain failed health evidence");
     passed &= check(trajectory.poses().size() == 2,
                     "lost frame must not enter the trajectory");
     passed &= check(odometry.referenceFrame() != nullptr &&

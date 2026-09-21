@@ -844,3 +844,57 @@ Release CTest:                  10/10 passed
 This validates the local optimizer on controlled geometry. Natural-sequence
 accuracy, runtime, outlier removal, covisibility selection,
 and trajectory/map state synchronization still require later stages.
+
+## Stage 12: Per-Frame Geometric Health Monitoring
+
+### Goal and Physical Meaning
+
+Tracking normally fails after several geometric signals have already degraded.
+This stage records those signals for every input frame so a later temporal model
+can learn deterioration trends before the final lost state.
+
+- `inlier_ratio`: fraction of metric correspondences accepted by PnP/RANSAC.
+- `mean_reprojection_error_pixels`: agreement between the estimated pose and
+  accepted image measurements.
+- `mean_forward_backward_error_pixels`: whether LK tracks return consistently
+  to their starting pixels.
+- `spatial_coverage`: occupied cells in a 4-by-3 image grid; clustered features
+  give weaker pose geometry than broadly distributed features.
+- `median_parallax_pixels`: robust typical feature displacement and therefore
+  the amount of inter-frame viewpoint information.
+- `valid_depth_ratio`: fraction of 2D correspondences with usable metric depth.
+- `tracking_success` and `used_orb_fallback`: final outcome and whether the
+  normal LK path had already failed.
+
+Raw feature, correspondence, and inlier counts are retained alongside ratios.
+The initialization frame is successful but explicitly has no tracking
+measurement. Failed frames remain in the health stream.
+
+### Runtime Integration
+
+`RgbdOdometry::process` computes health from the exact correspondences used for
+the final PnP attempt, plus the LK forward-backward evidence collected before a
+possible ORB fallback. `run_rgbd_odometry` writes one CSV row for every input to
+`<trajectory>.health.csv`.
+
+### Controlled Result
+
+```text
+PnP inlier ratio:             0.75
+Mean reprojection error:      0.8 pixels
+Mean forward-backward error:  0.3 pixels
+Spatial coverage:             0.333333
+Median parallax:              5 pixels
+Valid-depth ratio:            0.5
+Tracked/lost integration:     passed
+CSV round trip:               passed
+Release CTest:                11/11 passed
+```
+
+The repository's tiny fixture also writes all three rows: one initialization
+and two lost frames. Its images contain no features, so the geometric fields are
+zero while the failure flags remain available for label generation.
+
+The next stage will maintain a fixed-length temporal health window and generate
+short-horizon future-failure labels. A geometric conditioning measure and
+benchmark-derived normalization statistics are not implemented yet.
