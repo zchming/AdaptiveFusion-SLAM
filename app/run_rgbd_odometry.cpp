@@ -5,7 +5,9 @@
 #include <string>
 
 #include "camera.h"
+#include "keyframe_policy.h"
 #include "rgbd_odometry.h"
+#include "sparse_map.h"
 #include "trajectory.h"
 #include "tum_rgbd_dataset.h"
 
@@ -46,10 +48,16 @@ int main(int argc, char* argv[]) {
             517.3, 516.5, 318.6, 255.3);
         adaptive_fusion_slam::RgbdOdometry odometry(camera);
         adaptive_fusion_slam::Trajectory trajectory;
+        adaptive_fusion_slam::SparseMap sparse_map(camera);
+        const adaptive_fusion_slam::KeyframePolicy keyframe_policy;
 
         for (std::size_t index = 0; index < frame_count; ++index) {
             const auto result = odometry.process(dataset.loadFrame(index));
             trajectory.addFrame(result.frame);
+            if (keyframe_policy.shouldInsert(
+                    result.frame, sparse_map.lastKeyframe())) {
+                sparse_map.insertKeyframe(result.frame);
+            }
             std::cerr << "Frame " << index << ": "
                       << statusName(result.status)
                       << ", RGB-D correspondences "
@@ -67,6 +75,8 @@ int main(int argc, char* argv[]) {
         std::cout << "Processed frames: " << frame_count << '\n'
                   << "Valid trajectory poses: " << trajectory.poses().size()
                   << '\n'
+                  << "Keyframes: " << sparse_map.keyframes().size() << '\n'
+                  << "Map points: " << sparse_map.mapPoints().size() << '\n'
                   << "Trajectory file: " << argv[2]
                   << std::endl;
     } catch (const std::exception& error) {

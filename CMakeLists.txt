@@ -12,12 +12,16 @@ find_package(OpenCV 4.6 REQUIRED COMPONENTS calib3d core features2d imgcodecs im
 
 add_library(adaptivefusion_slam
     src/camera.cpp
+    src/keyframe.cpp
+    src/keyframe_policy.cpp
     src/lk_optical_flow_tracker.cpp
+    src/map_point.cpp
     src/orb_feature_extractor.cpp
     src/orb_feature_matcher.cpp
     src/pnp_pose_estimator.cpp
     src/rgbd_correspondence_builder.cpp
     src/rgbd_odometry.cpp
+    src/sparse_map.cpp
     src/trajectory.cpp
     src/tum_rgbd_dataset.cpp
 )
@@ -156,4 +160,15 @@ if(BUILD_TESTING)
     )
 
     add_test(NAME rgbd_odometry COMMAND test_rgbd_odometry)
+
+    add_executable(test_sparse_map
+        tests/test_sparse_map.cpp
+    )
+
+    target_link_libraries(test_sparse_map
+        PRIVATE
+            adaptivefusion_slam
+    )
+
+    add_test(NAME sparse_map COMMAND test_sparse_map)
 endif()
