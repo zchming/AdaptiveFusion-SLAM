@@ -2,12 +2,15 @@
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "camera.h"
 #include "failure_prediction_dataset.h"
 #include "keyframe_policy.h"
+#include "online_risk_controller.h"
 #include "rgbd_odometry.h"
 #include "sparse_map.h"
 #include "trajectory.h"
@@ -31,9 +34,9 @@ const char* statusName(adaptive_fusion_slam::TrackingStatus status) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    if (argc < 3 || argc > 4) {
+    if (argc < 3 || argc > 5) {
         std::cerr << "Usage: run_rgbd_odometry <dataset_root> "
-                     "<trajectory.txt> [max_frames]"
+                     "<trajectory.txt> [max_frames] [risk_model.txt]"
                   << std::endl;
         return 1;
     }
@@ -42,7 +45,7 @@ int main(int argc, char* argv[]) {
         adaptive_fusion_slam::TumRgbdDataset dataset(argv[1]);
         dataset.loadAssociations();
         const std::size_t requested_frames =
-            argc == 4 ? std::stoull(argv[3]) : dataset.size();
+            argc >= 4 ? std::stoull(argv[3]) : dataset.size();
         const std::size_t frame_count =
             std::min(requested_frames, dataset.size());
 
@@ -52,6 +55,20 @@ int main(int argc, char* argv[]) {
         adaptive_fusion_slam::Trajectory trajectory;
         adaptive_fusion_slam::SparseMap sparse_map(camera);
         const adaptive_fusion_slam::KeyframePolicy keyframe_policy;
+        std::unique_ptr<adaptive_fusion_slam::OnlineRiskController>
+            risk_controller;
+        if (argc == 5) {
+            std::ifstream model_input(argv[4]);
+            if (!model_input) {
+                throw std::runtime_error("Cannot open risk model file.");
+            }
+            adaptive_fusion_slam::TemporalRiskPredictor predictor;
+            predictor.load(model_input);
+            risk_controller =
+                std::make_unique<adaptive_fusion_slam::OnlineRiskController>(
+                    std::move(predictor));
+        }
+        adaptive_fusion_slam::RiskAdaptiveDecision current_decision;
         std::size_t bundle_adjustment_runs = 0;
         double latest_bundle_adjustment_rmse = 0.0;
         std::vector<adaptive_fusion_slam::GeometricHealth> health_sequence;
@@ -61,16 +78,54 @@ int main(int argc, char* argv[]) {
             throw std::runtime_error("Cannot open geometric-health CSV file.");
         }
         adaptive_fusion_slam::writeGeometricHealthCsvHeader(health_output);
+        const std::string risk_path = std::string(argv[2]) + ".risk.csv";
+        std::ofstream risk_output(risk_path);
+        if (!risk_output) {
+            throw std::runtime_error("Cannot open online-risk CSV file.");
+        }
+        risk_output << "frame_id,applied_risk,applied_level,"
+                       "next_prediction_available,next_risk,next_level,"
+                       "allow_new_map_points,map_frozen\n";
 
         for (std::size_t index = 0; index < frame_count; ++index) {
-            const auto result = odometry.process(dataset.loadFrame(index));
+            const auto applied_decision = current_decision;
+            const auto result = risk_controller
+                ? odometry.process(
+                      dataset.loadFrame(index), applied_decision)
+                : odometry.process(dataset.loadFrame(index));
+            adaptive_fusion_slam::OnlineRiskResult next_risk;
+            if (risk_controller) {
+                next_risk = risk_controller->observe(result.health);
+                current_decision = next_risk.decision;
+            }
+            risk_output << result.frame.id << ','
+                        << applied_decision.failure_probability << ','
+                        << adaptive_fusion_slam::riskLevelName(
+                               applied_decision.level) << ','
+                        << static_cast<int>(next_risk.prediction_available)
+                        << ',' << next_risk.failure_probability << ','
+                        << adaptive_fusion_slam::riskLevelName(
+                               next_risk.decision.level) << ','
+                        << static_cast<int>(
+                               applied_decision.allow_new_map_points) << ','
+                        << static_cast<int>(
+                               !applied_decision.allow_map_observations) << '\n';
             adaptive_fusion_slam::writeGeometricHealthCsvRow(
                 health_output, result.health);
             health_sequence.push_back(result.health);
             trajectory.addFrame(result.frame);
-            if (keyframe_policy.shouldInsert(
-                    result.frame, sparse_map.lastKeyframe())) {
-                const auto insertion = sparse_map.insertKeyframe(result.frame);
+            const bool insert_keyframe = risk_controller
+                ? keyframe_policy.shouldInsert(
+                      result.frame,
+                      sparse_map.lastKeyframe(),
+                      applied_decision)
+                : keyframe_policy.shouldInsert(
+                      result.frame, sparse_map.lastKeyframe());
+            if (insert_keyframe) {
+                const auto insertion = sparse_map.insertKeyframe(
+                    result.frame,
+                    {applied_decision.allow_map_observations,
+                     applied_decision.allow_new_map_points});
                 if (insertion.existing_map_points_observed > 0) {
                     const auto optimization = sparse_map.optimizeLocalMap();
                     if (optimization.optimized) {
@@ -118,6 +173,9 @@ int main(int argc, char* argv[]) {
                   << "Latest local BA RMSE: "
                   << latest_bundle_adjustment_rmse << " pixels\n"
                   << "Geometric health file: " << health_path << '\n'
+                  << "Online risk mode: "
+                  << (risk_controller ? "adaptive" : "baseline") << '\n'
+                  << "Online risk file: " << risk_path << '\n'
                   << "Failure dataset samples: "
                   << prediction_samples.size() << '\n'
                   << "Failure dataset file: "

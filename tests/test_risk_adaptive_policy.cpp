@@ -72,6 +72,16 @@ int main() {
                         critical.preserve_trusted_reference,
                     "critical risk should freeze persistent state");
 
+    adaptive_fusion_slam::HystereticRiskAdaptivePolicy hysteretic_policy;
+    passed &= check(
+        hysteretic_policy.update(0.61).level ==
+            adaptive_fusion_slam::RiskLevel::High &&
+        hysteretic_policy.update(0.58).level ==
+            adaptive_fusion_slam::RiskLevel::High &&
+        hysteretic_policy.update(0.54).level ==
+            adaptive_fusion_slam::RiskLevel::Medium,
+        "hysteresis should prevent threshold chatter before a real decrease");
+
     const adaptive_fusion_slam::Camera camera(
         517.3, 516.5, 318.6, 255.3);
     adaptive_fusion_slam::SparseMap map(camera);

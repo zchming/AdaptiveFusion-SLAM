@@ -223,6 +223,18 @@ An optional third argument limits the number of processed frames. Only
 initialized or successfully tracked frames enter the trajectory; lost frames
 do not replace the latest trusted reference frame.
 
+After training or obtaining a compatible risk model, enable the causal online
+adaptive loop with:
+
+```bash
+./build/run_rgbd_odometry \
+    /path/to/tum_sequence trajectory.txt 1000 risk_model.txt
+```
+
+Set `1000` to the desired maximum frame count; omitting the model keeps baseline
+mode. The runner additionally writes `.health.csv`, `.failure_dataset.csv`, and
+`.risk.csv` files beside the trajectory.
+
 ## Current Runnable Pipeline
 
 The implemented frontend currently connects these modules:

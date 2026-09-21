@@ -38,6 +38,22 @@ private:
     RiskAdaptivePolicyConfig config_;
 };
 
+class HystereticRiskAdaptivePolicy {
+public:
+    HystereticRiskAdaptivePolicy(
+        RiskAdaptivePolicyConfig config = {},
+        double hysteresis_margin = 0.05);
+
+    RiskAdaptiveDecision update(double failure_probability);
+    RiskLevel currentLevel() const;
+    void reset();
+
+private:
+    RiskAdaptivePolicy policy_;
+    double hysteresis_margin_;
+    RiskLevel current_level_ = RiskLevel::Low;
+};
+
 const char* riskLevelName(RiskLevel level);
 
 }  // namespace adaptive_fusion_slam

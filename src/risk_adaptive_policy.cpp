@@ -52,6 +52,72 @@ const RiskAdaptivePolicyConfig& RiskAdaptivePolicy::config() const {
     return config_;
 }
 
+HystereticRiskAdaptivePolicy::HystereticRiskAdaptivePolicy(
+    RiskAdaptivePolicyConfig config,
+    double hysteresis_margin)
+    : policy_(config), hysteresis_margin_(hysteresis_margin) {
+    if (hysteresis_margin_ < 0.0 ||
+        hysteresis_margin_ >= config.medium_threshold) {
+        throw std::invalid_argument("Risk hysteresis margin is invalid.");
+    }
+}
+
+RiskAdaptiveDecision HystereticRiskAdaptivePolicy::update(
+    double failure_probability) {
+    const auto candidate = policy_.decide(failure_probability);
+    const auto& thresholds = policy_.config();
+    bool retain_level = false;
+    switch (current_level_) {
+        case RiskLevel::Low:
+            break;
+        case RiskLevel::Medium:
+            retain_level = failure_probability >=
+                thresholds.medium_threshold - hysteresis_margin_;
+            break;
+        case RiskLevel::High:
+            retain_level = failure_probability >=
+                thresholds.high_threshold - hysteresis_margin_;
+            break;
+        case RiskLevel::Critical:
+            retain_level = failure_probability >=
+                thresholds.critical_threshold - hysteresis_margin_;
+            break;
+    }
+    if (!retain_level || static_cast<int>(candidate.level) >
+                             static_cast<int>(current_level_)) {
+        current_level_ = candidate.level;
+    }
+
+    double representative_probability = failure_probability;
+    if (current_level_ != candidate.level) {
+        switch (current_level_) {
+            case RiskLevel::Low:
+                representative_probability = 0.0;
+                break;
+            case RiskLevel::Medium:
+                representative_probability = thresholds.medium_threshold;
+                break;
+            case RiskLevel::High:
+                representative_probability = thresholds.high_threshold;
+                break;
+            case RiskLevel::Critical:
+                representative_probability = thresholds.critical_threshold;
+                break;
+        }
+    }
+    auto decision = policy_.decide(representative_probability);
+    decision.failure_probability = failure_probability;
+    return decision;
+}
+
+RiskLevel HystereticRiskAdaptivePolicy::currentLevel() const {
+    return current_level_;
+}
+
+void HystereticRiskAdaptivePolicy::reset() {
+    current_level_ = RiskLevel::Low;
+}
+
 const char* riskLevelName(RiskLevel level) {
     switch (level) {
         case RiskLevel::Low:
