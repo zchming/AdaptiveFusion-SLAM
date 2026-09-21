@@ -179,6 +179,7 @@ The final evaluation will compare:
 - [x] Implement the first temporal risk prediction baseline
 - [ ] Calibrate the temporal risk predictor on real sequences
 - [x] Add risk-adaptive frontend and map-update policies
+- [x] Add model persistence and causal online risk control
 - [ ] Perform benchmark and ablation experiments
 - [ ] Release reproducible results and documentation
 
@@ -245,6 +246,18 @@ Run the current RGB-D visual odometry loop and write a TUM-format trajectory:
 An optional third argument limits the number of processed frames. Only
 initialized or successfully tracked frames enter the trajectory; lost frames
 do not replace the latest trusted reference frame.
+
+After training or obtaining a compatible risk model, enable the causal online
+adaptive loop with:
+
+```bash
+./build/run_rgbd_odometry \
+    /path/to/tum_sequence trajectory.txt 1000 risk_model.txt
+```
+
+Set `1000` to the desired maximum frame count; omitting the model keeps baseline
+mode. The runner additionally writes `.health.csv`, `.failure_dataset.csv`, and
+`.risk.csv` files beside the trajectory.
 
 ## Current Runnable Pipeline
 
@@ -499,6 +512,29 @@ This is a policy-mechanism simulation: classifying every high/critical candidate
 as unreliable is an experimental assumption, not a measured real-scene result.
 The runner does not yet load a trained model for live online probabilities;
 model persistence and end-to-end real-sequence comparison remain.
+
+## Stage 16: Model Persistence and Causal Online Control
+
+The temporal predictor now serializes its configuration, five-frame history
+length, 21 normalization means/scales, logistic weights, and bias with a versioned
+model header. Loading validates dimensions, finite values, and positive scales.
+A save/load round trip reproduces probabilities within `1e-12`.
+
+`OnlineRiskController` maintains only health records already observed. Once five
+successful measurements exist, it predicts the action for the next frame. A
+failed observation clears the window and raises critical risk. A 0.05 hysteresis
+margin prevents risk levels from dropping immediately when probability merely
+oscillates around a threshold.
+
+The RGB-D runner optionally loads a model and records both the decision applied
+to the current frame and the prediction produced for the next frame. On the tiny
+fixture, frame 1 fails while using the prior low decision; that result raises
+critical risk, which is first applied to frame 2. This demonstrates causal order.
+The Release suite remains 14/14 passing.
+
+The committed model is trained only on synthetic data and exists to verify the
+online plumbing. It must not be treated as a calibrated real-scene model. The
+next requirement is paired baseline/adaptive evaluation on natural sequences.
 
 ## Reproducibility Policy
 

@@ -1,9 +1,12 @@
 #include <cmath>
 #include <cstddef>
 #include <iostream>
+#include <sstream>
+#include <utility>
 #include <vector>
 
 #include "temporal_risk_predictor.h"
+#include "online_risk_controller.h"
 
 namespace {
 
@@ -67,6 +70,43 @@ int main() {
                     "held-out synthetic metrics should be strong");
     passed &= check(std::abs(metrics.mean_warning_lead_frames - 2.0) < 1e-12,
                     "warning lead time should average true positive offsets");
+
+    std::stringstream model_stream;
+    predictor.save(model_stream);
+    adaptive_fusion_slam::TemporalRiskPredictor loaded_predictor;
+    loaded_predictor.load(model_stream);
+    const auto loaded_probabilities =
+        loaded_predictor.predictProbabilities(testing);
+    passed &= check(loaded_predictor.historyLength() == 5 &&
+                        std::abs(loaded_probabilities.back() -
+                                 probabilities.back()) < 1e-12,
+                    "saved and loaded model should preserve probabilities");
+
+    adaptive_fusion_slam::OnlineRiskController controller(
+        std::move(loaded_predictor));
+    const auto severe_sample = makeSample(0.94, true, 1);
+    adaptive_fusion_slam::OnlineRiskResult online_result;
+    for (std::size_t index = 0; index < severe_sample.history.size(); ++index) {
+        const auto& values = severe_sample.history[index];
+        adaptive_fusion_slam::GeometricHealth health;
+        health.frame_id = index + 1;
+        health.timestamp = 0.1 * static_cast<double>(index + 1);
+        health.has_tracking_measurement = true;
+        health.tracking_success = true;
+        health.inlier_ratio = values[0];
+        health.mean_reprojection_error_pixels = values[1];
+        health.mean_forward_backward_error_pixels = values[2];
+        health.spatial_coverage = values[3];
+        health.median_parallax_pixels = values[4];
+        health.valid_depth_ratio = values[5];
+        health.used_orb_fallback = values[6] > 0.5;
+        online_result = controller.observe(health);
+    }
+    passed &= check(online_result.prediction_available &&
+                        online_result.failure_probability > 0.8 &&
+                        online_result.decision.level !=
+                            adaptive_fusion_slam::RiskLevel::Low,
+                    "online controller should predict after five causal frames");
 
     if (!passed) {
         return 1;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <iosfwd>
 #include <vector>
 
 #include "failure_prediction_dataset.h"
@@ -35,6 +36,9 @@ public:
     bool isTrained() const;
     const std::vector<double>& weights() const;
     double decisionThreshold() const;
+    std::size_t historyLength() const;
+    void save(std::ostream& output) const;
+    void load(std::istream& input);
 
 private:
     std::vector<double> encode(
@@ -47,6 +51,7 @@ private:
     std::vector<double> standard_deviations_;
     std::vector<double> weights_;
     double bias_ = 0.0;
+    std::size_t history_length_ = 0;
 };
 
 RiskPredictionMetrics evaluateRiskPredictions(

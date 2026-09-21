@@ -1087,3 +1087,74 @@ The next stage must serialize the learned risk model, load it in the RGB-D
 runner, maintain the live health window, and compare baseline versus adaptive
 trajectories and maps on complete sequences. Threshold hysteresis and recovery
 logic are also still required to prevent rapid policy oscillation.
+
+## Stage 16: Model Persistence and Causal Online Loop
+
+### Saved Model State
+
+The versioned text model contains:
+
+- training iterations, learning rate, L2 strength, and decision threshold;
+- required temporal history length;
+- 21 training-set feature means and standard deviations;
+- 21 logistic-regression weights and one bias.
+
+The loader rejects unknown versions, incorrect dimensions, non-finite values,
+invalid scales, and invalid configuration. A model round trip preserves held-out
+probabilities to within `1e-12`.
+
+### Causal Runtime Order
+
+For input frame `t`, the runner performs:
+
+```text
+decision predicted after frame t-1
+        -> process frame t
+        -> compute health_t
+        -> append health_t to the five-frame window
+        -> predict risk for frame t+1
+```
+
+Thus no measurement from frame `t` can affect how frame `t` itself was tracked.
+Before five measurements exist, the controller uses low risk. A tracking failure
+clears the temporal window and emits critical protection for the next frame.
+
+### Hysteresis
+
+Risk upgrades use the normal thresholds. Downgrades require probability to fall
+0.05 below the boundary. For example, after entering high at `0.61`, a value of
+`0.58` remains high; `0.54` permits a drop to medium. This prevents repeated
+frontend and mapping mode changes caused by small probability noise.
+
+### Executable Integration
+
+`simulate_risk_prediction` now writes both predictions and a model file:
+
+```bash
+./build/simulate_risk_prediction predictions.csv model.txt
+```
+
+The runner accepts the model as an optional fifth argument:
+
+```bash
+./build/run_rgbd_odometry dataset trajectory.txt max_frames model.txt
+```
+
+Its `.risk.csv` records applied risk/level, next-frame risk/level, prediction
+availability, new-point permission, and map-freeze state.
+
+On the three-frame fixture:
+
+```text
+Frame 0 applied low; initialization predicted low.
+Frame 1 applied low; tracking failed and next decision became critical.
+Frame 2 applied critical; new points disabled and map frozen.
+Model probability round trip: tolerance < 1e-12
+Risk hysteresis test: passed
+Release CTest: 14/14 passed
+```
+
+The saved model and fixture validate persistence and causality only. The model
+was trained on synthetic episodes, while the 2-by-2 fixture cannot produce
+visual tracks. Real paired evaluation, model calibration, recovery-state exit,
+and runtime profiling remain.

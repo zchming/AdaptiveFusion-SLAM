@@ -3,7 +3,11 @@
 #include <algorithm>
 #include <cmath>
 #include <numeric>
+#include <iomanip>
+#include <istream>
+#include <ostream>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 namespace adaptive_fusion_slam {
@@ -91,6 +95,7 @@ void TemporalRiskPredictor::train(
         encoded_samples.push_back(encode(sample));
         positive_count += sample.future_failure ? 1U : 0U;
     }
+    history_length_ = samples.front().history.size();
     if (positive_count == 0 || positive_count == samples.size()) {
         throw std::invalid_argument(
             "Risk predictor training requires both classes.");
@@ -198,6 +203,72 @@ const std::vector<double>& TemporalRiskPredictor::weights() const {
 
 double TemporalRiskPredictor::decisionThreshold() const {
     return config_.decision_threshold;
+}
+
+std::size_t TemporalRiskPredictor::historyLength() const {
+    return history_length_;
+}
+
+void TemporalRiskPredictor::save(std::ostream& output) const {
+    if (!trained_) {
+        throw std::logic_error("Cannot save an untrained risk predictor.");
+    }
+    output << "AFSLAM_RISK_MODEL 1\n" << std::setprecision(17)
+           << config_.training_iterations << ' ' << config_.learning_rate << ' '
+           << config_.l2_regularization << ' ' << config_.decision_threshold
+           << '\n' << history_length_ << ' ' << weights_.size() << '\n'
+           << bias_ << '\n';
+    for (const auto* values : {&means_, &standard_deviations_, &weights_}) {
+        for (std::size_t index = 0; index < values->size(); ++index) {
+            output << (index == 0 ? "" : " ") << (*values)[index];
+        }
+        output << '\n';
+    }
+    if (!output) {
+        throw std::runtime_error("Failed to write risk model.");
+    }
+}
+
+void TemporalRiskPredictor::load(std::istream& input) {
+    std::string magic;
+    int version = 0;
+    std::size_t dimension = 0;
+    TemporalRiskPredictorConfig loaded_config;
+    if (!(input >> magic >> version) || magic != "AFSLAM_RISK_MODEL" ||
+        version != 1 ||
+        !(input >> loaded_config.training_iterations >>
+          loaded_config.learning_rate >> loaded_config.l2_regularization >>
+          loaded_config.decision_threshold) ||
+        !(input >> history_length_ >> dimension >> bias_) ||
+        history_length_ == 0 || dimension != 3 * kHealthFeatureDimension) {
+        throw std::runtime_error("Risk model header is invalid.");
+    }
+    config_ = loaded_config;
+    if (config_.training_iterations <= 0 || config_.learning_rate <= 0.0 ||
+        config_.l2_regularization < 0.0 ||
+        config_.decision_threshold <= 0.0 ||
+        config_.decision_threshold >= 1.0) {
+        throw std::runtime_error("Risk model configuration is invalid.");
+    }
+    means_.assign(dimension, 0.0);
+    standard_deviations_.assign(dimension, 0.0);
+    weights_.assign(dimension, 0.0);
+    for (auto* values : {&means_, &standard_deviations_, &weights_}) {
+        for (double& value : *values) {
+            if (!(input >> value) || !std::isfinite(value)) {
+                throw std::runtime_error("Risk model parameters are invalid.");
+            }
+        }
+    }
+    for (double deviation : standard_deviations_) {
+        if (deviation <= 0.0) {
+            throw std::runtime_error("Risk model scale must be positive.");
+        }
+    }
+    if (!std::isfinite(bias_)) {
+        throw std::runtime_error("Risk model bias is invalid.");
+    }
+    trained_ = true;
 }
 
 RiskPredictionMetrics evaluateRiskPredictions(

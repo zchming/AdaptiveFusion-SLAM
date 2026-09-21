@@ -22,6 +22,7 @@ add_library(adaptivefusion_slam
     src/map_point.cpp
     src/orb_feature_extractor.cpp
     src/orb_feature_matcher.cpp
+    src/online_risk_controller.cpp
     src/pnp_pose_estimator.cpp
     src/rgbd_correspondence_builder.cpp
     src/rgbd_odometry.cpp

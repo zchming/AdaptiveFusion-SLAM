@@ -58,13 +58,17 @@ void append(
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    if (argc > 2) {
-        std::cerr << "Usage: simulate_risk_prediction [predictions.csv]"
+    if (argc > 3) {
+        std::cerr << "Usage: simulate_risk_prediction [predictions.csv] "
+                     "[model.txt]"
                   << std::endl;
         return 1;
     }
     const std::string output_path =
-        argc == 2 ? argv[1] : "simulation_risk_predictions.csv";
+        argc >= 2 ? argv[1] : "simulation_risk_predictions.csv";
+    const std::string model_path = argc == 3
+        ? argv[2]
+        : "simulation_risk_model.txt";
 
     std::vector<adaptive_fusion_slam::FailurePredictionSample> training;
     for (std::size_t episode = 0; episode < 10; ++episode) {
@@ -86,6 +90,12 @@ int main(int argc, char* argv[]) {
 
     adaptive_fusion_slam::TemporalRiskPredictor predictor;
     predictor.train(training);
+    std::ofstream model_output(model_path);
+    if (!model_output) {
+        std::cerr << "Cannot open model output: " << model_path << std::endl;
+        return 1;
+    }
+    predictor.save(model_output);
     const auto probabilities = predictor.predictProbabilities(testing);
     const auto metrics = adaptive_fusion_slam::evaluateRiskPredictions(
         testing, probabilities, predictor.decisionThreshold());
@@ -112,6 +122,7 @@ int main(int argc, char* argv[]) {
               << "Brier score: " << metrics.brier_score << '\n'
               << "Mean warning lead: " << metrics.mean_warning_lead_frames
               << " frames\n"
+              << "Model file: " << model_path << '\n'
               << "Prediction file: " << output_path << std::endl;
     return 0;
 }
