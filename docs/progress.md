@@ -1027,3 +1027,63 @@ showing the threshold tradeoff that later calibration must address. Synthetic
 metrics validate implementation and experimental plumbing only. The next stage
 will connect live risk values to explicit low/medium/high/critical policies and
 measure whether interventions reduce failure or map contamination.
+
+## Stage 15: Risk-Adaptive Frontend and Map Protection
+
+### Probability-to-Action Policy
+
+```text
+[0.00, 0.30): low
+[0.30, 0.60): medium
+[0.60, 0.85): high
+[0.85, 1.00]: critical
+```
+
+- **Low:** normal LK path, normal keyframes, observations and new landmarks.
+- **Medium:** run ORB verification, request earlier keyframes, continue mapping.
+- **High:** force ORB redetection, request early keyframes, allow observations
+  of existing trusted landmarks, suppress all new landmark creation.
+- **Critical:** prevent keyframe insertion and every map write, retain the last
+  trusted odometry reference, and prepare for recovery.
+
+Probabilities outside `[0,1]`, non-finite values, and unordered thresholds are
+rejected. Policy output is a plain decision structure so later experiments can
+change thresholds without coupling the predictor to SLAM state classes.
+
+### Integration
+
+`RgbdOdometry::process` accepts an optional risk decision. Medium risk evaluates
+ORB even after LK succeeds and retains the geometrically stronger PnP result.
+High risk bypasses LK pose estimation and forces ORB redetection. Critical risk
+may return a temporary pose but cannot replace the trusted reference.
+
+`KeyframePolicy` halves normal minimum gap and motion thresholds at medium risk;
+high risk forces an early keyframe after the shortened gap. Critical risk blocks
+insertion. `SparseMap` independently controls existing observations and new
+landmark creation, and reports suppressed valid-depth candidates.
+
+### Controlled Map-Protection Comparison
+
+Twelve frames each present 100 candidate points. Risk moves from low through
+medium, high, and critical. The experiment defines candidates during high and
+critical periods as unreliable to isolate policy behavior.
+
+```text
+Baseline total points:             1200
+Baseline unreliable points:         500
+Adaptive total points:               700
+Adaptive unreliable points:            0
+Suppressed risky candidates:         500
+Early-keyframe requests:                4
+Critical frozen frames:                 3
+Release CTest:                       14/14 passed
+```
+
+The test suite additionally proves that a high-risk real `SparseMap` insertion
+can add observations to two trusted points while suppressing one new landmark,
+and that critical policy prevents the trusted reference from being replaced.
+
+The next stage must serialize the learned risk model, load it in the RGB-D
+runner, maintain the live health window, and compare baseline versus adaptive
+trajectories and maps on complete sequences. Threshold hysteresis and recovery
+logic are also still required to prevent rapid policy oscillation.

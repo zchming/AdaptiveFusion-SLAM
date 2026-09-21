@@ -27,7 +27,14 @@ SparseMap::SparseMap(
     }
 }
 
-KeyframeInsertionResult SparseMap::insertKeyframe(const Frame& frame) {
+KeyframeInsertionResult SparseMap::insertKeyframe(
+    const Frame& frame,
+    MapUpdatePermission permission) {
+    if (!permission.allow_existing_observations &&
+        !permission.allow_new_map_points) {
+        throw std::invalid_argument(
+            "Frozen map does not accept keyframe insertion.");
+    }
     const std::size_t keyframe_id = keyframes_.size();
     Keyframe keyframe(keyframe_id, frame);
 
@@ -56,7 +63,7 @@ KeyframeInsertionResult SparseMap::insertKeyframe(const Frame& frame) {
     };
     std::vector<DeferredObservation> deferred_observations;
 
-    if (!keyframes_.empty()) {
+    if (!keyframes_.empty() && permission.allow_existing_observations) {
         const Keyframe& reference = keyframes_.back();
         const auto matches = feature_matcher_.match(
             reference.descriptors(), keyframe.descriptors());
@@ -115,8 +122,13 @@ KeyframeInsertionResult SparseMap::insertKeyframe(const Frame& frame) {
 
     std::vector<MapPoint> new_map_points;
     new_map_points.reserve(rgbd_correspondences.size());
+    std::size_t suppressed_map_points = 0;
     for (const auto& correspondence : rgbd_correspondences) {
         if (keyframe.mapPointIds()[correspondence.source_index]) {
+            continue;
+        }
+        if (!permission.allow_new_map_points) {
+            ++suppressed_map_points;
             continue;
         }
         const std::size_t map_point_id =
@@ -154,6 +166,7 @@ KeyframeInsertionResult SparseMap::insertKeyframe(const Frame& frame) {
         keyframe_id,
         new_map_points.size(),
         deferred_observations.size(),
+        suppressed_map_points,
     };
 }
 

@@ -178,7 +178,7 @@ The final evaluation will compare:
 - [x] Build the tracking-failure event dataset
 - [x] Implement the first temporal risk prediction baseline
 - [ ] Calibrate the temporal risk predictor on real sequences
-- [ ] Add risk-adaptive frontend and map-update policies
+- [x] Add risk-adaptive frontend and map-update policies
 - [ ] Perform benchmark and ablation experiments
 - [ ] Release reproducible results and documentation
 
@@ -472,6 +472,33 @@ These strong values are expected on controlled synthetic trends and are not
 evidence of real-world performance. Model persistence, real-sequence fitting,
 probability calibration, threshold selection, and cross-dataset validation
 remain to be implemented.
+
+## Stage 15: Risk-Adaptive Frontend and Map Protection
+
+Predicted failure probability now maps to four operating levels with thresholds
+`0.30`, `0.60`, and `0.85`. Low risk keeps efficient LK and normal mapping.
+Medium risk adds ORB verification and halves the normal keyframe motion/gap
+requirements. High risk forces ORB redetection, requests an early keyframe,
+allows observations of trusted landmarks, but suppresses creation of new map
+points. Critical risk blocks keyframes and all map writes while preserving the
+last trusted tracking reference.
+
+The odometry API executes ORB verification/redetection and trusted-reference
+preservation. `KeyframePolicy` consumes the same decision for early or blocked
+insertion, and `SparseMap` reports how many valid-depth candidates were
+suppressed under restricted updates.
+
+The controlled comparison presents 100 candidate landmarks per frame while
+risk rises across 12 frames. An always-update baseline stores 1,200 points,
+including 500 candidates from high/critical phases. The adaptive policy stores
+700 points, suppresses all 500 risky candidates, issues four early-keyframe
+requests, and freezes three critical frames. The Release suite passes 14/14
+tests.
+
+This is a policy-mechanism simulation: classifying every high/critical candidate
+as unreliable is an experimental assumption, not a measured real-scene result.
+The runner does not yet load a trained model for live online probabilities;
+model persistence and end-to-end real-sequence comparison remain.
 
 ## Reproducibility Policy
 
