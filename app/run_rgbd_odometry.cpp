@@ -2,6 +2,8 @@
 #include <chrono>
 #include <exception>
 #include <fstream>
+#include <filesystem>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <numeric>
@@ -11,6 +13,7 @@
 
 #include "camera.h"
 #include "failure_prediction_dataset.h"
+#include "geometry_snapshot.h"
 #include "image_degradation.h"
 #include "keyframe_policy.h"
 #include "online_risk_controller.h"
@@ -37,15 +40,37 @@ const char* statusName(adaptive_fusion_slam::TrackingStatus status) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    if (argc < 3 || argc > 6) {
+    if (argc < 3 || argc > 7) {
         std::cerr << "Usage: run_rgbd_odometry <dataset_root> "
                      "<trajectory.txt> [max_frames] [risk_model.txt|-] "
-                     "[none|blur|dark|occlusion|noise|drop]"
+                     "[none|blur|dark|occlusion|noise|drop] [new_snapshot_directory]"
                   << std::endl;
         return 1;
     }
 
     try {
+        const bool export_geometry = argc == 7;
+        std::filesystem::path snapshot_root;
+        std::ofstream frame_geometry;
+        std::ofstream geometry_events;
+        if (export_geometry) {
+            if (std::string(argv[4]) != "-" || std::string(argv[5]) != "none")
+                throw std::runtime_error("Geometry export requires risk disabled and no degradation");
+            for (const auto* suffix : {"", ".health.csv", ".risk.csv", ".summary.csv", ".failure_dataset.csv"})
+                if (std::filesystem::exists(std::string(argv[2]) + suffix))
+                    throw std::runtime_error("Geometry export refuses existing trajectory outputs");
+            snapshot_root = argv[6];
+            if (!std::filesystem::create_directory(snapshot_root))
+                throw std::runtime_error("Snapshot directory already exists");
+            frame_geometry.open(snapshot_root / "frames.txt");
+            adaptive_fusion_slam::writeFrameGeometryHeader(frame_geometry);
+            geometry_events.open(snapshot_root / "ba_events.csv");
+            geometry_events << "frame_id,optimized,initial_pixel_rmse,final_pixel_rmse,"
+                               "optimized_points,pixel_observations,depth_observations,"
+                               "before_export_ms,ceres_solve_ms,after_export_ms\n";
+            if (!frame_geometry || !geometry_events)
+                throw std::runtime_error("Cannot create geometry logs");
+        }
         adaptive_fusion_slam::TumRgbdDataset dataset(argv[1]);
         dataset.loadAssociations();
         const std::size_t requested_frames =
@@ -73,7 +98,7 @@ int main(int argc, char* argv[]) {
                     std::move(predictor));
         }
         adaptive_fusion_slam::ImageDegradationConfig degradation_config;
-        if (argc == 6) {
+        if (argc >= 6) {
             degradation_config.type =
                 adaptive_fusion_slam::parseImageDegradationType(argv[5]);
         }
@@ -108,6 +133,9 @@ int main(int argc, char* argv[]) {
             const auto applied_decision = current_decision;
             const auto input_frame =
                 degrader.apply(dataset.loadFrame(index), index);
+            adaptive_fusion_slam::Frame reference_metadata;
+            const bool had_reference = export_geometry && odometry.referenceFrame() != nullptr;
+            if (had_reference) reference_metadata.id = odometry.referenceFrame()->id;
             const auto result = risk_controller
                 ? odometry.process(
                       input_frame, applied_decision)
@@ -146,7 +174,30 @@ int main(int argc, char* argv[]) {
                     {applied_decision.allow_map_observations,
                      applied_decision.allow_new_map_points});
                 if (insertion.existing_map_points_observed > 0) {
+                    const auto before_start = std::chrono::steady_clock::now();
+                    if (export_geometry)
+                        adaptive_fusion_slam::writeGeometrySnapshot(
+                            snapshot_root / (std::to_string(index) + ".before.snapshot"),
+                            camera, {}, sparse_map.keyframes(), sparse_map.mapPoints(), index);
+                    const auto solve_start = std::chrono::steady_clock::now();
                     const auto optimization = sparse_map.optimizeLocalMap();
+                    const auto solve_end = std::chrono::steady_clock::now();
+                    if (export_geometry)
+                        adaptive_fusion_slam::writeGeometrySnapshot(
+                            snapshot_root / (std::to_string(index) + ".ceres.snapshot"),
+                            camera, {}, sparse_map.keyframes(), sparse_map.mapPoints(), index);
+                    if (export_geometry) {
+                        const auto after_end = std::chrono::steady_clock::now();
+                        const auto ms = [](auto start, auto end) {
+                            return std::chrono::duration<double,std::milli>(end-start).count();
+                        };
+                        geometry_events << std::setprecision(17) << index << ',' << optimization.optimized
+                            << ',' << optimization.initial_reprojection_rmse << ',' << optimization.final_reprojection_rmse
+                            << ',' << optimization.map_points_optimized << ',' << optimization.observations_used
+                            << ',' << optimization.depth_observations_used << ',' << ms(before_start,solve_start)
+                            << ',' << ms(solve_start,solve_end) << ',' << ms(solve_end,after_end) << '\n';
+                        if (!geometry_events) throw std::runtime_error("Cannot write geometry event");
+                    }
                     if (optimization.optimized) {
                         ++bundle_adjustment_runs;
                         latest_bundle_adjustment_rmse =
@@ -154,6 +205,10 @@ int main(int argc, char* argv[]) {
                     }
                 }
             }
+            if (export_geometry)
+                adaptive_fusion_slam::writeFrameGeometryRow(
+                    frame_geometry, result.frame,
+                    had_reference ? &reference_metadata : nullptr, sparse_map.lastKeyframe());
             if (result.status == adaptive_fusion_slam::TrackingStatus::Lost) {
                 ++lost_frames;
                 ++current_lost_streak;
@@ -181,6 +236,14 @@ int main(int argc, char* argv[]) {
             throw std::runtime_error("Cannot open trajectory output file.");
         }
         trajectory.writeTum(trajectory_output);
+        if (export_geometry) {
+            frame_geometry.flush();
+            geometry_events.flush();
+            if (!frame_geometry || !geometry_events) throw std::runtime_error("Geometry export failed");
+            adaptive_fusion_slam::writeGeometrySnapshot(
+                snapshot_root / "final.snapshot", camera, {}, sparse_map.keyframes(),
+                sparse_map.mapPoints(), frame_count);
+        }
         maximum_recovery_frames = std::max(
             maximum_recovery_frames, current_lost_streak);
         const adaptive_fusion_slam::FailurePredictionDatasetBuilder
@@ -245,6 +308,18 @@ int main(int argc, char* argv[]) {
                        << (total_runtime_seconds > 0.0
                                ? frame_count / total_runtime_seconds
                                : 0.0) << '\n';
+        if (export_geometry) {
+            trajectory_output.flush(); health_output.flush(); risk_output.flush();
+            prediction_dataset_output.flush(); summary_output.flush();
+            if (!trajectory_output || !health_output || !risk_output ||
+                !prediction_dataset_output || !summary_output)
+                throw std::runtime_error("Cannot finalize trajectory outputs");
+            std::ofstream complete(snapshot_root / "complete.json");
+            complete << "{\"schema_version\":1,\"processed_frames\":" << frame_count
+                     << ",\"risk_enabled\":false,\"online_writeback\":false,"
+                        "\"timing_includes_export\":true}\n";
+            if (!complete) throw std::runtime_error("Cannot finalize export");
+        }
         std::cout << "Processed frames: " << frame_count << '\n'
                   << "Valid trajectory poses: " << trajectory.poses().size()
                   << '\n'

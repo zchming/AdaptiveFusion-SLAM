@@ -4,6 +4,17 @@ project(AdaptiveFusion_SLAM VERSION 0.1.0 LANGUAGES CXX)
 
 include(CTest)
 
+execute_process(COMMAND git rev-parse HEAD WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE AFS_SOURCE_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(NOT AFS_SOURCE_REVISION)
+    set(AFS_SOURCE_REVISION unknown)
+endif()
+execute_process(COMMAND git status --porcelain WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE AFS_DIRTY_STATUS)
+if(AFS_DIRTY_STATUS)
+    string(APPEND AFS_SOURCE_REVISION "-dirty")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -15,6 +26,7 @@ add_library(adaptivefusion_slam
     src/camera.cpp
     src/failure_prediction_dataset.cpp
     src/geometric_health.cpp
+    src/geometry_snapshot.cpp
     src/image_degradation.cpp
     src/keyframe.cpp
     src/keyframe_policy.cpp
@@ -39,6 +51,10 @@ target_include_directories(adaptivefusion_slam
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
 )
+target_compile_definitions(adaptivefusion_slam PRIVATE AFS_SOURCE_REVISION="${AFS_SOURCE_REVISION}")
+
+add_executable(replay_local_ba app/replay_local_ba.cpp)
+target_link_libraries(replay_local_ba PRIVATE adaptivefusion_slam)
 
 target_link_libraries(adaptivefusion_slam
     PUBLIC
@@ -122,6 +138,9 @@ target_link_libraries(inspect_tum_dataset
 )
 
 if(BUILD_TESTING)
+    add_executable(test_geometry_snapshot tests/test_geometry_snapshot.cpp)
+    target_link_libraries(test_geometry_snapshot PRIVATE adaptivefusion_slam)
+    add_test(NAME geometry_snapshot COMMAND test_geometry_snapshot)
     add_test(NAME camera_round_trip COMMAND run_slam)
 
     add_executable(test_tum_rgbd_dataset

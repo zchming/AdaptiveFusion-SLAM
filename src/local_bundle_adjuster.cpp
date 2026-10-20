@@ -281,6 +281,10 @@ LocalBundleAdjustmentResult LocalBundleAdjuster::optimize(
 
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
+    result.termination_type = static_cast<int>(summary.termination_type);
+    result.iterations = static_cast<int>(summary.iterations.size());
+    result.initial_cost = summary.initial_cost;
+    result.final_cost = summary.final_cost;
     result.final_reprojection_rmse = compute_reprojection_rmse();
     if (!summary.IsSolutionUsable()) {
         return result;
