@@ -2,10 +2,11 @@
 
 > Current engineering focus: **static-scene RGB-D geometry**, preserving the
 > C++ frontend and adding a substantive Python offline optimization backend.
-> The latest [offline backend evidence](#python-sparse-schur-backend-and-batch-evidence)
-> includes controlled failures, same-problem Ceres comparisons, and a
-> budget-dependent improvement on one development sequence. Online writeback,
-> dynamic/4D reconstruction, and cross-scene benefit are not implemented or proven.
+> [Frozen held-out validation](#frozen-held-out-sequence-validation) improves offline
+> ATE on two additional sequences, but the third baseline crashes: the declared
+> three-sequence acceptance gate **fails**. Same-problem solver comparisons and
+> negative holdout results are retained. Online writeback, reliable cross-scene
+> operation and dynamic/4D reconstruction remain unproven or unimplemented.
 
 **Proactive Tracking-Failure Forecasting and Risk-Adaptive Map Updating for Robust RGB-D SLAM**
 
@@ -1065,3 +1066,157 @@ Schur elimination are checked against a full normal-system solve. The main
 20-step ATE result is also independently reproduced by the original C++ evaluator
 within `1e-10`. Test success does not remove the sensitivity and negative results
 reported above.
+
+
+## Frozen held-out sequence validation
+
+**Overall gate: FAIL, with two evaluable positive results and one baseline
+crash.** No algorithm code or parameters changed during this validation.
+The immutable [protocol](results/frozen_cross_scene_protocol.json) froze source
+commit `3bf94912ce1647ad7042df5933b01ed21395e15e` before downloading or processing
+three complete test sequences: `fr1_desk`, `fr1_room`, `fr1_teddy`. `fr1_xyz`
+remains development-only. Protocol SHA-256:
+`108204ee8c9b82718da9167a888b9ecfd6aef20da6f7e20ed0db00bbb6216512`.
+
+These are held-out sequences with different motions/content within Freiburg1;
+physical capture environments can overlap. This is not a cross-sensor,
+cross-dataset or statistically independent physical-site study. Official archive
+URLs, expected lengths and binary/source hashes are in the protocol; downloaded
+archive SHA-256, complete image counts, planned synchronized counts and all
+outcomes are in [the numerical results](results/frozen_cross_scene_metrics.csv).
+No archive, image, raw snapshot, log or model weight is tracked.
+
+The fixed primary model is full-cache Python Schur LM, analytic derivatives,
+20 iterations, at most 200 evaluations, a 180 s solver limit, Huber delta 2 px,
+depth weight 100, native images, original associations and raw/birth initialization.
+Risk scheduling, synthetic degradation and online writeback are disabled. All
+synchronized pairs within 0.02 s are processed, without frame or resolution
+reduction. The first keyframe fixes the batch gauge. The three thread variables
+in the protocol are fixed to 1; existing C++ frontend defaults otherwise remain.
+The same numerical configuration also runs with whole-landmark holdout modulo 10.
+Ceres receives the exact primary `input.snapshot` as a separate solver control.
+
+Truth is read only after **all** sequence inference attempts finish. Evaluation
+uses SE(3) alignment without scale and 1 s RPE with 0.02 s tolerances on both
+streams. Existing C++ evaluation independently reproduces ATE for all eight
+available trajectory arms, maximum discrepancy below `2e-16 m`; its adjacent
+RPE is a different metric from the fixed-time RPE reported here.
+
+| Sequence | Planned RGB-D pairs | Original ATE m | Python ATE m | ATE improvement | Original → Python 1 s translation RPE m | Outcome |
+|---|---:|---:|---:|---:|---:|---|
+| fr1_desk | 573 | 0.083488 | 0.057982 | 30.55% | 0.053976 → 0.038772 | Per-sequence gate passes |
+| fr1_room | 1352 | 0.431807 | 0.408782 | 5.33% | 0.074316 → 0.062309 | Per-sequence gate passes |
+| fr1_teddy | 1401 | unavailable | unavailable | unavailable | unavailable | Baseline aborts; dependent arms not run |
+
+Both evaluable primary runs retain all original timestamps, 573/1352 matched
+poses and 524/1313 fixed-time RPE pairs. Truth-span coverage is unchanged at
+84.79%/92.72%; original and corrected trajectories have zero thresholded jumps
+or gaps over 0.1 s and the frontend reports zero lost frames. Rotation RPE also
+improves. These facts establish offline accuracy gains on these two sequences,
+not recovery from lost tracking: frontend decisions already happened.
+`fr1_room` still has about **0.41 m ATE** after correction; the remaining drift
+is material. Do not infer a tracking-success rate for the crashed teddy run.
+
+The frozen gate requires all three primary runs to be accepted, at least two
+ATE improvements of 5%, median improvement of 5%, and no per-sequence
+ATE degradation beyond max(3%, 2 mm), translation RPE degradation beyond
+max(5%, 0.5 mm), rotation RPE degradation beyond max(5%, 0.05 degrees), loss of
+coverage or extra jumps. The two available cases pass their limits. **The missing
+third outcome prevents acceptance; a three-scene median is not reported.**
+The failed sequence is not replaced, truncated or omitted from the denominator.
+
+### Failure and solver controls
+
+On teddy the baseline aborts while attempting zero-based frame **1082** (last
+successful frame log: 1081), GNU time exit **134 / SIGABRT**. Its final trajectory
+and `complete.json` are absent; partial buffered `frames.txt` is incomplete and
+is not evaluated as a shorter run. The final `1082.before.snapshot` contains
+207 keyframes and 39 eligible shared landmarks. Its five-frame BA window starts
+at keyframe 202, but residual observations only touch 204/205/206 (14/39/25
+observations). The existing
+[`SetParameterBlockConstant`](src/local_bundle_adjuster.cpp#L275) calls Ceres on
+the unregistered oldest-pose block and triggers its fatal check. This statement
+also exists in the pre-Python main source. The diagnosis only reads source and
+cached topology; **no patched rerun or alternative sequence is included**.
+The next engineering step should treat an unsupported gauge anchor as a
+separate safety/rollback fix, then freeze a new version before a new validation.
+
+| Same serialized batch problem | Python ATE m | Ceres ATE m | Python / Ceres final robust cost |
+|---|---:|---:|---:|
+| fr1_desk | 0.057982 | 0.057849 | 13168.47 / 13169.10 |
+| fr1_room | 0.408782 | 0.381235 | 59700.64 / 59673.85 |
+
+Python and Ceres both produce finite usable budget-limited states, **not
+converged solutions**. Ceres is slightly better on desk and materially better on
+room. Gains over the original output support offline geometry correction with
+the existing observations; they do not demonstrate Python superiority, isolate
+an online feedback effect or establish a new numerical solver. The Python
+contribution is geometry modeling, analytic derivatives, robust sparse state
+optimization, safe result handling, trajectory correction and evaluation;
+NumPy/SciPy supply standard numerical operations and linear algebra.
+
+Whole-landmark holdout removes all observations of the selected IDs from fitting.
+Host-local XYZ transfer evaluates cross-camera geometry without truth or fitting
+those landmarks. It remains an optimization holdout, not independent frontend
+matching data. These secondary runs are not used to select the primary model.
+
+| Sequence | Held-out landmarks / validation observations | Pixel RMSE before → after | Depth RMSE m before → after | Invalid before → after |
+|---|---:|---:|---:|---:|
+| fr1_desk | 812 / 830 | 1.71498 → 1.80622 (worse 5.32%) | 0.026512 → 0.022857 | 0 → 0 |
+| fr1_room | 3005 / 3030 | 1.59757 → 1.62389 (worse 1.65%) | 0.030634 → 0.029289 | 0 → 0 |
+
+Training objective and held-out depth improve, but held-out pixel RMSE degrades
+on both sequences. Together with the earlier local-window and 100-step failures,
+this rules out a blanket claim that further optimization improves all geometry.
+
+### Costs, checks and reproduction
+
+| Sequence | Exporting baseline mean / P95 frame ms | Python backend s | Extra Python full-process wall s | Python process peak RSS MiB |
+|---|---:|---:|---:|---:|
+| fr1_desk | 19.66 / 46.35 | 0.986 | 4.321 | 174.86 |
+| fr1_room | 26.04 / 74.86 | 4.141 | 14.789 | 382.38 |
+
+Baseline wall times are 11.37/35.30 s. Python's internal full-pipeline timers are
+4.078/14.512 s; external GNU times above also include process startup. These are
+single-run costs on this machine, not runtime variance estimates or replacements
+for online system FPS. Backend-only Ceres times are 0.361/2.306 s, faster than
+Python. Whole-process Python timing includes cache merge, parsing, serialization,
+correction and PLY output, so it is not a pure data-exchange measurement. There
+is no separately isolated exchange-only measurement. All completed processes
+stay within the frozen 8 GiB address-space, 180 s solver, 900 s backend-process
+and 1800 s exporter budgets; there are no OOMs or timeouts. Teddy aborts after
+28.49 s, rather than exhausting resources.
+
+Checks after freeze: **17/17 CTest, 36/36 Python, zero skips or test failures**.
+Real-data status is separately **2/3 complete baseline exports, 1/3 abort**;
+the third sequence's three dependent arms are not run because no complete input
+exists. Test success does not override this failure. An initial orchestration
+launch also failed before processing frames because an unqualified executable
+name lost the virtual-environment prefix. Directly invoking the same declared
+interpreter corrected the launcher; its traceback is retained. No algorithm,
+configuration, selected sequence or budget changed.
+
+Reproduction uses the existing export/batch/holdout/Ceres commands above on each
+complete official dataset. Pass the full `inspect_tum_dataset` synchronized count
+to `run_rgbd_odometry`; require the cache completion marker before using it. Use
+fresh output paths and the protocol's thread environment, limits and exact code
+revision. Run all inference attempts before evaluating against `groundtruth.txt`.
+Binary hashes are frozen; their retained embedded `ad862...-dirty` revision label
+comes from the development build before the source was committed as `3bf9491`.
+Do not silently substitute a newly compiled executable when reproducing binary
+identity, and do not interpret that old embedded label as a clean-main run.
+
+Raw evidence is kept outside Git under the local validation root
+`stage3-frozen-20261020`, including archives, extraction verification, complete and
+partial caches, process commands/limits, logs, timing, source hashes, the original
+failed launcher, per-arm evaluation and the failed aggregate gate. The evidence
+manifest covers 1,207 files (dataset content represented by archive hashes), SHA-256
+`83f3cbabf4a48305e618d7238b4d1e95d710b938f87cd8b196ec65f473657ef8`.
+The frozen protocol and concise metrics remain auditable in Git; the raw evidence
+requires this machine's external storage and is not included in a Git clone.
+
+Cumulative contribution now includes a frozen held-out protocol, two additional
+sequence-level offline gains, an independently identified baseline BA crash,
+same-input solver controls, and explicit held-out reprojection degradation.
+**No online state writeback, risk-policy experiment, new training, or dynamic/4D
+module is added.** Reliable three-sequence validation remains incomplete.
