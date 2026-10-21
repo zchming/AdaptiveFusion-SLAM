@@ -9,7 +9,9 @@
 > Safety acceptance passes, but teddy accuracy is not improved. A subsequent
 > [cached-feature bridge audit](#cached-feature-bridge-candidates) produces no
 > accepted new constraints; the subsequent [short-window identity audit](#short-window-landmark-identity-audit)
-> also lacks sufficient support. The strict default
+> also lacks sufficient support. [Ordinary-frame transport](#ordinary-frame-track-comparison)
+> increases raw correspondence counts but still supplies no validated constraints.
+> The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
 
@@ -1680,3 +1682,69 @@ original solver or reliable merge claim is made. This frozen route stops without
 BA integration. A separately scoped ordinary-frame tracking audit could test
 whether shorter image intervals recover support; no such benefit is established
 here, and no threshold is relaxed to force acceptance.
+
+### Ordinary-frame track comparison
+
+**Usefulness gate FAIL; no BA integration or accuracy gain.** Python now supports
+transporting the same cached feature seeds through every actual processed image
+between the selected keyframes, in both directions. Lost tracks never reactivate;
+there is no new detector, pose initialization, skipped processed frame or depth
+screening at intermediate frames. Each adjacent LK step keeps the original
+1 px forward/backward check. Endpoint native-depth, reciprocal identity, 12-fit /
+6-validation rigid, triangle and ownership gates remain unchanged. Per-step
+checks do not guarantee a global drift bound. This is offline correspondence
+analysis, not feedback to the original tracker.
+
+The [frozen protocol](results/ordinary_track_protocol.json), SHA-256
+`aaa934353cdbd3c58f387ffeba3649ab58139fe9b1cc778ff661787d9590631b`, declares
+paired direct/chain arms for the same 33 unique pairs and six windows. All 33
+fresh direct pair reports reproduce v6 byte-for-byte. The only model change is
+feature transport; both arms share endpoint/depth/geometry/identity verification.
+Snapshots and complete processed-frame streams retain exact hashes. The same
+previously seen three scenes are reused, without truth or new downloads.
+
+| Count over the same 33 pairs | Direct keyframe LK | Ordinary-frame chain |
+|---|---:|---:|
+| Reciprocal endpoint matches | 68 | 90 |
+| Native-depth-valid matches | 48 | 61 |
+| Different-ID matches | 9 | 7 |
+| Accepted rigid pairs | 0 | 0 |
+| Supported identity candidates | 0 | 0 |
+
+All real pairs still fail split support before fitting. More matches do not
+establish accurate geometry. Some teddy pairs regress: depth-valid matches drop
+14 -> 10 at 157/158 and 18 -> 16 at 201/202. Every rejection and transport loss
+is retained in [paired results](results/ordinary_track_pairs.csv) and
+[window results](results/ordinary_track_windows.csv); no threshold/window changes
+follow results. No map, BA, trajectory or online state is changed, and ATE is
+not re-evaluated. This transport route supplies no supported bridge constraints.
+
+**92/92 Python and 17/17 CTest pass, zero skips.** Ten new checks cover exact
+one-step equivalence, multistep direction, immutable seeds, irreversible loss,
+missing frames, unchanged geometry through the endpoint interface, and complete
+CLI execution on a synthetic RGB-D dataset. The initial 8/9 synthetic run failed
+an incorrect assertion that arbitrary seeds must all survive LK; the corrected
+test permits loss while checking surviving displacement and monotone survival.
+Its initial log is preserved, with no algorithm/gate change.
+
+Joint process times are `0.62 / 1.07 / 1.47 s` for desk/room/teddy, peak RSS
+`112.64 / 148.87 / 158.03 MiB`, within 300 s/8 GiB limits, no OOM/timeout.
+Across pairs, direct tracking plus endpoint checks take about 0.097 s versus
+0.340 s for chain transport plus the same endpoint checks, excluding shared
+loading/export. These single-run audit costs do not establish SLAM throughput or
+P95 performance; the extra work did not yield validated geometry.
+
+```bash
+PYTHONPATH=python python python/audit_ordinary_tracks.py \
+  --snapshot /path/to/input.snapshot --frames /path/to/cache/frames.txt \
+  --dataset /path/to/tum_sequence --output /path/to/new_track_audit
+```
+
+Raw evidence remains outside Git in `ordinary-tracks-v7-20261021`: 95 files,
+manifest SHA-256 `4a598270982b9329a2350fecfaab7fcb0d239a2c6a8f7484c9593d3dd5272067`.
+Cumulative contribution adds Python loss-state management and a controlled
+transport ablation; OpenCV provides LK and the existing numerical backend is
+unchanged. This family of cached-seed LK bridge attempts has not supplied useful
+geometry. Further work should first inspect what original frontend features and
+matches the cache omits, then justify any minimal export interface, rather than
+add more variants or relax validation to force acceptance.
