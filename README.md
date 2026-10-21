@@ -6,7 +6,9 @@
 > the supported behavior. The [experimental component subset](#experimental-anchor-component-subset)
 > fails accuracy; a new opt-in [bridge guard](#python-geometric-bridge-guard)
 > rejects its known teddy degeneracy while retaining desk/room outputs exactly.
-> Safety acceptance passes, but teddy accuracy is not improved. The strict default
+> Safety acceptance passes, but teddy accuracy is not improved. A subsequent
+> [cached-feature bridge audit](#cached-feature-bridge-candidates) produces no
+> accepted new constraints. The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
 
