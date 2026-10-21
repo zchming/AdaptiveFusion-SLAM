@@ -3,10 +3,12 @@
 > Current engineering focus: **static-scene RGB-D geometry**, preserving the
 > C++ frontend and adding a substantive Python offline optimization backend.
 > Offline ATE gains on desk/room and safe rejection of disconnected teddy remain
-> the supported behavior. An [experimental component subset](#experimental-anchor-component-subset)
-> preserves excluded state but **fails the accuracy gate**; it is not recommended
-> for use. The strict default remains unchanged. Online tracking benefit, reliable
-> cross-scene operation and dynamic/4D remain unproven or unimplemented.
+> the supported behavior. The [experimental component subset](#experimental-anchor-component-subset)
+> fails accuracy; a new opt-in [bridge guard](#python-geometric-bridge-guard)
+> rejects its known teddy degeneracy while retaining desk/room outputs exactly.
+> Safety acceptance passes, but teddy accuracy is not improved. The strict default
+> remains unchanged. Online tracking benefit, reliable cross-scene operation and
+> dynamic/4D remain unproven or unimplemented.
 
 **Proactive Tracking-Failure Forecasting and Risk-Adaptive Map Updating for Robust RGB-D SLAM**
 
@@ -1432,3 +1434,88 @@ default**. Further work should first diagnose geometric observability and
 single-/few-landmark bridges, rather than add optimization layers or relax
 checks to force a positive result. No such additional model/gate is implemented
 in this frozen study, and no online tracking benefit is established.
+
+### Python geometric bridge guard
+
+**Frozen safety gate PASS; full accuracy gate still NOT PASSED.** Python source
+`972a01cc962d06c92e2b7c77297a45b29b79a9f8` adds an explicit batch-only
+`--observability-check bridge-audit`, intended for the experimental anchor subset.
+Default `structural` and default `--component-policy all` remain unchanged.
+No C++ implementation, frontend observations, solver settings or online state
+feedback changes in this step.
+
+The guard checks the active camera/landmark graph with iterative Tarjan
+single-landmark separator detection, then examines shared landmarks across each
+ordered temporal cut. One/two-point support provides a rotational gauge witness;
+three or more estimated points are checked for numerical collinearity using
+centered-coordinate SVD (`sigma2 <= 1e-8 * sigma1`, absolute spread `1e-10 m`).
+A noncollinear planar triangle is allowed. Detected problems return before
+optimization (`nfev=0`) with complete state/trajectory rollback. These are
+**sufficient rejection witnesses, not a full observability certificate**:
+arbitrary non-temporal two-point/collinear separators can be missed, and
+estimated-coordinate collinearity depends on the input state. A mathematical
+counterexample for the non-temporal two-point blind spot is retained as a test.
+
+The [protocol](results/observability_guard_protocol.json), SHA-256
+`e18b0d98cb69673fbea0346ade683d4c5f471bbef1a05c775d97b5cf937911b2`, was frozen
+before real-cache evaluation. Nine fresh arms reuse the exact v2 caches: unguarded
+anchor control, guarded anchor, and guarded fixed modulo-10 holdout for each
+sequence. All inference completes before separate truth evaluation. These are
+three previously seen Freiburg1 sequences, not new independent test scenes.
+The same 20-iteration/200-evaluation, 180 s backend, 900 s process and 8 GiB
+address-space budgets apply. Thresholds, graph selection and defaults are not
+adjusted after results. [All numerical rows](results/observability_guard_results.csv)
+include rejected outputs and holdout regressions.
+
+| Sequence | Baseline ATE m | Unguarded anchor ATE m | Guarded ATE m | Guard outcome | Jumps baseline/control/guard |
+|---|---:|---:|---:|---|---:|
+| desk | 0.083488 | 0.057982 | 0.057982 | accepted, not certified | 0 / 0 / 0 |
+| room | 0.431807 | 0.408782 | 0.408782 | accepted, not certified | 0 / 0 / 0 |
+| teddy | 0.427380 | 0.461562 | 0.427380 | rejected, full rollback | 4 / 13 / 4 |
+
+Fresh controls match v3 outputs byte-for-byte on all three sequences. Accepted
+primary and holdout desk/room outputs also match their corresponding unguarded
+outputs byte-for-byte; no previous ATE benefit is forfeited on these caches.
+The 30.55%/5.33% primary ATE improvements are retained earlier gains, not extra
+gains produced by the guard. Primary 1 s translation RPE is respectively
+`0.038772 / 0.062309 / 0.179559 m`, versus baseline
+`0.053976 / 0.074316 / 0.179559 m`.
+
+Teddy has a single-landmark separator (point 117225) isolating 44 cameras, plus
+temporal cuts before keyframes 112 and 159 with two/one crossing landmarks.
+The holdout arm has four failing temporal cuts. Both guarded teddy arms exit 2,
+perform zero optimizer evaluations, and preserve every input pose/point and
+all 1,401 timestamps/valid poses. Baseline ATE/RPE agree within `1e-8 m` after
+serialization; the original four jumps remain. This avoids the failed control's
+8.00% ATE degradation and nine extra jumps, but does not improve teddy or repair
+its missing geometric constraints. A rejected solve is still a rejected solve.
+
+Held-out pixel RMSE still worsens on desk (`1.71498 -> 1.80622 px`) and room
+(`1.59757 -> 1.62389 px`), despite depth RMSE improving
+(`0.026512 -> 0.022857 m`, `0.030634 -> 0.029289 m`). Teddy holdout metrics stay
+exactly unchanged through rollback. No invalid holdout predictions occur.
+This safety check does not establish generalization of the residual model.
+
+Primary audit times are `22.62 / 88.15 / 73.40 ms`, below the frozen 5 s audit
+budget. Guarded complete offline process times are `4.42 / 15.59 / 11.18 s`,
+with peak RSS `174.08 / 383.86 / 295.32 MiB`. The teddy rejection still incurs
+parsing/export/state costs; audit speed is not whole-system throughput.
+Single-run timings do not establish P95 or a statistically reliable speedup.
+No timeout/OOM occurs. Six independent C++ ATE evaluations agree within
+`1.95e-16 m` with Python evaluation.
+
+Checks: **58/58 Python and 17/17 CTest pass, zero skips**. Fourteen new tests
+cover gauge invariance, planar support, non-temporal limitations, brute-force
+separator crosschecks, a 1,500-camera chain, coordinate invariance, solver bypass,
+complete rollback and CLI coverage. Raw runs, failed exits, state audits and test
+logs remain outside Git in `observability-guard-v4-20261021`; 116 evidence files
+have manifest SHA-256
+`75e530fdb80215df610e04667795c35810b7a73a2e7f3d84a1755773e9b5103f`.
+All previous negative results and reproduction paths remain intact.
+
+Cumulative contribution: substantive Python residual/state/trajectory handling,
+subgraph selection, geometric gauge analysis and an opt-in rejection guard with
+regression evidence. Tarjan/SVD/Schur LM are established algorithms; NumPy/SciPy
+provide numerical primitives, not an original solver claim. Further geometric
+improvement requires stronger valid observations or a separately justified model;
+passing this guard does not authorize online feedback or risk scheduling.
