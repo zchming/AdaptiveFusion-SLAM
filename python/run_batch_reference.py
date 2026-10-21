@@ -18,6 +18,8 @@ def main():
     parser.add_argument('--holdout-modulus',type=int,default=0,help='0: fit all; >=2: exclude whole landmark IDs divisible by modulus')
     parser.add_argument('--component-policy',choices=['all','anchor'],default='all',
                         help='anchor: optimize only the component containing fixed keyframe 0')
+    parser.add_argument('--observability-check',choices=['structural','bridge-audit'],default='structural',
+                        help='optional full-batch separator/collinearity rejection; passing is not a rank certificate')
     args=parser.parse_args()
     if args.output.exists():parser.error('output exists')
     marker=json.loads((args.cache/'complete.json').read_text())
@@ -39,6 +41,7 @@ def main():
               'truth_used':False,'online':False,'time_limit_s':args.time_limit_s}
     protocol['holdout_modulus']=args.holdout_modulus
     protocol['component_policy']=args.component_policy
+    protocol['observability_check']=args.observability_check
     protocol['active_keyframe_ids']=p.kids
     protocol['active_points']=len(p.pids)
     protocol['active_observations']=len(p.obs)
@@ -50,7 +53,7 @@ def main():
     print(json.dumps({k:v for k,v in protocol.items() if k not in ['heldout_point_ids','python_source_sha256']}),flush=True)
     fit=solve(s,method='schur-lm',jacobian='analytic',termination_profile='ceres-cost',
               acceptance_policy='usable',time_limit_s=args.time_limit_s,
-              component_policy=args.component_policy)
+              component_policy=args.component_policy,observability_check=args.observability_check)
     write_snapshot(args.output/'output.snapshot',fit.snapshot)
     write_sparse_ply(args.output/'shared_map.ply',fit.snapshot)
     poses={k.id:k.t_wc for k in fit.snapshot.keyframes}

@@ -178,7 +178,7 @@ class SolveResult:
 
 def solve(snapshot, *, max_nfev=200, time_limit_s=30., jacobian='sparse-fd', lsmr_tolerance=None,
           termination_profile='strict', method='scipy-trf', acceptance_policy='converged',boundary='window',
-          component_policy='all'):
+          component_policy='all', observability_check='structural'):
     """Input is never mutated; every failure returns an independent full original.
 
     max_nfev is deliberately distinct from Ceres maximum_iterations. Both
@@ -190,7 +190,8 @@ def solve(snapshot, *, max_nfev=200, time_limit_s=30., jacobian='sparse-fd', lsm
     initial, final, nfev, nvars, nobs = {}, {}, 0, 0, 0
     diagnostics = {'jacobian':jacobian,'lsmr_tolerance':lsmr_tolerance,
                    'termination_profile':termination_profile,'method':method,'acceptance_policy':acceptance_policy,
-                   'boundary':boundary,'component_policy':component_policy}
+                   'boundary':boundary,'component_policy':component_policy,
+                   'observability_check':observability_check}
     try:
         if max_nfev <= 0 or not np.isfinite(time_limit_s) or time_limit_s <= 0:
             raise ValueError('invalid solver budget')
@@ -198,7 +199,19 @@ def solve(snapshot, *, max_nfev=200, time_limit_s=30., jacobian='sparse-fd', lsm
         diagnostics['active_keyframe_ids'] = problem.kids
         diagnostics['partial_scope'] = len(problem.kids) < len(original.keyframes) - problem.begin
         nvars, nobs = len(problem.x0), len(problem.obs)
+        if observability_check not in ['structural', 'bridge-audit']:
+            raise ValueError('invalid observability check')
+        if observability_check == 'bridge-audit' and (problem.begin != 0 or boundary != 'window'):
+            raise ValueError('bridge audit requires a full batch window')
         problem.preflight()
+        if observability_check == 'bridge-audit':
+            from .observability import bridge_audit
+            audit = bridge_audit(problem)
+            diagnostics['observability_audit'] = audit
+            if audit['decision'] == 'reject':
+                raise ValueError('bridge observability check failed')
+            if time.perf_counter()-start > time_limit_s:
+                raise TimeoutError('preflight time budget exceeded')
         initial = problem.metrics(problem.x0)
         def residual(x):
             if time.perf_counter() - start > time_limit_s:
