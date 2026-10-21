@@ -1,0 +1,133 @@
+{
+  "frozen_at_utc": "2026-10-21T13:19:08.086796+00:00",
+  "development_protocol_sha256": "a0e5f3213574f901b381c3110b66061c93fdb381296470716135386deb5a06aa",
+  "prior_manifests_sha256": {
+    "frontend-features-v9-20261021/evidence-manifest.json": "6ecc104c81dfff66ece31e90396e16812963471e235590938a0142c75cab80c3",
+    "pair-model-dev-v12-20261021/manifest.json": "ab114a9c15a2010b49482ea50b11fab0376ef02ea8455d8da69f1fa496fb0a7f"
+  },
+  "source_sha256": {
+    "python/evaluate_candidate_proposals.py": "64ea64264a8a104acde55b4e76c647993c52b8be7bf099b2f845efba7c909d89",
+    "python/audit_landmark_identity.py": "4ce05819326d096da62f614b1d7d700a2879c2af6b7e43634bde268e3d02bea6",
+    "python/compare_pair_models.py": "9baad7ff2f25d94e8f7c10fde9b4c2e756f9931d6af28dae4d22afc93ff8aaf2",
+    "python/run_batch_reference.py": "807729f5e5a6f65eedeb0f20af3ea63e4404175d5b0c1ca58fbc492686bafd35",
+    "python/run_offline_backend.py": "7bb75156c6ce210b290023b18a7ad39f142b9ca467625daad558b17f86551fc0",
+    "python/diagnose_candidate_proposals.py": "4305c008b254fdba078982b3a4d034d3e75a03c4b85cb7187942f4dd2f297ffa",
+    "python/audit_ordinary_tracks.py": "6d99d4c75abe2a10d463f213d72cf96a6ef990a80b4cc5f7500a7eb5d16f0adf",
+    "python/run_geometry_replay.py": "1d5636e09173034cd17cf4308c07e93a056ceb7d7830d05730e92207763f92a7",
+    "python/audit_bridge_candidates.py": "de9904369cde3822d876daa0257fd1ebc224ead4be834b14af027c22005e9308",
+    "python/audit_frontend_features.py": "eee9d6c8c21f24766722a1dbe3f70f9d2b8b84b10a0173be7feae659850aad19",
+    "python/adaptivefusion/proposal_diagnostics.py": "92a049798e9e135d88e42472503c143d0ec2ba09f3e247a2b813d6d4888f558c",
+    "python/adaptivefusion/state.py": "03e5271477ab616a0429805df780325eecb7a1361fe76219b41d41a68003e882",
+    "python/adaptivefusion/local_ba.py": "5c4a4418078a5e334bc345c011f4f76766064e4b10f7c0864a53e3efec137baa",
+    "python/adaptivefusion/__init__.py": "8cd89335fa44e3e8afd60e0af5cbe887033b79f41c0a56808621c5d488f47e23",
+    "python/adaptivefusion/schur.py": "30b4a5cc7b7c2ddf3132d867ce61cef1eefdef21c8323e800dee51a641ab6a91",
+    "python/adaptivefusion/candidate_validation.py": "23f5af7dfef4a268864daf912c6dfb0407cf3e9c8780a6ba9caf388ac38527a2",
+    "python/adaptivefusion/evaluation.py": "273af0dfe142cf9a7ee5dadf3faeb06944c9b5140a210ee1d44eb5078915b452",
+    "python/adaptivefusion/offline.py": "f27ce90b50064b57c7ecb240e1d5d9ded9b030743b3d29517c983a6c6b633240",
+    "python/adaptivefusion/geometry.py": "ca71edd74ee8b7a26ee6b9352f136f547e42d8951fb38c4e72994c6216cb4918",
+    "python/adaptivefusion/observability.py": "6d9ba0e4b45829de162ad1d6e4267dc832de25b6891eb01c3743be332c029ed6",
+    "python/adaptivefusion/components.py": "be327a36982fbc09bdbd6aced5c2eb18e64bca49495ba0407c9b5755e5b6616c",
+    "python/adaptivefusion/observation_pool.py": "69a5f8a8df87a1b60082f77db1ed08c2b441f3131941788181baeb3c47765277",
+    "python/adaptivefusion/ordinary_tracks.py": "bd5bd9da14c9f539d43f1a6367a965038dfb365a1e0d474cc52f98744a87ee14",
+    "python/adaptivefusion/frontend_features.py": "016baa276145ecd9b3f01624cdce1e2b7f06f3a12fa80fab2ad2e5d47b4aa24c",
+    "python/adaptivefusion/landmark_identity.py": "111b20b2a857caa7647d25384cbdefb45cb396a09f3b642fb5abee65e45be31e",
+    "python/adaptivefusion/trajectory.py": "64218b903df9f1ffe339dfcbaa700675a3f9f8781a1b9bf33cf9605f9f3e6a62",
+    "python/adaptivefusion/pair_model_comparison.py": "0e417c6c302f014525c33a5312c0ffc4d34e6c45d016c093c7237fdf4ad414d4",
+    "python/adaptivefusion/bridge_candidates.py": "50021ee63dee05c70db43796f59bd29058af31bc72c03f6fb5b7dfbf3b4c4d01",
+    "tests/python/test_pair_model_comparison.py": "368c43fa8fe15d8ffe2c50c891fc756b408ff241c9d87a794c8c078e25a3828f"
+  },
+  "config": {
+    "minimum_fit": 6,
+    "pixel_sigma": 2.0,
+    "metric_sigma_m": 0.01,
+    "huber_delta": 2.0,
+    "maximum_nfev": 100,
+    "tolerance": 1e-10
+  },
+  "inputs": {
+    "fr1_desk": {
+      "frames_sha256": "e090ed4395d1930ce7a48fe6d45db0a64408949895a02e90098f5bc910b12861",
+      "truth_sha256": "48c4fa61f5d78310ea579f404d31d296738c4210c19c2bdac4a5cdf6bff50831",
+      "proposals": {
+        "21-22.json": "80ef977d291d16afcf59b52b4da9d07bae29c212b7cd0e23abf7f463beb47a04",
+        "21-23.json": "35cdd48a07056c674c3ed67b5f9b984fcd86ee7ba001bd0dbea264f8a739f35a",
+        "21-24.json": "628206b096195ad7c1baa4c60877353d77cd7421c7106c30acdf81fa3898f31f",
+        "22-23.json": "13e7cf55860479b117bb0785de91d26da0dd6776059c85c27255e94829be201b",
+        "22-24.json": "116e65b4a3a087098667adf86e9eb6a264c2c5ed489ead7b034b823a72e80099",
+        "23-24.json": "509c7ff87f5f2b96f52384f9fc58929ff3da5dac0ef5e661fbd8c966d1c92bd0"
+      }
+    },
+    "fr1_room": {
+      "frames_sha256": "528b2d9541a326772b64528793a65bcecd37214700003c154155404f2284fad3",
+      "truth_sha256": "66b6770d887a5a3b69c94c3b186c3f76fe092ca25399772177f41aed984bd1b0",
+      "proposals": {
+        "141-142.json": "bb4613015e1b1d9d710670be0314d03299932c266037206a88fc7411d0ea61a4",
+        "141-143.json": "f5eb746b307eb93b22029c7705b1bf70f3eb44232e7da5da37435fc7fa503d6c",
+        "141-144.json": "c4799e245f487e66f46cafc161930362aec4eb7f0623f92d4daca51ec70a3d10",
+        "142-143.json": "066876c2e482177f0c4eceaf0f793c3843bdd0592dc7110f70454a6aa24f7058",
+        "142-144.json": "5eaae654be7f7003c1da096cde7814a90c29ff87d82104bf3ccda1403dfb27fe",
+        "143-144.json": "7ec1eed5e9deb79c799f831c41c1c5ccfec7a8dc4e1c541ff040a502b1a35cc2"
+      }
+    },
+    "fr1_teddy": {
+      "frames_sha256": "6f28ea57e8c1c2ab073805c41c86ff477983b9114d0d4a8730670c0932688fc3",
+      "truth_sha256": "b6c28a8ad16e7cd15dfc21425f3753c261ae470b3a090f834af33e522c023303",
+      "proposals": {
+        "110-111.json": "59e1a8fdf197808ccdb7d40cb0407e8ceb4f419c4d15bf6ac1355a21356dd9f6",
+        "110-112.json": "5dfec82f2598eeb8e4a71934bbfda0c2fc69fd667a8d4a3824db9b00264f0ff3",
+        "110-113.json": "c5b89a2eb9061464ff7a2e2c5a48b7e8e625809b7111e0f3da0d94f380588f31",
+        "111-112.json": "8a145c56c5f5ffb37766ccca3d0138cd4aeca93cab4abbfe4277a99c501f40d8",
+        "111-113.json": "a2834891887bba3e932b9710bf1430a2f06cd27e95c6c2d009b5dd4db90885f7",
+        "112-113.json": "5358ad9f10edbe9fbd0b56f435013f6e3a1c3c7b3c99457c23a5b9a47fa7a02b",
+        "157-158.json": "74576aff913f9b68bf45b1a66c10e0eafdc588b3826a7686246129eb5dfc2d40",
+        "157-159.json": "2cc71b8e4c3b21a3c9d5238c06274b25345abefa997785ed80e5c96c0667c9e8",
+        "157-160.json": "3558a4330c82843ef5c895213f7a791e7048e0a7657dcafb13c7711b9815fc00",
+        "158-159.json": "b9b20c90d7601d40eded9c3e4a31fa0f5a959a574e9f6b5cbea800a5d07d43b2",
+        "158-160.json": "11a1e740e25c0866ad473c12379363dce3328a30d05edba4abc7ce927f3ce81c",
+        "159-160.json": "176e77b50b841a60d1266527d781ff88cb8c770362b6ded52522fd8a2350ef79",
+        "201-202.json": "a28f28c7b422904243eb90649ef6d815b088cd4af896613fad63bd474b3477f2",
+        "201-203.json": "7aeb2706a338636fd602f5aa516ba0cac3fe281a14085b6c3f7ded01c7f002d1",
+        "201-204.json": "2a1220412152e7321668fc41a910042ed5471a25447ca181733f7ec421590230",
+        "202-203.json": "03f24c68983aea77a987fbde1a190a2f2b0a1e6e4013c78ab280fe8253c4798d",
+        "202-204.json": "1a29bfdf57faac55da300a1f797d073a0cda9d1b206af368dcd3b9b7d68571dc",
+        "202-205.json": "a5bf1f3c2a4802f9ee99f1bc9d8f353eb4c1cabd288cdfc552dd451c8c091675",
+        "203-204.json": "379ff87df473f5f1c5a5ed6b3aaf142a3adf6cb05ffe3ccccc49bc1949e427d8",
+        "203-205.json": "585875cffa8f5f823b0333d5e10817bad129de8f8b939f3c542a52c617679685",
+        "204-205.json": "4dd7404f8d6a9f695de2c0b203487903041b044c58b7c8c77330764a7047c3bc"
+      }
+    }
+  },
+  "selection": "all original descriptor pairs for desk, room, teddy (6/6/21), accepted and rejected; reused scenes already inspected, not fresh held-out data",
+  "primary": "matched raw-frame-pose initialization for both models on every pair; failed or skipped solves fully roll back and stay failures",
+  "secondary": "matched frozen RANSAC 3D-3D initialization for both models only when an existing model is available; report all, never select best after GT",
+  "fit_split": "original source-feature-row even IDs; odd IDs are validation; do not use original inlier mask to select fit rows",
+  "model_units": "3D-3D Euclidean blocks /0.01m; 3D-2D pixel blocks /2px; these noise scales are fixed and imply different objectives, not equal physical weights",
+  "solver": "SciPy trf 3-point numerical Jacobian, same 6-DoF local rotation and additive translation, block Huber delta2, max100 evaluations, strict convergence and finite cost/depth/Jacobian checks; no novel solver claim",
+  "truth_use": "fit-only finalized before GT opens; nearest and bracketed interpolation only evaluation, no truth-driven fit/selection",
+  "evaluation_criteria": {
+    "pair_improvement": "reuse V12 pair_value: <=3cm/2deg and >=5mm plus10% translation gain without >0.5deg rotation loss OR >=0.5deg plus10% rotation gain without >5mm translation loss, in both nearest/interpolated protocols; both models must have converged; evaluation only",
+    "scene_median": "minimum 3 shared-converged primary pairs for assessment; no scene worsens >5mm/0.5deg under either time protocol",
+    "multi_scene_benefit": "at least two assessed scenes have >=10% primary median translation or rotation improvement in both time protocols, without violating scene_median",
+    "solver_reliability": "no extra 3D-2D failure/rollback in any scene; all original insufficient support cases counted",
+    "cross_cut": "at least one cross-cut primary 3D-2D pair meets both timestamp accuracy/improvement requirements relative to matched 3D-3D refinement; does not establish depth consistency, triangle support or BA admission",
+    "overall": "all criteria required for positive reused-scene continuation evidence; no aggregate trajectory/online claim even if passed"
+  },
+  "limitations": [
+    "previously seen development pairs; not fresh independent test",
+    "both arms use original target-depth-valid eligibility so target depth remains a selection dependency",
+    "no new RANSAC or matching; common raw initialization can fail on poor correspondences",
+    "3D-3D initialization is a secondary bias control, not ground-truth model selection",
+    "no map, BA, trajectory, risk scheduling or online changes",
+    "test scenes previously inspected; no claim of independent generalization",
+    "selected weak-cut windows only, not full-sequence odometry",
+    "failed/rolled back models retain error measurements but never count as successful fits",
+    "secondary initializations are never selected by truth; original RANSAC errors reported as separate context"
+  ],
+  "limits": {
+    "timeout_s_per_scene": 60,
+    "address_space_gib": 4,
+    "output_bytes": 10485760,
+    "blas_omp_mkl_threads": 1
+  },
+  "stop": "finish all three attempts, preserve all failures/degradations; no tuning, data downloads, code changes, pose history deformation, BA, map merges, risk scheduling or online writeback"
+}

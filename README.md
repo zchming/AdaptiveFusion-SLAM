@@ -15,7 +15,20 @@
 > recovers cached singletons, but its frozen comparison still fails geometry.
 > [Native feature export](#native-orb-feature-export-and-python-matching) now passes
 > interface/state checks; descriptor proposals add two cross-cut rigid pairs,
-> with zero triangle-qualified bridges and no new trajectory-accuracy claim.
+> with zero triangle-qualified bridges. Both cross-cut pairs subsequently
+> [fail frozen independent evaluation](#fixed-proposal-independent-evaluation);
+> neither is promoted into BA, and no new trajectory-accuracy gain is claimed.
+> [Fixed-model diagnostics](#fixed-model-error-diagnostics) expose rotation and
+> translation compensation near the matched support, without uniquely identifying
+> the underlying measurement error.
+> A frozen [3D-2D reused-scene comparison](#frozen-reused-scene-pair-model-validation)
+> has local gains but fails overall acceptance through desk degradation and
+> additional rollback; numerically converged wrong poses remain possible.
+> A [development-only update gate](#development-only-pair-update-guard) now rejects
+> some bad cached updates with exact pose rollback, but retains median error
+> equal to the raw baseline. Its subsequent [frozen reused-scene validation](#frozen-reused-scene-update-guard-validation)
+> fails through inaccurate accepted updates and regressions; online benefit remains
+> unproven and the gate is not integrated.
 > The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
