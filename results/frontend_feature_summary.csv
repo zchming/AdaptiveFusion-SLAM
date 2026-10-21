@@ -1,0 +1,9 @@
+sequence,arm,unique_pairs,accepted_pairs,accepted_crosscut_pairs,triangle_qualified_crosscut_pairs
+fr1_xyz,descriptor,6,2,0,0
+fr1_xyz,lk,6,0,0,0
+fr1_desk,descriptor,6,2,1,0
+fr1_desk,lk,6,0,0,0
+fr1_room,descriptor,6,1,0,0
+fr1_room,lk,6,0,0,0
+fr1_teddy,descriptor,21,2,1,0
+fr1_teddy,lk,21,0,0,0

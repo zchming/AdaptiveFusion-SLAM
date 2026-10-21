@@ -13,6 +13,9 @@
 > increases raw correspondence counts but still supplies no validated constraints.
 > A [candidate-pool repair](#candidate-observation-pool-and-minimal-feature-export-proposal)
 > recovers cached singletons, but its frozen comparison still fails geometry.
+> [Native feature export](#native-orb-feature-export-and-python-matching) now passes
+> interface/state checks; descriptor proposals add two cross-cut rigid pairs,
+> with zero triangle-qualified bridges and no new trajectory-accuracy claim.
 > The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
