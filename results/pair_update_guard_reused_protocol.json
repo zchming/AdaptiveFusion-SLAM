@@ -1,0 +1,91 @@
+{
+  "frozen_at_utc": "2026-10-21T13:35:21.418033+00:00",
+  "development_protocol_sha256": "86dc4b536437e5807779d3c4c349b965974f3751fc4f85a32bcd3ed1cb0838f7",
+  "prior_manifests_sha256": {
+    "pair-model-reused-v13-20261021": "d40c2696834f12ef7ad49c035bb43f614f51ad296e633f3685333848275ea6af",
+    "pair-update-guard-dev-v14-20261021": "e199c5ae5aabefaa7f3befc06d9c7302c261e90061da4202c4172e2be4d7ac6c"
+  },
+  "source_sha256": {
+    "python/check_pair_updates.py": "e3fdd5cd1f85e986c6fe0bb0c0f17043dddd13b8dc49b5b6e9f9acd1ba9ab5e0",
+    "python/evaluate_candidate_proposals.py": "64ea64264a8a104acde55b4e76c647993c52b8be7bf099b2f845efba7c909d89",
+    "python/audit_landmark_identity.py": "4ce05819326d096da62f614b1d7d700a2879c2af6b7e43634bde268e3d02bea6",
+    "python/compare_pair_models.py": "9baad7ff2f25d94e8f7c10fde9b4c2e756f9931d6af28dae4d22afc93ff8aaf2",
+    "python/run_batch_reference.py": "807729f5e5a6f65eedeb0f20af3ea63e4404175d5b0c1ca58fbc492686bafd35",
+    "python/run_offline_backend.py": "7bb75156c6ce210b290023b18a7ad39f142b9ca467625daad558b17f86551fc0",
+    "python/diagnose_candidate_proposals.py": "4305c008b254fdba078982b3a4d034d3e75a03c4b85cb7187942f4dd2f297ffa",
+    "python/audit_ordinary_tracks.py": "6d99d4c75abe2a10d463f213d72cf96a6ef990a80b4cc5f7500a7eb5d16f0adf",
+    "python/run_geometry_replay.py": "1d5636e09173034cd17cf4308c07e93a056ceb7d7830d05730e92207763f92a7",
+    "python/audit_bridge_candidates.py": "de9904369cde3822d876daa0257fd1ebc224ead4be834b14af027c22005e9308",
+    "python/audit_frontend_features.py": "eee9d6c8c21f24766722a1dbe3f70f9d2b8b84b10a0173be7feae659850aad19",
+    "python/adaptivefusion/proposal_diagnostics.py": "92a049798e9e135d88e42472503c143d0ec2ba09f3e247a2b813d6d4888f558c",
+    "python/adaptivefusion/state.py": "03e5271477ab616a0429805df780325eecb7a1361fe76219b41d41a68003e882",
+    "python/adaptivefusion/local_ba.py": "5c4a4418078a5e334bc345c011f4f76766064e4b10f7c0864a53e3efec137baa",
+    "python/adaptivefusion/__init__.py": "8cd89335fa44e3e8afd60e0af5cbe887033b79f41c0a56808621c5d488f47e23",
+    "python/adaptivefusion/schur.py": "30b4a5cc7b7c2ddf3132d867ce61cef1eefdef21c8323e800dee51a641ab6a91",
+    "python/adaptivefusion/candidate_validation.py": "23f5af7dfef4a268864daf912c6dfb0407cf3e9c8780a6ba9caf388ac38527a2",
+    "python/adaptivefusion/evaluation.py": "273af0dfe142cf9a7ee5dadf3faeb06944c9b5140a210ee1d44eb5078915b452",
+    "python/adaptivefusion/pair_update_guard.py": "7df0076ef38d102fdd44a24655f0c11ae999d8b692ca74f880b4f315ef512c35",
+    "python/adaptivefusion/offline.py": "f27ce90b50064b57c7ecb240e1d5d9ded9b030743b3d29517c983a6c6b633240",
+    "python/adaptivefusion/geometry.py": "ca71edd74ee8b7a26ee6b9352f136f547e42d8951fb38c4e72994c6216cb4918",
+    "python/adaptivefusion/observability.py": "6d9ba0e4b45829de162ad1d6e4267dc832de25b6891eb01c3743be332c029ed6",
+    "python/adaptivefusion/components.py": "be327a36982fbc09bdbd6aced5c2eb18e64bca49495ba0407c9b5755e5b6616c",
+    "python/adaptivefusion/observation_pool.py": "69a5f8a8df87a1b60082f77db1ed08c2b441f3131941788181baeb3c47765277",
+    "python/adaptivefusion/ordinary_tracks.py": "bd5bd9da14c9f539d43f1a6367a965038dfb365a1e0d474cc52f98744a87ee14",
+    "python/adaptivefusion/frontend_features.py": "016baa276145ecd9b3f01624cdce1e2b7f06f3a12fa80fab2ad2e5d47b4aa24c",
+    "python/adaptivefusion/landmark_identity.py": "111b20b2a857caa7647d25384cbdefb45cb396a09f3b642fb5abee65e45be31e",
+    "python/adaptivefusion/trajectory.py": "64218b903df9f1ffe339dfcbaa700675a3f9f8781a1b9bf33cf9605f9f3e6a62",
+    "python/adaptivefusion/pair_model_comparison.py": "0e417c6c302f014525c33a5312c0ffc4d34e6c45d016c093c7237fdf4ad414d4",
+    "python/adaptivefusion/bridge_candidates.py": "50021ee63dee05c70db43796f59bd29058af31bc72c03f6fb5b7dfbf3b4c4d01",
+    "tests/python/test_pair_update_guard.py": "152d8b21d9be55e742b434ef245597d1e03a0d22475ea2589a6c65c4faa5f00c"
+  },
+  "config": {
+    "minimum_check_count": 6,
+    "maximum_median_px": 4.0,
+    "allowed_median_increase_px": 1e-09
+  },
+  "inputs": {
+    "fr1_desk": {
+      "fit_only_sha256": "3d967a8dca6ceb177706b81e12343fc8183a15c45a6bb1df3f2812f89b4eb07f",
+      "post_decision_evaluation_sha256": "f3db852cdb5c0eba089563d070f70379af9d503d358a0eb64fc8407d0f363c30"
+    },
+    "fr1_room": {
+      "fit_only_sha256": "2b5a4d59c6fd9b5f86e4f29343a4dbf09c63036f9365ab6055f0773d08af6da8",
+      "post_decision_evaluation_sha256": "76679d8538f78b706d0cc6283bef5f64b6a71baef148cf1bfc07f106257fba13"
+    },
+    "fr1_teddy": {
+      "fit_only_sha256": "a386f6ac0896d463fa394b8a4d834b50384214f0bc85db1f74f316ffe43d5cd9",
+      "post_decision_evaluation_sha256": "9a95c12c5cacaca96e08b8e758dee8b5150b6798ff0841f4942e3f8056cd0faf"
+    }
+  },
+  "scope": "frozen gate on all33 previously seen primary cached 3D-2D pair updates, desk6 room6 teddy21; reused-scene evaluation, not fresh independent validation",
+  "selection": "all33 attempts, including failed solves and all rejected/accepted poses; no new fitting/matching, no threshold changes",
+  "gate": "solver must have applied; >=6 odd source rows; all check projections positive; check median <=4 pixels (V12 sigma2 times Huber delta2), and <=raw initial median with1e-9 tolerance; any failure returns full raw transform exactly",
+  "check_data": "original odd source-feature rows formerly called validation; now decision inputs, no longer independent evaluation. Cached native source depth and target pixels, no target depth in gate residual. Original target-depth eligibility still present. No new matches or retuning.",
+  "truth_use": "each scene guard-only finalized before corresponding recorded GT evaluation is opened; no GT in selection",
+  "criteria": {
+    "accounting": "all33 decisions accounted, every rejection returns exact raw transform, original source/evidence hashes unchanged",
+    "nontrivial_coverage": "at least one accepted update in each of three scenes",
+    "accepted_accuracy": "every accepted transform <=3cm/2deg and not materially worse than raw by >5mm/0.5deg, both timestamp protocols",
+    "benefit": "at least two scenes have >=1 accepted meaningful improvement against raw baseline using unchanged V12 pair_value",
+    "all_case_medians": "selected returned-pose medians not worse than raw or unguarded >5mm/0.5deg in any scene, both timestamp protocols; all attempts included, including fallbacks",
+    "known_extreme_error": "teddy201/203 converged extreme error rejected; this is a known regression control, not independent evidence",
+    "overall": "all criteria required; failure stops this gate configuration without test-time tuning or BA/online integration"
+  },
+  "limitations": [
+    "earlier test-scene failures motivated this development-only gate; no fresh independence claim",
+    "median bound can hide up to nearly half bad checks, demonstrated by unit test",
+    "raw fallback may already be inaccurate and rejection can discard an actual improvement",
+    "decision checks cannot also be reported as independent geometric holdout",
+    "no map/BA/trajectory/tracking feedback or test replay; no test-derived threshold calibration",
+    "earlier inspected results motivated this gate; these test scenes are reused",
+    "successful rollback does not fix an already bad raw initial pose",
+    "all-case metrics include fallbacks; accepted-only metrics alone cannot establish useful system accuracy"
+  ],
+  "limits": {
+    "timeout_s_per_scene": 60,
+    "address_space_gib": 2,
+    "output_bytes": 10485760,
+    "blas_omp_mkl_threads": 1
+  },
+  "stop": "finish three cached replays and evidence audit, preserve all failures, no retuning or online/BA writeback; publication may include negative results"
+}

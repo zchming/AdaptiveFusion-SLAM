@@ -1,0 +1,66 @@
+{
+  "frozen_at_utc": "2026-10-21T12:54:20.523809+00:00",
+  "source_sha256": {
+    "python/evaluate_candidate_proposals.py": "64ea64264a8a104acde55b4e76c647993c52b8be7bf099b2f845efba7c909d89",
+    "python/audit_landmark_identity.py": "4ce05819326d096da62f614b1d7d700a2879c2af6b7e43634bde268e3d02bea6",
+    "python/run_batch_reference.py": "807729f5e5a6f65eedeb0f20af3ea63e4404175d5b0c1ca58fbc492686bafd35",
+    "python/run_offline_backend.py": "7bb75156c6ce210b290023b18a7ad39f142b9ca467625daad558b17f86551fc0",
+    "python/diagnose_candidate_proposals.py": "4305c008b254fdba078982b3a4d034d3e75a03c4b85cb7187942f4dd2f297ffa",
+    "python/audit_ordinary_tracks.py": "6d99d4c75abe2a10d463f213d72cf96a6ef990a80b4cc5f7500a7eb5d16f0adf",
+    "python/run_geometry_replay.py": "1d5636e09173034cd17cf4308c07e93a056ceb7d7830d05730e92207763f92a7",
+    "python/audit_bridge_candidates.py": "de9904369cde3822d876daa0257fd1ebc224ead4be834b14af027c22005e9308",
+    "python/audit_frontend_features.py": "eee9d6c8c21f24766722a1dbe3f70f9d2b8b84b10a0173be7feae659850aad19",
+    "python/adaptivefusion/proposal_diagnostics.py": "92a049798e9e135d88e42472503c143d0ec2ba09f3e247a2b813d6d4888f558c",
+    "python/adaptivefusion/state.py": "03e5271477ab616a0429805df780325eecb7a1361fe76219b41d41a68003e882",
+    "python/adaptivefusion/local_ba.py": "5c4a4418078a5e334bc345c011f4f76766064e4b10f7c0864a53e3efec137baa",
+    "python/adaptivefusion/__init__.py": "8cd89335fa44e3e8afd60e0af5cbe887033b79f41c0a56808621c5d488f47e23",
+    "python/adaptivefusion/schur.py": "30b4a5cc7b7c2ddf3132d867ce61cef1eefdef21c8323e800dee51a641ab6a91",
+    "python/adaptivefusion/candidate_validation.py": "23f5af7dfef4a268864daf912c6dfb0407cf3e9c8780a6ba9caf388ac38527a2",
+    "python/adaptivefusion/evaluation.py": "273af0dfe142cf9a7ee5dadf3faeb06944c9b5140a210ee1d44eb5078915b452",
+    "python/adaptivefusion/offline.py": "f27ce90b50064b57c7ecb240e1d5d9ded9b030743b3d29517c983a6c6b633240",
+    "python/adaptivefusion/geometry.py": "ca71edd74ee8b7a26ee6b9352f136f547e42d8951fb38c4e72994c6216cb4918",
+    "python/adaptivefusion/observability.py": "6d9ba0e4b45829de162ad1d6e4267dc832de25b6891eb01c3743be332c029ed6",
+    "python/adaptivefusion/components.py": "be327a36982fbc09bdbd6aced5c2eb18e64bca49495ba0407c9b5755e5b6616c",
+    "python/adaptivefusion/observation_pool.py": "69a5f8a8df87a1b60082f77db1ed08c2b441f3131941788181baeb3c47765277",
+    "python/adaptivefusion/ordinary_tracks.py": "bd5bd9da14c9f539d43f1a6367a965038dfb365a1e0d474cc52f98744a87ee14",
+    "python/adaptivefusion/frontend_features.py": "016baa276145ecd9b3f01624cdce1e2b7f06f3a12fa80fab2ad2e5d47b4aa24c",
+    "python/adaptivefusion/landmark_identity.py": "111b20b2a857caa7647d25384cbdefb45cb396a09f3b642fb5abee65e45be31e",
+    "python/adaptivefusion/trajectory.py": "64218b903df9f1ffe339dfcbaa700675a3f9f8781a1b9bf33cf9605f9f3e6a62",
+    "python/adaptivefusion/bridge_candidates.py": "50021ee63dee05c70db43796f59bd29058af31bc72c03f6fb5b7dfbf3b4c4d01",
+    "tests/python/test_proposal_diagnostics.py": "76943c6808c160dac4cf6718b2f3b94e3cc111908e0ddaeb41e55652b2c703fb"
+  },
+  "prior_manifests_sha256": {
+    "candidate-validation-v10-20261021/manifest.json": "dc6aea42c1bc2146c841922c1dac51a9c13aeac7f5ddb012784e2c2b2d1a5305",
+    "frontend-features-v9-20261021/evidence-manifest.json": "6ecc104c81dfff66ece31e90396e16812963471e235590938a0142c75cab80c3"
+  },
+  "scope": "descriptive evaluation of all seven fixed previously seen V9 proposals, not a new held-out validation",
+  "diagnostics": [
+    "reconstruct every original depth-valid correspondence and frozen inlier mask exactly",
+    "unchanged pinhole intrinsics, native depth scale and model direction",
+    "all/even-fit/odd-validation/original-inlier groups, no new subsets or fitted models",
+    "source and target centered RMS support spectrum, 4x4 occupancy and pixel span",
+    "candidate/raw baseline/RGB timestamp interpolated GT/depth timestamp interpolated GT: fixed 3D and pixel residuals and depth-independent symmetric epipolar error",
+    "exact centroid decomposition of rotation lever arm and camera-origin translation disagreement",
+    "inverse direction negative control; RGB-vs-depth timestamps only, no offset/calibration search"
+  ],
+  "truth_use": "diagnostics only; no GT-selected correspondences, fitting or optimizer admission",
+  "unchanged": [
+    "V9 proposal matrices and records",
+    "V10 thresholds and results",
+    "tracking/map/BA/trajectories"
+  ],
+  "limitations": [
+    "existing zero-distortion pinhole model, actual calibration mismatch remains unverified",
+    "depth timestamp pose is descriptive because depth is registered to RGB; not an alternative corrected model",
+    "epipolar consistency cannot certify correspondence identity; support spectrum does not prove full system rank",
+    "RGB and depth timing, registration, lens distortion, depth error and mismatch can be confounded"
+  ],
+  "limits": {
+    "timeout_s_per_scene": 60,
+    "address_space_gib": 4,
+    "output_bytes": 10485760
+  },
+  "stopping": "finish all seven descriptive cases; no tuning, integration, download or cause claims beyond evidence",
+  "raw_protocol_sha256": "93b383a163726effd67eb3c0f65041100d43bc547eea208b27f50c88470bd97f",
+  "public_provenance": "Only prior-manifest absolute path keys replaced by artifact directory/file names; raw frozen protocol hash retained."
+}

@@ -15,7 +15,20 @@
 > recovers cached singletons, but its frozen comparison still fails geometry.
 > [Native feature export](#native-orb-feature-export-and-python-matching) now passes
 > interface/state checks; descriptor proposals add two cross-cut rigid pairs,
-> with zero triangle-qualified bridges and no new trajectory-accuracy claim.
+> with zero triangle-qualified bridges. Both cross-cut pairs subsequently
+> [fail frozen independent evaluation](#fixed-proposal-independent-evaluation);
+> neither is promoted into BA, and no new trajectory-accuracy gain is claimed.
+> [Fixed-model diagnostics](#fixed-model-error-diagnostics) expose rotation and
+> translation compensation near the matched support, without uniquely identifying
+> the underlying measurement error.
+> A frozen [3D-2D reused-scene comparison](#frozen-reused-scene-pair-model-validation)
+> has local gains but fails overall acceptance through desk degradation and
+> additional rollback; numerically converged wrong poses remain possible.
+> A [development-only update gate](#development-only-pair-update-guard) now rejects
+> some bad cached updates with exact pose rollback, but retains median error
+> equal to the raw baseline. Its subsequent [frozen reused-scene validation](#frozen-reused-scene-update-guard-validation)
+> fails through inaccurate accepted updates and regressions; online benefit remains
+> unproven and the gate is not integrated.
 > The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
@@ -1949,3 +1962,457 @@ contribution adds the minimal native-data interface, substantive Python Hamming
 policy/validation and a controlled geometric proposal comparison. Reliable
 multi-view support and trajectory usefulness remain unproven; the accepted
 pair proposals are not inserted into the map or fed to BA/online tracking.
+
+## Fixed-proposal independent evaluation
+
+**Both cross-cut proposals fail the frozen evaluation thresholds.** Preserve
+native feature export and the original proposal evidence, but do not use these
+pairs to repair weak map connections. This step adds Python evaluation only;
+frontend tracking, map state, BA and trajectories are unchanged.
+
+The [frozen protocol](results/candidate_validation_protocol.json), SHA-256
+`e9bfe2dd96f75d42afa9998eb0a3ff0eb154fba87d439b82d10a99e603b9c1aa`, evaluates
+all seven accepted descriptor models from the preceding audit: two cross-cut
+primary cases and five ordinary-pair controls. No refitting, new matching,
+threshold changes or rejected-model reconsideration occurs. All 2,538 prior
+raw evidence files are hash-verified before and after evaluation. These reuse
+previously seen scenes; they are not new held-out scenes.
+
+Python projects a fixed 16-pixel depth grid in both directions, excluding a
+4-pixel box around every original ORB depth location in both endpoint images.
+Native depth validity and a fixed 3x3 spread check precede projection. Every
+remaining valid signed depth residual is retained, including possible
+occlusions; there is no ICP, residual-based visibility rejection or pose update.
+Each direction requires >=100 comparisons, >=30% comparison/source coverage,
+>=70% agreement within 3 cm and median absolute depth error <=2 cm. These are
+predeclared engineering thresholds, not a universal accuracy standard.
+
+`depth-only.json` is finalized before ground truth is opened. Evaluation then
+compares each fixed camera-to-camera transform with TUM truth at RGB timestamps,
+using both nearest-unused association within 20 ms and separately bracketed
+translation/Slerp interpolation without extrapolation. Relative transforms need
+no world-frame or scale alignment. Fidelity requires <=3 cm translation and
+<=2 degrees rotation in both timestamp protocols, both depth checks passing,
+and no sensitivity above 5 mm/0.5 degrees or changed fidelity classification.
+These truth-based labels are **evaluation only**, never edge selection or BA
+admission. Raw baseline transforms come from the actual exported frame poses,
+not optimized keyframe snapshots.
+
+| Primary pair | Raw baseline translation / rotation error | Candidate translation / rotation error | Forward / reverse depth agreement | Frozen evaluation |
+|---|---:|---:|---:|---|
+| desk 22 -> 24 | 0.03236 m / 1.411 deg | 0.10379 m / 6.345 deg | 66.78% / 64.23% | fail |
+| teddy 201 -> 204 | 0.95741 m / 22.334 deg | 0.13077 m / 3.648 deg | 68.35% / 65.87% | fail |
+
+The table uses nearest association; interpolated candidate errors are
+0.10439 m / 6.499 degrees for desk and 0.12943 m / 3.454 degrees for teddy,
+so neither failure changes under the second timestamp protocol. Teddy improves
+substantially over its anomalous raw baseline but still misses absolute
+accuracy and depth thresholds. Desk degrades both translation and rotation.
+Neither supplies the previously missing third-view cycle support.
+
+All seven cases are evaluable, with no declared timestamp sensitivity.
+Three of five ordinary controls meet fidelity checks; only xyz 23/24 and room
+143/144 also meet the predeclared pair-level improvement criterion. The other
+three controls, including every degradation, remain in the
+[complete results](results/candidate_validation_results.csv) alongside both
+primary failures and both timestamp protocols. Teddy 201/202 passes both depth
+checks but has 5.88 cm translation error, a real example of depth agreement
+being insufficient to establish pose accuracy. Synthetic tests also demonstrate
+a planar tangential-motion blind spot; this does not establish the specific
+cause of every real failure.
+
+**121/121 Python tests and 17/17 CTest pass, zero skips.** Eleven new tests check
+transform direction/world-frame invariance, depth/scale, unused sample masks,
+coverage failure, the planar blind spot, timestamp interpolation boundaries,
+paired improvement criteria, overwrite refusal and preserved pre-truth evidence
+when truth is unavailable. Python owns the projection, provenance, evaluation
+protocol and failure accounting; NumPy/SciPy/OpenCV supply standard numerical,
+rotation and image operations. No novel solver is claimed.
+
+```bash
+PYTHONPATH=python python python/evaluate_candidate_proposals.py \
+  --matching /path/to/frozen_descriptor_audit \
+  --features /path/to/feature_cache/features \
+  --frames /path/to/feature_cache/frames.txt \
+  --dataset /path/to/sequence --truth /path/to/sequence/groundtruth.txt \
+  --output /path/to/fresh_evaluation
+```
+
+Four serial evaluation processes complete in 0.62-0.97 s each, peak RSS below
+103 MiB, with no timeout/OOM or GPU use. These are fixed-model evaluation costs,
+not frontend/optimization/system-speed results. Raw evidence remains outside
+Git in `candidate-validation-v10-20261021`: 31 files, 142,433 bytes, manifest
+SHA-256 `dc6aea42c1bc2146c841922c1dac51a9c13aeac7f5ddb012784e2c2b2d1a5305`.
+The cumulative contribution now includes a reproducible way to falsify plausible
+geometric proposals before integration. Stop this frozen candidate experiment;
+retain its failures and interface work. No trajectory ATE gain, reliable bridge,
+map merge, online feedback or fresh cross-scene generalization follows from
+these pair-level results.
+
+## Fixed-model error diagnostics
+
+Python now describes all seven frozen proposals without fitting, matching,
+changing thresholds or altering BA admission. Original depth-valid records and
+3 cm inlier masks reproduce exactly. The
+[diagnostic protocol](results/proposal_diagnostics_protocol.json) freezes source
+hashes, all/even-fit/odd-validation/original-inlier groups and the two existing
+RGB/depth endpoint timestamp alternatives before this descriptive run. This is
+post-hoc analysis of previously seen results, not a new held-out experiment.
+
+An exact identity explains why low point residuals can accompany large
+camera-origin pose errors: at source centroid `c`, disagreement with truth is
+`(R_candidate - R_truth) c + (t_candidate - t_truth)`. Rotation and translation
+terms can nearly cancel over the observed support.
+
+| Cross-cut pair | Translation disagreement | Rotation lever arm at original inlier centroid | Remaining centroid disagreement | Candidate 3D inlier median |
+|---|---:|---:|---:|---:|
+| desk 22 -> 24 | 0.10439 m | 0.10846 m | 0.01031 m | 0.01080 m |
+| teddy 201 -> 204 | 0.12943 m | 0.15387 m | 0.02694 m | 0.01648 m |
+
+Desk's 29 original inliers span only 174x66 pixels in four of sixteen image
+cells; their centered RMS axes are 0.0880/0.0506/0.0073 m. Teddy's 50 inliers
+cover nine cells with axes 0.5827/0.5392/0.0795 m. These spectra describe support,
+not full-system rank or proof of a unique cause. The algebraic compensation is
+observed relative to interpolated RGB truth; it does not prove which measurement
+or fitting error produced it.
+
+The endpoint RGB-minus-depth offsets are 15.71/15.93 ms for desk and
+7.42/7.75 ms for teddy. Evaluating the unchanged candidate against interpolated
+truth at the existing depth timestamps gives 0.09986 m / 6.465 degrees and
+0.12650 m / 3.045 degrees respectively: both still fail the original absolute
+thresholds. Depth-timestamp substitution is diagnostic only because the depth
+images are registered to RGB; it is not a corrected measurement model. No
+clock-offset search or calibration adjustment is performed. The inverse-direction
+negative control has rotation errors 73.76/27.63 degrees, inconsistent with
+explaining these failures by simply inverting the proposals.
+
+[All seven case summaries](results/proposal_diagnostics_results.csv) preserve
+3D residuals, pixel reprojection, depth-independent symmetric epipolar distance,
+support geometry, timestamp alternatives and inverse controls. Raw reports also
+retain every per-record error and all four fixed groups. All use the existing
+zero-distortion pinhole model; epipolar consistency alone cannot certify match
+identity. Calibration/distortion, depth registration/error, timing and mismatches
+remain possible confounded contributors. No unique root cause, repaired pose,
+new trajectory gain or online benefit is established.
+
+```bash
+PYTHONPATH=python python python/diagnose_candidate_proposals.py \
+  --evaluation /path/to/fixed_evaluation/report.json \
+  --matching /path/to/frozen_descriptor_audit \
+  --features /path/to/feature_cache/features --dataset /path/to/sequence \
+  --truth /path/to/sequence/groundtruth.txt --output /path/to/fresh_diagnostics
+```
+
+**126/126 Python tests pass, zero skips**; five new mathematical tests cover
+transform direction, projection, depth-independent epipolar geometry, pure
+rotation/behind-camera non-evaluability, centroid cancellation and support
+accounting. C++ is unchanged and its prior 17/17 result is retained, not rerun
+in this step. NumPy/SciPy/OpenCV provide standard operations; the Python
+contribution is the diagnostic model, frozen-record checks and evaluation
+accounting. Four serial processes take 0.51-0.77 s each with peak RSS below
+100 MiB, no timeout/OOM and no GPU. These are diagnostic costs, not SLAM speed.
+Raw evidence stays outside Git in `proposal-diagnostics-v11-20261021`: 25 files,
+1,028,591 bytes, manifest SHA-256
+`0d70e2d7ca90f971c1cdf9b58cd5be96919b0113dee36b4b44fa6883b2bf6944`.
+The original proposals, earlier evidence and trajectories remain unchanged.
+A subsequent development-only comparison of source-depth 3D-2D modeling against
+symmetric 3D-3D fitting could isolate sensitivity to target depth, but has not
+been implemented or tested here; it must use a new declared configuration and
+cannot revise the completed frozen test's conclusions.
+
+## Development-only pair objective comparison
+
+The preceding proposed 3D-2D comparison is now implemented in Python, preserving
+C++ and using only the xyz development sequence. The
+[frozen protocol](results/pair_model_dev_protocol.json), SHA-256
+`a0e5f3213574f901b381c3110b66061c93fdb381296470716135386deb5a06aa`, includes all
+six previously selected descriptor pairs, including four original rejections.
+Even source-feature IDs fit; odd IDs validate. Neither arm uses truth, validation
+rows or the original RANSAC inlier mask to choose fitting observations.
+
+Both arms use the same six-DoF parameterization, SciPy TRF solver, numerical
+Jacobian, block Huber policy, 100-evaluation limit and failure rollback. The
+primary comparison starts both from identical raw frame poses; a secondary
+control starts both from each available frozen 3D-3D proposal. The objectives
+are metric point differences /0.01 m versus pixel reprojection /2 pixels, with
+Huber delta 2. Different noise assumptions remain a confound; these are matched
+robust refinement arms, **not the original RANSAC algorithm**. 3D-2D does not
+consume target depths during fitting, but its shared input pool still uses the
+original target-depth eligibility filter. No novel solver is claimed: Python
+owns residual modeling, common data/initialization, checks, rollback and analysis;
+NumPy/SciPy provide standard numerical operations.
+
+| xyz pair, raw initialization | Refined 3D-3D translation / rotation | Refined 3D-2D translation / rotation | Outcome |
+|---|---:|---:|---|
+| 23 -> 24 | 0.07147 m / 4.931 deg | 0.02814 m / 1.163 deg | qualified development improvement |
+| 23 -> 25 | unchanged raw pose | unchanged raw pose | both reject: only 4 fit rows |
+| 23 -> 26 | unchanged raw pose | unchanged raw pose | both reject: only 3 fit rows |
+| 24 -> 25 | 0.02961 m / 1.373 deg | 0.03593 m / 1.443 deg | degradation, misses 3 cm threshold |
+| 24 -> 26 | 0.18682 m / 8.555 deg | 0.15460 m / 8.103 deg | both remain inaccurate |
+| 25 -> 26 | 0.02559 m / 1.718 deg | 0.00814 m / 0.978 deg | qualified development improvement |
+
+The table uses interpolated truth; both qualified pairs also meet the declared
+3 cm / 2 degree bounds and improvement criteria under nearest association.
+Across the four shared converged primary pairs, translation-error medians are
+0.05054 -> 0.03203 m and rotation-error medians 3.325 -> 1.303 degrees. Neither
+model adds failures relative to the other; both retain two insufficient-support
+cases. The predeclared **development continuation criterion passes**, but these
+small, previously seen pairs do not establish robust performance. Secondary
+initialization produces similar results, without selecting the better run using
+truth. Full [32 evaluation rows](results/pair_model_dev_results.csv) retain every
+arm, rejection and both timestamp protocols.
+
+Against the original frozen RANSAC proposals, 23/24 is worse: translation
+0.02557 -> 0.02814 m and rotation 0.225 -> 1.163 degrees. Pair 25/26 improves:
+0.01578 -> 0.00814 m and 1.497 -> 0.978 degrees. Thus the matched-refinement gains
+cannot be presented as uniformly improving the existing full proposal pipeline.
+A controlled synthetic target-depth perturbation changes only the 3D-3D fit;
+it establishes objective dependence, not that target-depth error uniquely caused
+the real failures. No new trajectory, map, BA, online or test-sequence run occurs.
+
+```bash
+PYTHONPATH=python python python/compare_pair_models.py \
+  --matching /path/to/xyz/frozen_descriptor_audit \
+  --features /path/to/xyz/feature_cache/features \
+  --frames /path/to/xyz/feature_cache/frames.txt --dataset /path/to/xyz \
+  --truth /path/to/xyz/groundtruth.txt --output /path/to/fresh_comparison
+```
+
+Fit-only evidence is finalized before reading truth; failures return the full
+original pose. **131/131 Python tests pass, zero skips**. Five new tests cover
+noiseless recovery, target-depth perturbation isolation, noisy/outlier pixels,
+invalid/collinear/behind-camera support, input immutability and solver-budget
+rollback. C++ is unchanged; its previous 17/17 result is retained, not rerun.
+All 16 arms complete in one 1.02 s process with peak RSS below 111 MiB, no
+OOM/timeout and no GPU; this is pair-comparison cost, not SLAM runtime. Raw
+evidence remains outside Git in `pair-model-dev-v12-20261021`: 14 files,
+188,761 bytes, manifest SHA-256
+`ab114a9c15a2010b49482ea50b11fab0376ef02ea8455d8da69f1fa496fb0a7f`.
+All earlier evidence and configurations remain unchanged. The next justified
+step is to propose a separately frozen validation of this exact model; reusing
+already inspected desk/room/teddy would be a reused-scene comparison, not fresh
+independent validation. No BA or tracking integration is justified yet.
+
+## Frozen reused-scene pair-model validation
+
+**Overall acceptance FAIL.** The exact development implementation/configuration
+is frozen and replayed on all 6 desk, 6 room and 21 teddy descriptor pairs,
+including original rejected cases. These scenes were previously inspected;
+this is a reused-scene comparison, not fresh independent validation. No fitting
+code, thresholds, noise scales, split, initialization policy or solver budget
+changes. Python supplies the already described objectives, checks and experiment
+accounting; SciPy remains the numerical solver. The
+[protocol](results/pair_model_reused_protocol.json), SHA-256
+`bd73fd4adac569d8eeafd847c63891240e5810fada63aab163398c11d329edc8`, is frozen
+before all three runs. Truth is opened only after each fit-only file is finalized.
+
+| Reused scene | All pairs | Shared converged primary pairs | Median translation 3D-3D -> 3D-2D | Median rotation 3D-3D -> 3D-2D | Primary failures/rollbacks 3D-3D -> 3D-2D |
+|---|---:|---:|---:|---:|---:|
+| desk | 6 | 3 | 0.03718 -> 0.05295 m | 1.740 -> 3.302 deg | 1 -> 3 |
+| room | 6 | 3 | 0.14995 -> 0.05212 m | 8.099 -> 1.530 deg | 3 -> 3 |
+| teddy | 21 | 13 | 0.16208 -> 0.09069 m | 2.945 -> 2.436 deg | 8 -> 8 |
+
+Medians use interpolated truth and only pairs where both primary refinements
+converge; failed outputs retain their initial poses and remain in the full
+results rather than being counted as successful improvements. Nearest association
+has the same scene-level outcome. These are pair-refinement failures, not online
+tracking failures. Desk violates the declared 5 mm/0.5 degree non-degradation
+allowance and has two additional 3D-2D failures: 21/23 encounters a nonpositive
+trial prediction, and 22/24 exhausts 100 evaluations. Both return the original
+pose completely. The alternative frozen-proposal initialization also exhausts
+its budget on desk 22/24; no best initialization is selected using truth.
+
+Room and teddy meet the declared median-benefit criterion, and teddy 157/158
+and 157/159 meet both timestamp protocols' absolute accuracy/improvement labels.
+The latter spans cut 159 and has interpolated error 0.02437 m / 1.347 degrees,
+versus 0.04628 m / 1.771 degrees for its raw initial pose. This positive pair
+must remain visible alongside the failures. Its label is evaluation only: no
+truth-based measurement selection, independent depth certificate, triangle
+certificate, identity merge or BA admission follows from it.
+
+Important retained failures include teddy 201/203: 3D-2D numerically converges
+to **3.686 m / 109.72 degrees** error, compared with a raw initial error of
+0.699 m / 17.23 degrees; held-out pixel median is 56.21 pixels. Solver convergence,
+lower fitting cost and a full local Jacobian therefore do not guarantee a useful
+pose. Teddy 201/204 improves over the matched 3D-3D refinement but remains
+0.11917 m / 3.126 degrees, outside the accuracy bounds. Desk's original cross-cut
+candidate is not repaired. Original-pipeline differences also remain: room
+143/144's original RANSAC proposal is 0.00450 m / 0.827 degrees, whereas this
+3D-2D refinement is 0.01714 m / 1.424 degrees. A matched-objective gain cannot
+be presented as uniformly improving the original full RANSAC pipeline.
+
+The [complete results](results/pair_model_reused_results.csv) contain all 82
+arms and both truth protocols (164 rows), including skipped/rolled-back outputs,
+raw initial errors and available original accepted-RANSAC errors. The four
+predeclared criteria yield: two scenes with median benefit PASS, at least one
+cross-cut pair improvement PASS, all scenes non-degrading FAIL, and no additional
+3D-2D failures FAIL. Overall acceptance remains FAIL; do not integrate this
+configuration into BA or tracking or tune it on these reused scenes.
+
+All three processes finish successfully in 1.07-3.22 s each, peak RSS below
+112 MiB, no OOM/timeout or GPU. Process success is distinct from failed geometry
+acceptance, and these costs are not whole-system speed measurements. Source and
+all V9/V12 raw-evidence hashes remain unchanged. No implementation changed, so
+the existing 131/131 Python tests (zero skips) and earlier 17/17 CTest results
+are retained, not rerun in this step. No fresh test-pass count is claimed.
+Raw evidence is outside Git in `pair-model-reused-v13-20261021`: 23 files,
+714,986 bytes, manifest SHA-256
+`d40c2696834f12ef7ad49c035bb43f614f51ad296e633f3685333848275ea6af`.
+Use the preceding comparison entry point with each scene's explicit input/output
+paths; never overwrite an earlier output directory. No data download, trajectory
+correction, ATE experiment, risk scheduling or online writeback occurs. The
+cumulative contribution is a reproducible model comparison that exposes both
+local gains and unsafe accepted solutions; stable geometric/trajectory benefit
+is still unproven. Any next rejection/rollback study belongs on development
+inputs under a new protocol, not a revision of these frozen results.
+
+## Development-only pair update guard
+
+**Development prototype checks PASS; stable accuracy gain remains unproven.**
+Python adds an opt-in gate for the six cached xyz primary 3D-2D updates, leaving
+all V12/V13 fitting code, thresholds and evidence unchanged. No new fitting or
+scene replay occurs. The [frozen protocol](results/pair_update_guard_dev_protocol.json),
+SHA-256 `86dc4b536437e5807779d3c4c349b965974f3751fc4f85a32bcd3ed1cb0838f7`,
+requires an already successful solve, at least six check correspondences, positive
+projections, median pixel error <=4 pixels and no increase over the raw initial
+median beyond 1e-9 pixels. The 4-pixel bound is the existing V12 2-pixel sigma
+times Huber delta 2; it is not calibrated on desk/room/teddy. No alternate
+threshold is tried after this result.
+
+Odd source-feature rows, previously held out from fitting, now supply the gate.
+They become **decision inputs, not independent geometric validation**. Source
+native depths and target pixels are checked against hashed frozen records;
+target depth remains an inherited eligibility dependency. Every rejected update
+returns the full raw initial transform exactly. This is pair-transform rollback,
+not online state repair. Original proposals, maps and trajectories are never
+mutated. `guard-only.json` is finalized before the recorded V12 truth evaluation
+is opened; truth is used only to assess the completed decisions.
+
+| xyz pair | Decision | Interpolated translation error, unguarded -> selected |
+|---|---|---:|
+| 23 -> 24 | accept: 2.45 px check median | 0.02814 -> 0.02814 m |
+| 23 -> 25 | retain solver rollback | 0.08154 -> 0.08154 m |
+| 23 -> 26 | retain solver rollback | 0.09133 -> 0.09133 m |
+| 24 -> 25 | reject: 4.75 px exceeds bound | 0.03593 -> 0.04372 m |
+| 24 -> 26 | reject: 25.33 px exceeds bound | 0.15460 -> 0.05328 m |
+| 25 -> 26 | reject: 1.39 px worsens initial median | 0.00814 -> 0.01080 m |
+
+All six cases, all rejected outputs and both timestamp protocols are retained in
+[complete results](results/pair_update_guard_dev_results.csv). The one accepted
+update improves raw 23/24 from 0.03638 m / 2.082 degrees to 0.02814 m /
+1.163 degrees, meeting the predeclared absolute and meaningful-gain criteria
+in both timestamp protocols. Two inaccurate converged candidates are rejected,
+three rejected converged transforms roll back exactly, and two existing solver
+failures stay unchanged. The declared development criteria pass without
+rejecting every candidate.
+
+The all-six returned-pose translation-error median falls from unguarded
+0.05874 m to 0.04850 m, **equal to the raw baseline median**. It does not improve
+the baseline aggregate. Rejection discards a real modest improvement on 25/26,
+and makes 24/25 truth error worse than its unguarded candidate. A low median can
+also hide a substantial minority of incorrect checks, as an explicit synthetic
+test demonstrates. Neither accepted nor rejected labels certify match identity,
+independent accuracy, global observability or a full-system benefit. Earlier
+3D-2D scene failures, including the extreme teddy error, have not been replayed
+through this gate and cannot be claimed fixed.
+
+```bash
+PYTHONPATH=python python python/check_pair_updates.py \
+  --comparison /path/to/xyz/comparison/fit-only.json \
+  --matching /path/to/xyz/frozen_descriptor_audit \
+  --features /path/to/xyz/feature_cache/features \
+  --evaluation /path/to/xyz/comparison/report.json --output /path/to/fresh_guard
+```
+
+**138/138 Python tests pass, zero skips.** Seven new tests cover useful-update
+acceptance, absolute and relative pixel rejection, insufficient/nonfinite/behind-
+camera data, exact rollback and input immutability, the median's outlier blind
+spot, unchanged decisions under altered truth labels, overwrite refusal and
+preserved guard-only evidence when evaluation is missing. C++ is unchanged;
+its prior 17/17 result is retained, not rerun. NumPy supplies established geometry
+operations; Python owns the guard policy, provenance checks and rollback. The
+six-case cached replay takes 0.27 s and peak RSS below 68 MiB, without GPU,
+OOM or timeout; this is replay/provenance cost, not an online SLAM speed claim.
+Raw evidence stays outside Git in `pair-update-guard-dev-v14-20261021`: 14 files,
+78,269 bytes, manifest SHA-256
+`e199c5ae5aabefaa7f3befc06d9c7302c261e90061da4202c4172e2be4d7ac6c`.
+The cumulative contribution adds explicit truth-free update decisions and exact
+pair rollback with measured tradeoffs. Any subsequent scene replay must freeze
+this exact gate first, retain every rejection/degradation and be labeled reused-
+scene evaluation; no BA/online integration follows from this development result.
+
+## Frozen reused-scene update-guard validation
+
+**Overall acceptance FAIL.** The exact development gate is frozen and applied
+to every cached primary 3D-2D attempt on desk/room/teddy (6/6/21 pairs). No solver,
+source, split, noise scale or gate threshold changes. This is a reused-scene
+check of known data, not fresh independent validation. The
+[protocol](results/pair_update_guard_reused_protocol.json), SHA-256
+`5c1a9769e01bf1c1559765feb4bdaf3a61641d44938c82422a01fd0a133d4c4d`, is finalized
+before the three runs. Each guard-only file is finalized before reading the
+recorded truth evaluation. Odd check pixels are decision inputs, not independent
+holdout. Truth never chooses which updates are returned.
+
+| Scene | All attempts | Accepted | Accepted meeting 3 cm / 2 deg in both time protocols | Accepted with material regression against raw |
+|---|---:|---:|---:|---:|
+| desk | 6 | 2 | 0 | 2 |
+| room | 6 | 2 | 1 | 1 |
+| teddy | 21 | 9 | 2 | 1 |
+
+Thirteen updates pass the truth-free gate, but ten miss the absolute accuracy
+bounds and four worsen raw error by more than 5 mm or 0.5 degrees under at
+least one timestamp protocol. For example, desk 22/23 passes the check yet
+changes interpolated truth error from 0.02094 m / 0.970 degrees to 0.05295 m /
+3.302 degrees. Room 141/142 changes 0.01196 m / 0.722 degrees to 0.05212 m /
+1.530 degrees. Positive results remain: teddy 157/158 and 157/159 meet the
+meaningful-improvement and accuracy labels against raw in both time protocols.
+Only teddy supplies such gains, failing the predeclared two-scene benefit rule.
+These labels are evaluation results, not a truth-based edge-selection policy.
+
+| Scene | All-returned-pose translation median raw -> unguarded -> guarded | Rotation median raw -> unguarded -> guarded |
+|---|---:|---:|
+| desk | 0.03982 -> 0.05083 -> 0.05083 m | 2.238 -> 3.187 -> 3.187 deg |
+| room | 0.01085 -> 0.01344 -> 0.01344 m | 1.073 -> 1.585 -> 1.477 deg |
+| teddy | 0.05277 -> 0.08619 -> 0.04173 m | 1.899 -> 2.643 -> 1.662 deg |
+
+Medians above use interpolated truth and **all** attempts, including exact raw
+fallbacks, avoiding success-only aggregation. Requiring both timestamp protocols
+makes desk and room fail the scene-level non-degradation criteria. Room's interpolated
+median is within the allowances, but nearest association worsens rotation by
+0.503 degrees, just over the frozen 0.5-degree limit; retain this boundary case
+rather than rounding it into a pass. Teddy's all-attempt medians improve, but
+its accepted 201/204 update remains 0.11917 m / 3.126 degrees despite passing
+the pixel gate. Partial benefit does not establish safe or stable operation.
+
+All 20 rejected/failed transforms return the raw initial pose exactly. The known
+teddy 201/203 extreme error is rejected for insufficient check observations,
+not because the pixel bound was measured successfully: the 3.686 m /
+109.72-degree fitted result is replaced by a still-bad raw 0.699 m /
+17.23-degree transform. This demonstrates rollback, not correction of lost
+tracking. The [complete 66 evaluation rows](results/pair_update_guard_reused_results.csv)
+retain every decision, failure, check count, measured pixel median and both
+truth protocols. All four geometry/benefit acceptance conditions fail: accepted
+accuracy, accepted non-degradation, multi-scene benefit and all-case median
+non-degradation. Accounting, exact rollback, nontrivial coverage and the known
+extreme-error rejection pass. Overall acceptance stays FAIL.
+
+No implementation changes or new dependency are introduced in this step.
+Python supplies the frozen gate and provenance checks described above; NumPy
+supplies standard geometry operations. **138/138 Python regression tests pass,
+zero skips**, rerun on the publication candidate. C++ is unchanged; its earlier
+17/17 result is retained, not rerun. Three cached processes take 0.22-0.47 s
+each, peak RSS below 68 MiB, no GPU/OOM/timeout; these are cache-check costs,
+not whole-system runtime. V13/V14 source and raw-evidence hashes remain unchanged.
+Raw evidence stays outside Git in `pair-update-guard-reused-v15-20261021`:
+21 files, 174,417 bytes, manifest SHA-256
+`80e0d147035b713748e74614912519e81366fc9fc1523f41a03a6c0667f14273`.
+Use the preceding gate entry point with each scene's cached comparison and fresh
+output directory. Stop promoting or tuning this gate configuration on these
+scenes. Preserve its failure evidence and Python interface work; no threshold
+relaxation, BA/online integration, map merge, trajectory correction or new ATE
+claim follows. The cumulative contribution is reproducible offline geometry,
+model diagnosis and falsifiable update validation, with stable cross-scene
+trajectory improvement still an open project requirement.
+The publication whitespace check initially rejected CRLF endings in the six new
+CSV tables. Only publication copies are normalized to LF; parsed records and
+original raw evidence remain identical. The failed check is retained outside Git.
