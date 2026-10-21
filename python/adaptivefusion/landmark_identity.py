@@ -40,7 +40,7 @@ def _flow(gray_source, gray_target, uv):
     return forward[:,0],good
 
 
-def audit_pair(snapshot, first, second, gray_first, gray_second, depth_first, depth_second):
+def audit_pair(snapshot, first, second, gray_first, gray_second, depth_first, depth_second, *, endpoint_flows=None):
     """Both native feature streams drive LK; existing shared IDs are controls.
 
     Fitting and validation split by source point-ID parity as in the prior audit.
@@ -61,7 +61,10 @@ def audit_pair(snapshot, first, second, gray_first, gray_second, depth_first, de
     source,target=observations
     a=np.array([[o.u,o.v] for o in source]).reshape(-1,2)
     b=np.array([[o.u,o.v] for o in target]).reshape(-1,2)
-    forward,ok_a=_flow(gray_first,gray_second,a);backward,ok_b=_flow(gray_second,gray_first,b)
+    if endpoint_flows is None:
+        forward,ok_a=_flow(gray_first,gray_second,a);backward,ok_b=_flow(gray_second,gray_first,b)
+    else:
+        forward,ok_a,backward,ok_b=endpoint_flows
     matches=reciprocal_matches(a,b,forward,backward,ok_a,ok_b)
     records=[];x=[];y=[];ids=[]
     for i,j in matches:
