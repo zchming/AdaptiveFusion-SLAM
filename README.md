@@ -13,6 +13,9 @@
 > increases raw correspondence counts but still supplies no validated constraints.
 > A [candidate-pool repair](#candidate-observation-pool-and-minimal-feature-export-proposal)
 > recovers cached singletons, but its frozen comparison still fails geometry.
+> [Native feature export](#native-orb-feature-export-and-python-matching) now passes
+> interface/state checks; descriptor proposals add two cross-cut rigid pairs,
+> with zero triangle-qualified bridges and no new trajectory-accuracy claim.
 > The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
@@ -1853,3 +1856,96 @@ and <=1 GiB new raw outputs; start with existing development data and freeze
 matching settings before any later held-out replay. Stop if export changes state,
 identity/descriptor alignment fails, budgets fail, or geometry remains unsupported;
 do not alter the original risk policy, BA model or online state to force gains.
+
+### Native ORB feature export and Python matching
+
+**Interface acceptance PASS; cross-cut cycle gate FAIL.** Source
+`136ef571cd2552d5827f7e97c21c7c3e4face393` implements the approved four-file C++
+interface proposal above. The default frontend/map/BA algorithms are unchanged.
+Optional `--export-keyframe-features` on `run_rgbd_odometry` writes each existing
+keyframe once, after insertion and before BA. Versioned `AFS_FEATURES 1` sidecars
+preserve full native keypoint fields/order, optional map IDs, uint16 depth,
+actual RGB/depth association timestamps, relative image references, calibration,
+frontend settings and all 32 original descriptor bytes. Existing snapshots keep
+their schema. Feature files refuse overwrite, use temporary-file finalization,
+and receive a completion marker only at successful run finalization.
+
+Python supplies strict sidecar/provenance checks and a bounded-block NumPy
+Hamming matcher using the original C++ defaults (distance <=64, strict ratio
+0.75, mutual best). It verifies feature rows against existing map observations
+and native depth images, then compares descriptor and LK proposals on identical
+full frontend features. New matches are offline proposals, not original frontend
+match decisions, landmark merges or feedback. Rigid fitting uses source-feature
+row-ID parity, rather than prior map-point-ID parity; both new arms share that
+split. The existing metric RANSAC, depth and triangle gates remain fixed.
+NumPy/OpenCV/SciPy supply established operations; no original numerical solver
+or whole-frontend rewrite is claimed.
+
+The [protocol](results/frontend_feature_protocol.json), SHA-256
+`cbb7700feaa762ff96d8a0bf4b15788db4b9f3c4f5c3e11d654350eedffb4cdc`, was frozen
+before all real runs, including development. On all 792 xyz frames, feature-off
+and feature-on runs of the same clean binary produce byte-identical trajectories,
+frame streams and all 227 geometry snapshots. Feature-on runs on desk/room/teddy
+also reproduce retained v2 trajectories/frame streams exactly; all 161/491/533
+snapshot states agree after normalizing only source-revision metadata. Old/new
+binaries differ, so those checks establish exact state reproduction, not a
+runtime comparison. No newly generated feature data is attached until these
+state checks pass. The same previously seen test sequences are reused.
+
+| Sequence | Keyframes | Native feature rows | Descriptor accepted pairs | Accepted cross-cut pairs | Triangle-qualified cross-cut pairs |
+|---|---:|---:|---:|---:|---:|
+| xyz development | 114 | 113,947 | 2 / 6 | 0 | 0 |
+| desk | 81 | 79,844 | 2 / 6 | 1 | 0 |
+| room | 246 | 238,580 | 1 / 6 | 0 | 0 |
+| teddy | 269 | 259,676 | 2 / 21 | 1 | 0 |
+
+The LK control accepts zero pairs on these same 39 selected pairs. Descriptor
+proposals accept seven pairs in total, including desk 22/24 and teddy 201/204
+across weak cuts. The latter spans two cuts but counts as **one unique pair**.
+Neither forms the required accepted triangle. Teddy 201/204 validation median
+is 0.02947 m (20/39 validation inliers, P95 0.14757 m), close to the frozen
+0.03 m inlier threshold; retain its full error
+and outlier evidence rather than treating acceptance as reliable identity.
+Every positive/negative case is retained in [pair results](results/frontend_feature_pairs.csv)
+and [summary results](results/frontend_feature_summary.csv). This supports
+availability of real descriptor-driven geometric proposals, not improved global
+trajectory, safe map merging, general observability or online tracking. No BA
+integration, ATE evaluation or test-time tuning is performed.
+
+All **692,047 feature rows** agree with frontend health feature counts, and all
+native depth samples agree exactly with original images. The C++ regression
+checks every descriptor byte/keypoint/depth/map ID against native fixture state,
+source immutability, overwrite/partial-output/path refusal and unchanged Ceres
+replay. **110/110 Python and 17/17 CTest pass, zero skips**. Eleven new Python
+tests cover strict schema/alignment, descriptor policies and an end-to-end
+synthetic feature/geometry CLI. NumPy matching agrees with OpenCV BF policy on
+controlled descriptor data. Initial configure/link failures from existing local
+BLAS/LAPACK/glog runtime paths are preserved; the corrected build reuses the
+existing sysroot/preload, with no downloads or repository build-system changes.
+
+[Interface costs](results/frontend_feature_interface.csv) record mean export
+1.41–1.44 ms and P95 1.50–1.57 ms per keyframe, with 114.5–385.6 ms total per
+sequence. Sidecars total about 114.6 MiB. Frontend-on whole-process times are
+18.21/11.55/36.77/38.69 s; these include geometry/feature I/O and are not an
+algorithmic speedup claim. Python matching processes take 0.77–2.62 s. BLAS/OpenMP environment threads were set to 1; OpenCV internal concurrency was
+not explicitly constrained, so these are not guaranteed single-thread timings.
+No OOM or timeout occurs. New raw output is 981,708,128 bytes (<1 GiB), peak process RSS
+<679 MiB, within the frozen 8 GiB/300 s per-process budgets. No GPU is used.
+
+```bash
+# Existing full xyz development sequence; explicit fresh output locations.
+./build/run_rgbd_odometry /path/to/xyz /path/to/new.tum 792 - none \
+  /path/to/new_cache --export-keyframe-features
+PYTHONPATH=python python python/audit_frontend_features.py \
+  --geometry /path/to/state_matched_shared.snapshot \
+  --features /path/to/new_cache/features --dataset /path/to/sequence \
+  --output /path/to/new_descriptor_audit
+```
+
+Raw evidence remains outside Git in `frontend-features-v9-20261021`: 2,538 files,
+manifest SHA-256 `6ecc104c81dfff66ece31e90396e16812963471e235590938a0142c75cab80c3`;
+binary/source hashes and exact controls are in the frozen protocol. Cumulative
+contribution adds the minimal native-data interface, substantive Python Hamming
+policy/validation and a controlled geometric proposal comparison. Reliable
+multi-view support and trajectory usefulness remain unproven; the accepted
+pair proposals are not inserted into the map or fed to BA/online tracking.
