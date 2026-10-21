@@ -3,10 +3,12 @@
 > Current engineering focus: **static-scene RGB-D geometry**, preserving the
 > C++ frontend and adding a substantive Python offline optimization backend.
 > Offline ATE gains on desk/room and safe rejection of disconnected teddy remain
-> the supported behavior. An [experimental component subset](#experimental-anchor-component-subset)
-> preserves excluded state but **fails the accuracy gate**; it is not recommended
-> for use. The strict default remains unchanged. Online tracking benefit, reliable
-> cross-scene operation and dynamic/4D remain unproven or unimplemented.
+> the supported behavior. The [experimental component subset](#experimental-anchor-component-subset)
+> fails accuracy; a new opt-in [bridge guard](#python-geometric-bridge-guard)
+> rejects its known teddy degeneracy while retaining desk/room outputs exactly.
+> Safety acceptance passes, but teddy accuracy is not improved. The strict default
+> remains unchanged. Online tracking benefit, reliable cross-scene operation and
+> dynamic/4D remain unproven or unimplemented.
 
 **Proactive Tracking-Failure Forecasting and Risk-Adaptive Map Updating for Robust RGB-D SLAM**
 
