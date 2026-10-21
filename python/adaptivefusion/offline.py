@@ -56,6 +56,24 @@ def full_history(frames,template,poses,interpolate=True):
     return correct_history_continuous(frames,before,after,interpolate=interpolate)
 
 
+def component_history(frames, template, poses, active_keyframes, *, interpolate=True):
+    """Existing deformation, masked by immutable raw keyframe ownership.
+
+    Raw excluded keyframes act as identity knots at component boundaries. Frames
+    owned by excluded anchors are copied exactly, including interleaved runs.
+    This is offline interpolation, not a new cross-component geometric link.
+    """
+    active = set(active_keyframes)
+    if not active <= set(range(len(template.keyframes))):
+        raise ValueError('unknown active keyframe')
+    for k in template.keyframes:
+        if k.id not in active and not np.array_equal(poses[k.id], k.t_wc):
+            raise ValueError('excluded keyframe pose changed')
+    corrected = full_history(frames, template, poses, interpolate=interpolate)
+    return [(timestamp, pose if frame.anchor_id in active else frame.t_wc.copy())
+            for frame, (timestamp, pose) in zip((f for f in frames if f.valid), corrected)]
+
+
 def merge_cached_problem(paths,frames,initialization='raw',initial_poses=None):
     """Offline batch diagnostic: union actual observations, never create matches."""
     raw={f.id:f for f in frames if f.valid}
