@@ -2,11 +2,12 @@
 
 > Current engineering focus: **static-scene RGB-D geometry**, preserving the
 > C++ frontend and adding a substantive Python offline optimization backend.
-> [Frozen held-out validation](#frozen-held-out-sequence-validation) improves offline
-> ATE on two additional sequences, but the third baseline crashes: the declared
-> three-sequence acceptance gate **fails**. Same-problem solver comparisons and
-> negative holdout results are retained. Online writeback, reliable cross-scene
-> operation and dynamic/4D reconstruction remain unproven or unimplemented.
+> The [anchor safety fix and frozen revalidation](#anchor-safety-fix-and-frozen-revalidation)
+> now allow all three baseline sequences to complete. Python improves offline ATE
+> on desk and room, but safely rejects teddy's disconnected graph: the three-sequence
+> gate still **fails**. The earlier crash and all negative controls are retained.
+> Online tracking benefit, reliable cross-scene operation and dynamic/4D remain
+> unproven or unimplemented.
 
 **Proactive Tracking-Failure Forecasting and Risk-Adaptive Map Updating for Robust RGB-D SLAM**
 
