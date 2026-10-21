@@ -19,6 +19,17 @@ struct GeometrySnapshot {
     std::vector<MapPoint> points;
 };
 
+struct OrbFeatureConfig;
+struct OrbMatcherConfig;
+struct DepthConversionConfig;
+// Full original descriptor rows; offline sidecar, never a tracking writeback.
+void writeKeyframeFeatures(
+    const std::filesystem::path& path, const Keyframe& keyframe,
+    const RgbdAssociation& association, const std::filesystem::path& dataset_root,
+    const Camera& camera, const OrbFeatureConfig& features,
+    const OrbMatcherConfig& matching, const DepthConversionConfig& depth,
+    std::size_t state_version);
+
 void writeGeometrySnapshot(
     const std::filesystem::path& path, const Camera& camera,
     const LocalBundleAdjustmentConfig& config,
