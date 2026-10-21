@@ -2,12 +2,11 @@
 
 > Current engineering focus: **static-scene RGB-D geometry**, preserving the
 > C++ frontend and adding a substantive Python offline optimization backend.
-> The [anchor safety fix and frozen revalidation](#anchor-safety-fix-and-frozen-revalidation)
-> now allow all three baseline sequences to complete. Python improves offline ATE
-> on desk and room, but safely rejects teddy's disconnected graph: the three-sequence
-> gate still **fails**. The earlier crash and all negative controls are retained.
-> Online tracking benefit, reliable cross-scene operation and dynamic/4D remain
-> unproven or unimplemented.
+> Offline ATE gains on desk/room and safe rejection of disconnected teddy remain
+> the supported behavior. An [experimental component subset](#experimental-anchor-component-subset)
+> preserves excluded state but **fails the accuracy gate**; it is not recommended
+> for use. The strict default remains unchanged. Online tracking benefit, reliable
+> cross-scene operation and dynamic/4D remain unproven or unimplemented.
 
 **Proactive Tracking-Failure Forecasting and Risk-Adaptive Map Updating for Robust RGB-D SLAM**
 
@@ -1341,3 +1340,95 @@ connected subgraph while explicitly retaining unconstrained parts, under a
 separate protocol and controls. This cannot recover missing cross-component
 geometry by itself. No such model change, online feedback, risk scheduling or
 new module is included in this frozen revalidation.
+
+
+### Experimental anchor-component subset
+
+**Result: usefulness gate FAIL; keep the strict default.** Python source commit
+`1ff5361e1e8e218e976d060719939d743feb9dee` adds explicit
+`--component-policy anchor` to the existing batch entry. Default `all` continues
+to reject disconnected input. The optional model retains original IDs, selects
+the shared-landmark component containing fixed keyframe 0, and optimizes only its
+poses/points with the existing solver. Excluded geometry stays exactly unchanged.
+Existing SO(3)/translation interpolation uses raw excluded keyframes as identity
+knots; frames owned by excluded anchors are copied exactly. Output is labeled
+`accepted_partial` when only a subset passes the existing numerical checks.
+This label is **not an accuracy or full-observability certificate**. Output PLY
+contains both optimized and unchanged shared points, not a wholly refined map.
+
+The [frozen protocol](results/component_subset_protocol.json), SHA-256
+`05e4b0287c952550bd165437b166bddebab96d131deacbd80b986b6cc082609a`, declares
+strict/all, anchor, fixed modulo-10 holdout, and a no-interpolation output from
+the same optimized poses. Schur LM, 20 iterations, 200 evaluations, 180 s solver
+budget, Huber/depth settings and CPU limits are unchanged. All arms reuse exact
+v2 caches/input snapshots; no C++ code, frontend, data download or online feedback
+is added. All inference finishes before truth evaluation. These are the same
+previously seen sequences, not additional independent test scenes. Numerical
+rows and selected-cohort ATE are in [the results](results/component_subset_results.csv).
+
+| teddy output | Full ATE m | 1 s translation RPE m | Thresholded jumps |
+|---|---:|---:|---:|
+| Original baseline | 0.427380 | 0.179559 | 4 |
+| Default all: rejected, original-state rollback | 0.427380 | 0.179559 | 4 |
+| Anchor subset, existing interpolation | 0.461562 | 0.254718 | 13 |
+| Same optimized poses, no interpolation | 0.467645 | 0.277262 | 6 |
+| Anchor subset with fixed holdout | 0.471314 | 0.225691 | 13 |
+
+The primary subset covers 203/269 keyframes, 21,455 shared points, 43,035
+observations and 1,067/1,401 valid frame records. The other 66 keyframes, 5,214
+shared points and 334 frame records (including excluded keyframe instants)
+retain their input state; serialized frame poses agree within `1e-12`. Coverage,
+1,400 truth matches and 1,353 fixed-time RPE pairs are unchanged. Yet full ATE
+worsens **8.00%**, translation RPE **41.86%**, and nine new jumps appear. Active
+keyframe ATE worsens from `0.179472 m` to `0.245295 m` (**36.68%**) with either
+history rule. Thus interpolation alone cannot explain the failure. New jumps
+occur at frames 1018–1027, before the component-ownership boundary at 1067;
+this is not solely a boundary/tail deformation problem.
+
+The active training objective falls from 168381.20 to 120054.67, but all-held-out
+pixel RMSE rises from `1.65149 px` to `2.58755 px`; depth RMSE falls from
+`0.071168 m` to `0.068104 m`, invalid predictions remain zero. This pool includes
+unchanged components. Lower fitting loss and depth error do not establish better
+poses. Desk/room primary outputs stay byte-identical to both the strict control
+and the previous version: their 30.55%/5.33% gains are retained, not new gains.
+The predeclared partial-usefulness criteria (at least 5% improvement in full and
+selected-keyframe ATE, bounded RPE, no extra jumps, preserved excluded state and
+resource limits) fail. The earlier full connected-model gate also remains false.
+
+A post-freeze **read-only observability audit**, without fitting or truth, finds
+a concrete missing constraint inside the selected component. The temporal cut
+before keyframe 159 (frame 847) is connected by only one shared landmark, ID
+117225. Rotate all right-side cameras and right-only points about that landmark:
+for center `X`, let `G = [R, X - R X]`, then
+`T_wc' = G T_wc`, `P' = G P` and `T_cw' P' = T_cw P`. The shared point is fixed
+because `G X = X`. Consequently pixel and depth residuals cannot constrain this
+relative rotation, while keyframe 0 remains fixed. A 0.1 rad test rotation moves
+camera positions by up to **0.21687 m** with maximum camera-coordinate difference
+`1.27e-14 m` and robust-residual difference `2.28e-12`. This is an invariance
+calculation on cloned state, not another performance arm or a parameter search.
+It proves an unresolved rotational gauge exists; it does not identify every
+cause of the observed accuracy loss. Topological connectivity and per-camera
+spatial support are insufficient here. The existing large-problem preflight
+only checks structure, unlike the exact numerical rank audit for small examples.
+
+Checks pass **44/44 Python and 17/17 CTest, zero skips**. Eight new Python checks
+cover subset geometry recovery, noncontiguous IDs, fixed/isolated anchors,
+rollback, excluded ordinary frames, connected-policy equivalence, CLI labeling
+and output preservation. They do not certify observability of this larger graph.
+Teddy's optional run costs **14.14 s** wall time (backend 3.09 s), peak RSS
+347.89 MiB; desk/room take 4.42/15.39 s. No OOM, timeout or configuration change
+occurs. Timings are offline, single-run, and include parsing/merge/output costs.
+Six independent C++ ATE checks reproduce baseline/candidate Python evaluation
+within `1e-10 m`. Raw evidence remains outside Git in
+`anchor-component-v3-20261021`; 141 evidence files are covered by manifest SHA-256
+`d9783d916e8a9adb03c2ab63d8ad70fcd4524e996a6b2729d36b48d46d3e8b55`.
+All previous failures, caches and public branches remain available.
+
+Cumulative contribution: Python subgraph/state management and eight regression
+checks, plus an auditable negative result and a geometric gauge-invariance
+counterexample. NumPy/SciPy provide numerical primitives; no new solver is
+claimed. The opt-in model stays experimental and is **not promoted to the
+default**. Further work should first diagnose geometric observability and
+single-/few-landmark bridges, rather than add optimization layers or relax
+checks to force a positive result. No such additional model/gate is implemented
+in this frozen study, and no online tracking benefit is established.
