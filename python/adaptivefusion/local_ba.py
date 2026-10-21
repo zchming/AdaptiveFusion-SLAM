@@ -7,16 +7,22 @@ from scipy.sparse import lil_matrix, coo_matrix
 from scipy.spatial.transform import Rotation
 from .geometry import (inverse, project, to_cw_vector, from_cw_vector, block_huber,
                        skew, so3_right_jacobian, block_huber_jacobian)
+from .components import keyframe_components
 
 
 class Problem:
-    def __init__(self, snapshot, boundary='window'):
+    def __init__(self, snapshot, boundary='window', component_policy='all'):
         self.s = snapshot.validate()
         if boundary not in ['window','fixed-external']:raise ValueError('invalid boundary model')
         self.boundary=boundary
         c = snapshot.config
         self.begin = max(0, len(snapshot.keyframes) - c.window_size)
         self.kids = list(range(self.begin, len(snapshot.keyframes)))
+        if component_policy not in ['all', 'anchor']:
+            raise ValueError('invalid component policy')
+        if component_policy == 'anchor' and (boundary != 'window' or self.begin != 0):
+            raise ValueError('anchor component policy requires a full batch window')
+        self.component_policy = component_policy
         counts = {}
         total_counts={}
         for o in snapshot.observations:
@@ -26,6 +32,11 @@ class Problem:
         self.pids = [pid for pid in snapshot.points if
                      (counts.get(pid,0)>=c.minimum_point_observations if boundary=='window' else
                       counts.get(pid,0)>0 and total_counts.get(pid,0)>=c.minimum_point_observations)]
+        if component_policy == 'anchor':
+            components = keyframe_components(snapshot, self.kids, self.pids)
+            self.kids = next((group for group in components if self.begin in group), [])
+            active = set(self.kids)
+            self.pids = [pid for pid in self.pids if snapshot.points[pid].host in active]
         point_ids = set(self.pids)
         self.obs = [o for o in snapshot.observations if o.point_id in point_ids
                     and (o.keyframe_id >= self.begin or boundary=='fixed-external')]
@@ -166,7 +177,8 @@ class SolveResult:
 
 
 def solve(snapshot, *, max_nfev=200, time_limit_s=30., jacobian='sparse-fd', lsmr_tolerance=None,
-          termination_profile='strict', method='scipy-trf', acceptance_policy='converged',boundary='window'):
+          termination_profile='strict', method='scipy-trf', acceptance_policy='converged',boundary='window',
+          component_policy='all'):
     """Input is never mutated; every failure returns an independent full original.
 
     max_nfev is deliberately distinct from Ceres maximum_iterations. Both
@@ -178,11 +190,13 @@ def solve(snapshot, *, max_nfev=200, time_limit_s=30., jacobian='sparse-fd', lsm
     initial, final, nfev, nvars, nobs = {}, {}, 0, 0, 0
     diagnostics = {'jacobian':jacobian,'lsmr_tolerance':lsmr_tolerance,
                    'termination_profile':termination_profile,'method':method,'acceptance_policy':acceptance_policy,
-                   'boundary':boundary}
+                   'boundary':boundary,'component_policy':component_policy}
     try:
         if max_nfev <= 0 or not np.isfinite(time_limit_s) or time_limit_s <= 0:
             raise ValueError('invalid solver budget')
-        problem = Problem(original,boundary=boundary)
+        problem = Problem(original,boundary=boundary,component_policy=component_policy)
+        diagnostics['active_keyframe_ids'] = problem.kids
+        diagnostics['partial_scope'] = len(problem.kids) < len(original.keyframes) - problem.begin
         nvars, nobs = len(problem.x0), len(problem.obs)
         problem.preflight()
         initial = problem.metrics(problem.x0)
@@ -238,7 +252,16 @@ def solve(snapshot, *, max_nfev=200, time_limit_s=30., jacobian='sparse-fd', lsm
         if not np.array_equal(candidate.keyframes[problem.begin].t_wc,
                               original.keyframes[problem.begin].t_wc):
             raise ValueError('fixed anchor changed')
-        return SolveResult(True, 'accepted offline parity solution', candidate, initial, final,
+        if component_policy == 'anchor':
+            active = set(problem.kids)
+            if (any(not np.array_equal(k.t_wc, candidate.keyframes[k.id].t_wc)
+                    for k in original.keyframes if k.id not in active)
+                    or any(not np.array_equal(p.xyz, candidate.points[pid].xyz)
+                           for pid, p in original.points.items() if pid not in problem.pi)):
+                raise ValueError('excluded geometry changed')
+        reason = ('accepted anchor-connected component only' if diagnostics['partial_scope']
+                  and component_policy == 'anchor' else 'accepted offline parity solution')
+        return SolveResult(True, reason, candidate, initial, final,
                            (time.perf_counter()-start)*1000, nfev, nvars, nobs,
                            {**diagnostics,'returned_state':'accepted_solution'})
     except (ValueError, TimeoutError, FloatingPointError, np.linalg.LinAlgError) as error:
