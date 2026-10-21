@@ -2,10 +2,11 @@
 
 > Current engineering focus: **static-scene RGB-D geometry**, preserving the
 > C++ frontend and adding a substantive Python offline optimization backend.
-> The latest [offline backend evidence](#python-sparse-schur-backend-and-batch-evidence)
-> includes controlled failures, same-problem Ceres comparisons, and a
-> budget-dependent improvement on one development sequence. Online writeback,
-> dynamic/4D reconstruction, and cross-scene benefit are not implemented or proven.
+> [Frozen held-out validation](#frozen-held-out-sequence-validation) improves offline
+> ATE on two additional sequences, but the third baseline crashes: the declared
+> three-sequence acceptance gate **fails**. Same-problem solver comparisons and
+> negative holdout results are retained. Online writeback, reliable cross-scene
+> operation and dynamic/4D reconstruction remain unproven or unimplemented.
 
 **Proactive Tracking-Failure Forecasting and Risk-Adaptive Map Updating for Robust RGB-D SLAM**
 
