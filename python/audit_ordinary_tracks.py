@@ -11,11 +11,13 @@ from adaptivefusion.landmark_identity import CONFIG, audit_pair, audit_cycles, i
 from adaptivefusion.state import load_snapshot, file_sha256
 from adaptivefusion.trajectory import load_frames
 from adaptivefusion.ordinary_tracks import chain_endpoints
+from adaptivefusion.observation_pool import observation_pool
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ['snapshot','frames','dataset','output']:parser.add_argument('--'+name,type=Path,required=True)
+    parser.add_argument('--observation-cache',type=Path,help='optional original cache: include singleton observations for candidate audit only')
     args=parser.parse_args()
     if args.output.exists():parser.error('output exists; refuse overwrite')
     start=time.perf_counter();before=file_sha256(args.snapshot);s=load_snapshot(args.snapshot)
@@ -23,7 +25,9 @@ def main():
     for k in s.keyframes:
         if k.source_frame_id>=len(frames) or frames[k.source_frame_id].timestamp!=k.timestamp:
             raise ValueError('keyframe/frame-stream timestamp mismatch')
-    associated=associations(args.dataset);cuts=select_cuts(s);windows={}
+    cuts=select_cuts(s);pool_report=None
+    if args.observation_cache:s,pool_report=observation_pool(args.observation_cache,s)
+    associated=associations(args.dataset);windows={}
     for cut,_ in cuts:
         windows[cut]=list(range(max(0,cut-CONFIG['window_each_side']),min(len(s.keyframes),cut+CONFIG['window_each_side'])))
     requested=sorted({pair for kids in windows.values() for pair in combinations(kids,2)})
@@ -31,7 +35,9 @@ def main():
     protocol={'config':CONFIG,'selection':'same cut selection as prior audit; two keyframes on each side, all unordered pairs, deduplicated across windows',
               'snapshot_sha256':before,'frames_sha256':frame_sha,'cuts':cuts,'windows':windows,'requested_pairs':requested,
               'scope':'paired direct and ordinary-frame transport with identical endpoint/geometry/identity gates; no inference pose, truth, merge, BA or online feedback',
-              'opencv_version':cv2.__version__,'source_sha256':{str(p.relative_to(Path(__file__).parent)):file_sha256(p) for p in [Path(__file__),Path(__file__).parent/'audit_bridge_candidates.py',Path(__file__).parent/'adaptivefusion/landmark_identity.py',Path(__file__).parent/'adaptivefusion/bridge_candidates.py',Path(__file__).parent/'adaptivefusion/ordinary_tracks.py']}}
+              'opencv_version':cv2.__version__,'source_sha256':{str(p.relative_to(Path(__file__).parent)):file_sha256(p) for p in [Path(__file__),Path(__file__).parent/'audit_bridge_candidates.py',Path(__file__).parent/'adaptivefusion/landmark_identity.py',Path(__file__).parent/'adaptivefusion/bridge_candidates.py',Path(__file__).parent/'adaptivefusion/ordinary_tracks.py',Path(__file__).parent/'adaptivefusion/observation_pool.py']}}
+    protocol['observation_pool']='cached_all_including_singletons' if pool_report else 'shared_baseline'
+    if pool_report:(args.output/'observation-pool.json').write_text(json.dumps(pool_report,indent=2)+'\n')
     (args.output/'protocol.json').write_text(json.dumps(protocol,indent=2)+'\n')
     needed_frames=sorted({fid for a,b in requested for fid in range(s.keyframes[a].source_frame_id,s.keyframes[b].source_frame_id+1)})
     for fid in needed_frames:

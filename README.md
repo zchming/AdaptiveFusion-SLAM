@@ -11,6 +11,8 @@
 > accepted new constraints; the subsequent [short-window identity audit](#short-window-landmark-identity-audit)
 > also lacks sufficient support. [Ordinary-frame transport](#ordinary-frame-track-comparison)
 > increases raw correspondence counts but still supplies no validated constraints.
+> A [candidate-pool repair](#candidate-observation-pool-and-minimal-feature-export-proposal)
+> recovers cached singletons, but its frozen comparison still fails geometry.
 > The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
@@ -1748,3 +1750,106 @@ unchanged. This family of cached-seed LK bridge attempts has not supplied useful
 geometry. Further work should first inspect what original frontend features and
 matches the cache omits, then justify any minimal export interface, rather than
 add more variants or relax validation to force acceptance.
+
+### Candidate observation pool and minimal feature-export proposal
+
+**Candidate data recovery succeeds; geometric usefulness still FAILS.** The prior
+matching audits reused the BA input produced by `merge_cached_problem`, which
+intentionally keeps only points with >=2 observations. That BA filter is valid
+for its existing model, but using it as the only matching candidate pool omits
+already cached single-view features. For example, teddy keyframe 203 has zero
+observations in the shared BA input but 183 in the original before-snapshot
+union. This corrects the scope of the earlier negative matching studies; those
+results describe their restricted candidate pools, not the complete frontend.
+
+A Python-only `--observation-cache` option now supplies a separate read-only
+candidate view. It unions immutable original before-snapshot observations,
+checks source/camera/depth/frame metadata and exact shared-subset consistency,
+and preserves baseline poses/points/observations. Extra birth coordinates are
+provenance only, unused by matching. The BA input builder and optimizer are
+unchanged; recovered points are never inserted into BA or the live map.
+
+| Sequence | Shared observations | Recovered candidate observations | Single-view points recovered |
+|---|---:|---:|---:|
+| desk | 15,844 | 71,230 | 55,386 |
+| room | 61,274 | 212,829 | 151,555 |
+| teddy | 53,699 | 219,506 | 165,807 |
+
+The [frozen protocol](results/observation_pool_protocol.json), SHA-256
+`5bfa58657c1a6b9c46b1c2a9770118169e4906ae1e2006f1b9f54dae43c03c1a`, changes
+only the candidate pool. Both pools run direct and ordinary-frame transport with
+identical existing gates on the same 33 baseline-selected pairs. All 66 shared
+pair reports reproduce v7 byte-for-byte. All 132 pair/arm outcomes still fail
+support before rigid fitting; neither pool produces an accepted identity.
+For the chain arm, depth-valid totals change `61 -> 72` and different-ID totals
+`7 -> 67`, but some scene/pair counts fall. More dense candidates can change
+reciprocal-uniqueness outcomes; this is not an accuracy or universal matching gain.
+No threshold, window, repeated-ID rule or BA model is changed after results.
+Single-view point pairs can also lack repeated-ID support even if a local match
+is valid; that limitation is retained rather than loosened. The same previously
+seen scenes are reused. [All aggregate outcomes](results/observation_pool_results.csv)
+and raw rejected records remain available.
+
+**99/99 Python and 17/17 CTest pass, zero skips.** Seven new tests cover recovery,
+immutable baseline geometry, deduplication, conflicting cached observations,
+wrong shared subsets, metadata and incomplete/risk-enabled inputs. All six CLI
+runs finish without timeout/OOM. Recovered-pool paired process times are
+`3.97 / 10.43 / 13.03 s`, peak RSS `234.02 / 467.46 / 475.66 MiB`; these include
+cache recovery and both tracking arms, not SLAM throughput. Every original cache
+manifest, input snapshot and processed-frame stream remains unchanged. No truth,
+map merge, BA, online feedback, C++ change or download occurs.
+
+```bash
+PYTHONPATH=python python python/audit_ordinary_tracks.py \
+  --snapshot /path/to/shared/input.snapshot --frames /path/to/cache/frames.txt \
+  --dataset /path/to/tum_sequence --observation-cache /path/to/original/cache \
+  --output /path/to/new_pool_audit
+```
+
+Raw evidence remains outside Git in `observation-pool-v8-20261021`: 175 files,
+manifest SHA-256 `15bf243791ce4471aa1ae3e5a2d797a2d18c4816661dc3966cd80bd7c26ee25a`.
+The contribution is a corrected Python candidate-data boundary and an auditable
+negative result, not improved localization or a new solver. OpenCV/NumPy/SciPy
+continue to supply their existing numerical operations.
+
+**Proposed next interface, NOT IMPLEMENTED; requires approval for C++ edits.**
+`Keyframe` already exposes complete keypoints, ORB descriptors and map-point IDs.
+Geometry snapshots export only map observations and omit descriptors; their C++
+reader creates zero descriptor placeholders. Those placeholders must never be
+used as recovered ORB evidence. Frontend chosen LK/ORB correspondence vectors
+are local temporaries; health CSV preserves counts, not their identities.
+
+The minimal proposal exports each existing keyframe once, after map insertion
+and before BA, through an opt-in feature-export flag on the current geometry
+export entry. No frontend, matcher, map or optimizer algorithm changes. An
+`AFS_FEATURES 1` sidecar records source revision, capture phase, keyframe/source
+frame IDs, actual RGB/depth timestamps, camera/depth/ORB settings, original feature
+order, full keypoint fields, native uint16 depth, optional map-point ID and all
+32 ORB descriptor bytes per feature (lossless hex). Relative image references and
+separate byte/time accounting accompany the sidecars. No image duplication,
+binding framework, online writeback or new dependency is needed. New output
+files refuse overwrite; incomplete exports retain evidence without a completion
+marker. Old snapshots and reproduction paths remain intact.
+
+Expected C++ changes are limited to `include/geometry_snapshot.h`,
+`src/geometry_snapshot.cpp`, `app/run_rgbd_odometry.cpp` and the existing
+`tests/test_geometry_snapshot.cpp`; reuse the existing test target. Python then
+owns strict loading, descriptor matching controls and the existing metric
+validation, with separate loader/matcher regression tests. It will not claim to
+replay original frontend match decisions: new descriptor matches are a distinct
+offline observation proposal. Export-off/on runs must preserve numerical
+trajectory/map state, and descriptor rows/feature IDs/depth must round-trip
+exactly. Refuse attaching newly generated descriptors to an old run if IDs/state
+differ; keep a separate paired baseline instead. Export does not itself prove
+better geometry or tracking.
+
+Alternative: recompute Python descriptors from images. Existing snapshots omit
+size/angle/octave for most original features, so this would be a different feature
+construction; it cannot recover the exact C++ rows and is not preferred for a
+shared-feature comparison. Current cached-singleton recovery is already tested
+above and does not supply enough supported geometry. Proposed budget: CPU only,
+no downloads, <=8 GiB process address space, <=300 s per initial sequence replay
+and <=1 GiB new raw outputs; start with existing development data and freeze
+matching settings before any later held-out replay. Stop if export changes state,
+identity/descriptor alignment fails, budgets fail, or geometry remains unsupported;
+do not alter the original risk policy, BA model or online state to force gains.
