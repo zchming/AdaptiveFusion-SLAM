@@ -8,7 +8,8 @@
 > rejects its known teddy degeneracy while retaining desk/room outputs exactly.
 > Safety acceptance passes, but teddy accuracy is not improved. A subsequent
 > [cached-feature bridge audit](#cached-feature-bridge-candidates) produces no
-> accepted new constraints. The strict default
+> accepted new constraints; the subsequent [short-window identity audit](#short-window-landmark-identity-audit)
+> also lacks sufficient support. The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
 
