@@ -2,11 +2,12 @@
 
 > Current engineering focus: **static-scene RGB-D geometry**, preserving the
 > C++ frontend and adding a substantive Python offline optimization backend.
-> [Frozen held-out validation](#frozen-held-out-sequence-validation) improves offline
-> ATE on two additional sequences, but the third baseline crashes: the declared
-> three-sequence acceptance gate **fails**. Same-problem solver comparisons and
-> negative holdout results are retained. Online writeback, reliable cross-scene
-> operation and dynamic/4D reconstruction remain unproven or unimplemented.
+> The [anchor safety fix and frozen revalidation](#anchor-safety-fix-and-frozen-revalidation)
+> now allow all three baseline sequences to complete. Python improves offline ATE
+> on desk and room, but safely rejects teddy's disconnected graph: the three-sequence
+> gate still **fails**. The earlier crash and all negative controls are retained.
+> Online tracking benefit, reliable cross-scene operation and dynamic/4D remain
+> unproven or unimplemented.
 
 **Proactive Tracking-Failure Forecasting and Risk-Adaptive Map Updating for Robust RGB-D SLAM**
 
@@ -1220,3 +1221,123 @@ sequence-level offline gains, an independently identified baseline BA crash,
 same-input solver controls, and explicit held-out reprojection degradation.
 **No online state writeback, risk-policy experiment, new training, or dynamic/4D
 module is added.** Reliable three-sequence validation remains incomplete.
+
+
+## Anchor safety fix and frozen revalidation
+
+**The C++ abort is fixed; the full Python-backend gate still fails.** Source
+commit `c3876cb2efdfaaa188fad37bdecd120309ef23e4` adds one fail-closed check:
+if the oldest local BA pose is absent from Ceres' registered residual blocks,
+return `optimized=false` before solving or writing state. It does not replace
+the anchor or change BA parameters. The only algorithm edit is the seven-line
+check/comment in `src/local_bundle_adjuster.cpp`; Python source is unchanged.
+Two regression cases cover initial and sliding windows, checking exact pose,
+landmark and association preservation. The healthy RGB-D recovery test remains.
+
+The actual old `1082.before.snapshot` now returns the CLI's expected exit 2
+(safely skipped, **not** optimized), zero solver iterations and unchanged poses,
+points, observations and metadata. The original crash evidence and failed
+[first frozen protocol](results/frozen_cross_scene_protocol.json) remain intact.
+The fix addresses this specific absent-anchor abort; it does not make arbitrary
+disconnected Ceres problems observable or validate every failure mode.
+
+A separate clean-commit build and [new frozen protocol](results/anchor_rollback_protocol.json)
+reuse the three complete official archives after verifying their hashes. All
+numerical settings, solver/resource budgets, arms and acceptance criteria exactly
+match the first protocol. New protocol SHA-256:
+`2cd9b3b653e8b9f53f6f935f3e57fd5ba0b4c46a0aa8f3076d9432fdff3488a1`.
+All inference attempts finish before truth evaluation. This is **maintenance
+revalidation on the same sequences after inspecting the failure**, not three
+new unseen scenes or another independent dataset study. No online writeback,
+new matching, extra anchor, relaxed preflight or test-time tuning is introduced.
+
+| Sequence | Full synchronized frames | Baseline ATE m | Python output ATE m | Primary result |
+|---|---:|---:|---:|---|
+| fr1_desk | 573 | 0.083488 | 0.057982 | Accepted, 30.55% improvement |
+| fr1_room | 1352 | 0.431807 | 0.408782 | Accepted, 5.33% improvement |
+| fr1_teddy | 1401 | 0.427380 | 0.427380 | Rejected: disconnected graph; original-state rollback |
+
+The desk and room baseline, Python, Ceres and holdout trajectory files are each
+**byte-identical to their previous counterparts**. All their earlier accuracy,
+coverage and held-out-pixel degradation findings therefore remain unchanged.
+Teddy completes all 1401 frames: 266 BA attempts include two safe missing-anchor
+skips (frames 1082 and 1087), with 264 optimized windows. Those skips preserve
+state and allow completion; this is a process-reliability improvement, not proof
+of better localization. Its baseline still has four thresholded jumps and ATE
+about 0.43 m despite reporting every pose valid and zero lost frames.
+
+### Disconnected geometry and the negative solver control
+
+Read-only co-observation analysis of teddy's shared batch input finds **three
+components**: keyframes 0–202 (203 cameras), isolated keyframe 203, and keyframes
+204–268 (65 cameras). Only the first component contains fixed keyframe 0. The
+other components have no shared-landmark link to this anchor; a single fixed
+pose cannot establish the missing inter-component geometry. No truth or
+invented association is used to bridge them.
+
+Python rejects both the primary and modulo-10 holdout inputs with
+`disconnected window`, exit 2, **zero objective evaluations**. The saved rollback
+snapshot exactly preserves input poses, landmarks and observations. The tiny
+(~`1.5e-11 m`) difference between baseline and fallback trajectory ATE is output
+precision/round-trip arithmetic, not an optimization gain. The holdout geometry
+is unchanged after rejection; that is not a successful validation result.
+
+Ceres receives the exact same serialized batch input. It reports a usable,
+non-converged 20-step state and lowers robust cost from 210289.20 to 149554.54,
+but the disconnected component gauges remain unsupported. Its diagnostic output
+has ATE **0.468401 m** (9.60% worse), 1 s translation RPE **0.249121 m** versus
+baseline **0.179559 m** (38.74% worse), and **14** thresholded jumps versus **4**
+(ten extra). The raw output is retained, marked `diagnostic_unanchored_ceres` in
+[all numerical results](results/anchor_rollback_revalidation.csv). It is not
+reclassified as a valid geometric model because `IsSolutionUsable()` is true.
+
+The primary fallback retains 1401 poses, 1400 truth matches, 1353 fixed-time RPE
+pairs, 92.99% truth-span coverage and the original four jumps. The frozen
+aggregate still **fails** because only two of three primary optimizations are
+accepted. The numerical median improvement is 5.33% including the zero-gain
+fallback; this does not override the all-three-accepted requirement. ATE and
+coverage from a rollback must not be counted as successful optimization.
+
+### Checks, costs and next boundary
+
+The clean frozen build passes **17/17 CTest and 36/36 Python checks, zero skips**.
+Both missing-anchor regression cases run inside the existing C++ BA test.
+The real-data outcome is **3/3 complete baseline exports, 2/3 accepted Python
+primary runs, 1/3 safe rejection**; holdout has the same accepted/rejected counts.
+All 12 output trajectories receive independent Python/C++ ATE checks within
+`1e-10 m`. The original exporting binaries and first protocol hashes are intact.
+
+| Sequence | Baseline process wall s | Additional Python process wall s | Python peak RSS MiB | Primary status |
+|---|---:|---:|---:|---|
+| fr1_desk | 11.23 | 4.32 | 173.80 | Accepted |
+| fr1_room | 36.70 | 15.09 | 382.21 | Accepted |
+| fr1_teddy | 37.95 | 11.73 | 295.56 | Rejected; includes merge/check/rollback output |
+
+These are single-run offline process costs, not system FPS or isolated exchange
+latency. No OOM or timeout occurs. Initial isolated-build configuration/link
+attempts missed existing BLAS/LAPACK search paths; the corrected dependency
+paths/environment reuse the same installed libraries without downloads or code
+workarounds. Those failed attempts are retained alongside the successful build.
+
+Raw evidence lives outside Git in the local `anchor-rollback-v2-20261021` root:
+new snapshots, reports, all process logs, regression/rollback checks, read-only
+graph analysis, timing, the failed aggregate gate and provenance. The manifest
+covers 1,383 evidence files plus frozen binary/archive hashes, SHA-256
+`8f2e8ae351adeac3d650c7a6fc36fd63313ff5faa0a7343c890c4b3a88af1c7b`.
+The original `stage3-frozen-20261020` evidence is preserved separately. Raw
+artifacts require local storage; only concise protocols and numerical rows are
+published in Git.
+
+Cumulative contribution: a minimal C++ crash guard with exact rollback tests,
+unchanged substantive Python geometry modeling/optimization and independent
+validation, plus evidence that graph preflight prevents a misleading solver
+success from becoming an accepted correction. NumPy/SciPy and Ceres remain
+third-party numerical tools; no original numerical solver is claimed. Two
+sequence-level offline gains remain supported, while teddy has **no new accuracy
+gain** and reliable three-sequence operation is not established.
+
+Further work should evaluate conservative Python optimization of the anchored
+connected subgraph while explicitly retaining unconstrained parts, under a
+separate protocol and controls. This cannot recover missing cross-component
+geometry by itself. No such model change, online feedback, risk scheduling or
+new module is included in this frozen revalidation.
