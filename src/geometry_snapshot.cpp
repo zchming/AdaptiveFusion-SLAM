@@ -1,4 +1,6 @@
 #include "geometry_snapshot.h"
+#include "orb_feature_matcher.h"
+#include "rgbd_correspondence_builder.h"
 
 #include <cmath>
 #include <cstdint>
@@ -45,6 +47,79 @@ std::size_t count(std::istream& in, std::size_t limit) {
     return n;
 }
 }  // namespace
+
+void writeKeyframeFeatures(
+    const std::filesystem::path& path, const Keyframe& k,
+    const RgbdAssociation& association, const std::filesystem::path& dataset_root,
+    const Camera& camera, const OrbFeatureConfig& features,
+    const OrbMatcherConfig& matching, const DepthConversionConfig& depth_config,
+    std::size_t state_version) {
+    const auto temporary = std::filesystem::path(path.string() + ".tmp");
+    if (std::filesystem::exists(path) || std::filesystem::exists(temporary))
+        throw std::runtime_error("Feature sidecar already exists");
+    const auto& pixels = k.keypoints(); const auto& descriptors = k.descriptors();
+    const auto& depth = k.depthImage(); const auto& ids = k.mapPointIds();
+    if (pixels.size() > 100000 || ids.size() != pixels.size() ||
+        depth.type() != CV_16UC1 || depth.empty() ||
+        (!pixels.empty() && (descriptors.type() != CV_8UC1 ||
+         descriptors.rows != static_cast<int>(pixels.size()) || descriptors.cols != 32)) ||
+        (!descriptors.empty() && pixels.empty()) ||
+        !std::isfinite(association.rgb_timestamp + association.depth_timestamp) ||
+        association.rgb_timestamp != k.timestamp() || state_version != k.sourceFrameId() ||
+        std::abs(association.rgb_timestamp-association.depth_timestamp) > .02 ||
+        !std::isfinite(features.scale_factor + matching.ratio_threshold) ||
+        features.max_features <= 0 || features.scale_factor <= 1 || features.pyramid_levels <= 0 ||
+        features.fast_threshold < 0 || matching.ratio_threshold <= 0 || matching.ratio_threshold >= 1 ||
+        matching.max_hamming_distance < 0 || matching.max_hamming_distance > 256 ||
+        !std::isfinite(depth_config.depth_scale + depth_config.min_depth_meters + depth_config.max_depth_meters) ||
+        depth_config.depth_scale <= 0 || depth_config.min_depth_meters <= 0 ||
+        depth_config.max_depth_meters <= depth_config.min_depth_meters)
+        throw std::runtime_error("Invalid native feature metadata");
+    const auto relative = [&](const auto& image) {
+        auto result = std::filesystem::relative(image, dataset_root);
+        if (result.empty() || result.is_absolute()) throw std::runtime_error("Invalid feature image reference");
+        for (const auto& part : result) if (part == "..")
+            throw std::runtime_error("Feature image reference escapes dataset");
+        return result.generic_string();
+    };
+    const auto rgb = relative(association.rgb_path), depth_path = relative(association.depth_path);
+    for (const auto& p : pixels) {
+        if (!std::isfinite(p.pt.x + p.pt.y + p.size + p.angle + p.response) ||
+            p.pt.x < 0 || p.pt.y < 0 || p.pt.x >= depth.cols || p.pt.y >= depth.rows ||
+            p.size <= 0 || p.angle < -1 || p.angle >= 360 || p.octave < 0 || p.octave >= features.pyramid_levels)
+            throw std::runtime_error("Invalid native keypoint");
+    }
+    std::ofstream out(temporary);
+    if (!out) throw std::runtime_error("Cannot create feature sidecar");
+    out << std::setprecision(17) << "AFS_FEATURES 1\nMETA " << AFS_SOURCE_REVISION
+        << ' ' << state_version << " after_insertion_before_ba\nKEYFRAME " << k.id()
+        << ' ' << k.sourceFrameId() << ' ' << association.rgb_timestamp << ' '
+        << association.depth_timestamp << ' ' << depth.cols << ' ' << depth.rows
+        << "\nCAMERA " << camera.fx() << ' ' << camera.fy() << ' ' << camera.cx() << ' ' << camera.cy()
+        << "\nDEPTH " << depth_config.depth_scale << ' ' << depth_config.min_depth_meters << ' ' << depth_config.max_depth_meters
+        << "\nORB " << features.max_features << ' ' << features.scale_factor << ' ' << features.pyramid_levels << ' ' << features.fast_threshold
+        << "\nMATCH " << matching.ratio_threshold << ' ' << matching.max_hamming_distance << ' ' << matching.require_mutual_consistency
+        << "\nIMAGES " << std::quoted(rgb) << ' ' << std::quoted(depth_path)
+        << "\nFEATURES " << pixels.size() << " 32\n";
+    constexpr char hex[] = "0123456789abcdef";
+    for (std::size_t i = 0; i < pixels.size(); ++i) {
+        const auto& p = pixels[i];
+        const int x = static_cast<int>(std::lround(p.pt.x)), y = static_cast<int>(std::lround(p.pt.y));
+        const unsigned raw = x < depth.cols && y < depth.rows ? depth.at<std::uint16_t>(y,x) : 0;
+        out << "F " << i << ' ' << p.pt.x << ' ' << p.pt.y << ' ' << p.size << ' ' << p.angle << ' '
+            << p.response << ' ' << p.octave << ' ' << p.class_id << ' ' << raw << ' '
+            << (ids[i] ? std::to_string(*ids[i]) : "-1") << ' ';
+        for (int j = 0; j < 32; ++j) {
+            const auto byte = descriptors.at<std::uint8_t>(static_cast<int>(i),j);
+            out << hex[byte >> 4] << hex[byte & 15];
+        }
+        out << '\n';
+    }
+    out << "END\n"; out.flush();
+    if (!out) throw std::runtime_error("Feature sidecar write failed; temporary retained");
+    out.close(); if (!out) throw std::runtime_error("Feature sidecar close failed");
+    std::filesystem::rename(temporary,path);
+}
 
 void writeGeometrySnapshot(
     const std::filesystem::path& path, const Camera& camera,

@@ -40,19 +40,23 @@ const char* statusName(adaptive_fusion_slam::TrackingStatus status) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    if (argc < 3 || argc > 7) {
+    if (argc < 3 || argc > 8) {
         std::cerr << "Usage: run_rgbd_odometry <dataset_root> "
                      "<trajectory.txt> [max_frames] [risk_model.txt|-] "
-                     "[none|blur|dark|occlusion|noise|drop] [new_snapshot_directory]"
+                     "[none|blur|dark|occlusion|noise|drop] [new_snapshot_directory] [--export-keyframe-features]"
                   << std::endl;
         return 1;
     }
 
     try {
-        const bool export_geometry = argc == 7;
+        const bool export_features = argc == 8;
+        if (export_features && std::string(argv[7]) != "--export-keyframe-features")
+            throw std::runtime_error("Unknown feature export flag");
+        const bool export_geometry = argc >= 7;
         std::filesystem::path snapshot_root;
         std::ofstream frame_geometry;
         std::ofstream geometry_events;
+        std::ofstream feature_events;
         if (export_geometry) {
             if (std::string(argv[4]) != "-" || std::string(argv[5]) != "none")
                 throw std::runtime_error("Geometry export requires risk disabled and no degradation");
@@ -71,6 +75,13 @@ int main(int argc, char* argv[]) {
             if (!frame_geometry || !geometry_events)
                 throw std::runtime_error("Cannot create geometry logs");
         }
+        if (export_features) {
+            if (!std::filesystem::create_directory(snapshot_root / "features"))
+                throw std::runtime_error("Feature directory exists");
+            feature_events.open(snapshot_root / "feature_export.csv");
+            feature_events << "frame_id,keyframe_id,features,descriptor_bytes,file_bytes,export_ms\n";
+            if (!feature_events) throw std::runtime_error("Cannot create feature export log");
+        }
         adaptive_fusion_slam::TumRgbdDataset dataset(argv[1]);
         dataset.loadAssociations();
         const std::size_t requested_frames =
@@ -80,7 +91,8 @@ int main(int argc, char* argv[]) {
 
         const adaptive_fusion_slam::Camera camera(
             517.3, 516.5, 318.6, 255.3);
-        adaptive_fusion_slam::RgbdOdometry odometry(camera);
+        const adaptive_fusion_slam::RgbdOdometryConfig frontend_config;
+        adaptive_fusion_slam::RgbdOdometry odometry(camera, frontend_config);
         adaptive_fusion_slam::Trajectory trajectory;
         adaptive_fusion_slam::SparseMap sparse_map(camera);
         const adaptive_fusion_slam::KeyframePolicy keyframe_policy;
@@ -173,6 +185,18 @@ int main(int argc, char* argv[]) {
                     result.frame,
                     {applied_decision.allow_map_observations,
                      applied_decision.allow_new_map_points});
+                if (export_features) {
+                    const auto start = std::chrono::steady_clock::now();
+                    const auto path = snapshot_root / "features" / (std::to_string(insertion.keyframe_id) + ".features");
+                    const auto& key = *sparse_map.lastKeyframe();
+                    adaptive_fusion_slam::writeKeyframeFeatures(path,key,result.frame.association,argv[1],camera,
+                        frontend_config.orb_features,frontend_config.orb_matching,frontend_config.depth_conversion,result.frame.id);
+                    const auto duration = std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count();
+                    feature_events << std::setprecision(17) << result.frame.id << ',' << insertion.keyframe_id << ','
+                        << key.keypoints().size() << ',' << key.descriptors().total() << ','
+                        << std::filesystem::file_size(path) << ',' << duration << '\n';
+                    if (!feature_events) throw std::runtime_error("Cannot write feature export timing");
+                }
                 if (insertion.existing_map_points_observed > 0) {
                     const auto before_start = std::chrono::steady_clock::now();
                     if (export_geometry)
@@ -314,6 +338,15 @@ int main(int argc, char* argv[]) {
             if (!trajectory_output || !health_output || !risk_output ||
                 !prediction_dataset_output || !summary_output)
                 throw std::runtime_error("Cannot finalize trajectory outputs");
+            if (export_features) {
+                feature_events.flush();
+                if (!feature_events) throw std::runtime_error("Cannot finalize feature timing");
+                std::ofstream marker(snapshot_root / "features" / "complete.json");
+                marker << "{\"schema_version\":1,\"keyframes\":" << sparse_map.keyframes().size()
+                       << ",\"capture_phase\":\"after_insertion_before_ba\"}\n";
+                marker.flush();
+                if (!marker) throw std::runtime_error("Cannot finalize feature export");
+            }
             std::ofstream complete(snapshot_root / "complete.json");
             complete << "{\"schema_version\":1,\"processed_frames\":" << frame_count
                      << ",\"risk_enabled\":false,\"online_writeback\":false,"
