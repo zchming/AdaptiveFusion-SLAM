@@ -6,7 +6,9 @@
 > the supported behavior. The [experimental component subset](#experimental-anchor-component-subset)
 > fails accuracy; a new opt-in [bridge guard](#python-geometric-bridge-guard)
 > rejects its known teddy degeneracy while retaining desk/room outputs exactly.
-> Safety acceptance passes, but teddy accuracy is not improved. The strict default
+> Safety acceptance passes, but teddy accuracy is not improved. A subsequent
+> [cached-feature bridge audit](#cached-feature-bridge-candidates) produces no
+> accepted new constraints. The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
 
@@ -1519,3 +1521,85 @@ regression evidence. Tarjan/SVD/Schur LM are established algorithms; NumPy/SciPy
 provide numerical primitives, not an original solver claim. Further geometric
 improvement requires stronger valid observations or a separately justified model;
 passing this guard does not authorize online feedback or risk scheduling.
+
+### Cached-feature bridge candidates
+
+**Diagnostic outcome: 0/12 directed pairs accepted; no geometric improvement
+established.** A Python-only read-only entry reuses existing cached feature
+coordinates and the original RGB-D images. It proposes sparse cross-keyframe
+tracks using OpenCV forward/backward LK (21 px window, 3 pyramid levels, 30
+iterations, 0.01 termination), then checks native depth and metric rigid geometry.
+It neither detects a new feature frontend nor changes existing observations,
+map ownership, BA, trajectory output or online state. No C++ change or download
+is required. OpenCV supplies LK; Python implements selection, provenance,
+ownership/depth filtering, rigid model verification and auditable output.
+Kabsch/RANSAC are standard methods, not an original solver claim.
+
+The [frozen protocol](results/bridge_candidate_protocol.json), SHA-256
+`0a114b5ad484b44778d698faa4c6346706867c6770cfc46ae8bc884fbbd8ddc7`, selects every
+adjacent temporal cut with fewer than three crossing landmarks, or the first
+minimum-support cut if there are none, in both directions. The same three
+previously seen snapshots/images are used; this is not fresh independent scene
+validation. Matching uses no cached pose or truth. Fixed gates: forward/backward
+error <=1 px; exclude targets within 2 px of cached observations or earlier
+proposals; reject missing/border depth or >0.05 m local 3x3 depth spread.
+Kabsch/RANSAC uses metric 0.03 m inliers, 256 trials and seed 17, fitting only
+even point IDs and validating odd IDs without refitting. At least 12 fit and
+6 validation inliers, each >=50% of its split, are required. A split is only
+within-pair consistency, not independent accuracy or verified landmark identity.
+Target-ownership exclusion deliberately does not handle duplicate-point merging.
+
+| Sequence / selected cut | Directed pairs | Candidates after image/depth gates | Accepted pairs |
+|---|---:|---|---:|
+| desk 22/23 | 2 | 0, 0 | 0 |
+| room 142/143 | 2 | 7, 2 | 0 |
+| teddy 111/112 | 2 | 0, 0 | 0 |
+| teddy 158/159 | 2 | 10, 2 | 0 |
+| teddy 202/203 | 2 | 7, 0 | 0 |
+| teddy 203/204 | 2 | 0, 0 | 0 |
+
+[All directed results](results/bridge_candidate_results.csv) retain counts,
+split sizes, rejection reasons and resource costs. Every real pair fails support
+before rigid fitting; no real-data rigid transform is accepted. Keyframe 203 has
+no source observations in this merged snapshot. The original snapshot hashes and
+all sampled cached raw-depth values match their native images. These facts do
+not establish a lack of image overlap: only cached observations are considered,
+and valid candidates near another cached point could require a separate,
+carefully verified point-merge model. No threshold was relaxed after outcomes.
+
+The [first frozen attempt](results/bridge_candidate_initial_failure.json) failed
+all three sequences before matching: the importer over-rejected disjoint equal
+RGB/depth association costs. A narrow reader repair allows disjoint edges whose
+processing order commutes, while still rejecting conflicting eligible ties.
+Candidate settings/selection stayed fixed; the corrected importer was re-frozen
+before matching. Both failed and repaired sources/logs are retained. An initial
+synthetic outlier-recovery expectation also failed because the fit split had two
+competing coherent transforms; its safe rejection is now an explicit regression,
+alongside a separate 20% outlier recovery case. No algorithm gate was loosened.
+
+**70/70 Python tests pass, zero skips**; the unchanged C++ build passes **17/17
+CTest**. Twelve new Python checks include transform direction, metric scale,
+noise/outliers, independent split rejection, planar/collinear support, depth
+provenance, real synthetic-image LK, association ties and overwrite refusal.
+Full audit process times are `0.42 / 0.87 / 0.92 s` for desk/room/teddy, within
+300 s and 8 GiB limits; no timeout/OOM occurs. These are single-run candidate-audit
+costs, not whole-system frame timings. The previous ATE results are unchanged
+and were not re-evaluated in this diagnostic.
+
+Run with explicit locations (an existing output directory is refused):
+
+```bash
+PYTHONPATH=python python python/audit_bridge_candidates.py \
+  --snapshot /path/to/input.snapshot --dataset /path/to/tum_sequence \
+  --output /path/to/new_audit
+```
+
+Raw evidence remains outside Git in `bridge-candidates-v5-20261021` (19 files,
+manifest `a1cbf01ff1dff802e3a51a7a51b8ed67c37fdbe7480907e7147163923203a49c`) and
+`bridge-candidates-v5b-20261021` (32 files, manifest
+`186c86223bb444ed27fc9031007e1f98ea20715d2d31afadb48f7f9692f01925`).
+Cumulative contribution adds a reproducible Python observation-candidate audit
+and preserves an unsuccessful attempt to supply stronger geometry. This route
+is not connected to BA or promoted. A separate next step could inspect short
+multi-frame tracks or verified duplicate-landmark identity; it must establish
+valid constraints before any new optimization or online claim.
