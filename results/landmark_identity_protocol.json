@@ -1,0 +1,82 @@
+{
+  "schema": 6,
+  "frozen_at_utc": "2026-10-21T07:26:40.401926+00:00",
+  "base_commit": "a02fa53dbf9acac8e0b078dfedee30e43ba4e2ae",
+  "source_sha256": {
+    "python/adaptivefusion/__init__.py": "8cd89335fa44e3e8afd60e0af5cbe887033b79f41c0a56808621c5d488f47e23",
+    "python/adaptivefusion/bridge_candidates.py": "50021ee63dee05c70db43796f59bd29058af31bc72c03f6fb5b7dfbf3b4c4d01",
+    "python/adaptivefusion/components.py": "be327a36982fbc09bdbd6aced5c2eb18e64bca49495ba0407c9b5755e5b6616c",
+    "python/adaptivefusion/evaluation.py": "273af0dfe142cf9a7ee5dadf3faeb06944c9b5140a210ee1d44eb5078915b452",
+    "python/adaptivefusion/geometry.py": "ca71edd74ee8b7a26ee6b9352f136f547e42d8951fb38c4e72994c6216cb4918",
+    "python/adaptivefusion/landmark_identity.py": "5c3458954a906ad8c478d15b83609f94ebc8943a9a8829b0c9c1708f7936e84a",
+    "python/adaptivefusion/local_ba.py": "5c4a4418078a5e334bc345c011f4f76766064e4b10f7c0864a53e3efec137baa",
+    "python/adaptivefusion/observability.py": "6d9ba0e4b45829de162ad1d6e4267dc832de25b6891eb01c3743be332c029ed6",
+    "python/adaptivefusion/offline.py": "f27ce90b50064b57c7ecb240e1d5d9ded9b030743b3d29517c983a6c6b633240",
+    "python/adaptivefusion/schur.py": "30b4a5cc7b7c2ddf3132d867ce61cef1eefdef21c8323e800dee51a641ab6a91",
+    "python/adaptivefusion/state.py": "03e5271477ab616a0429805df780325eecb7a1361fe76219b41d41a68003e882",
+    "python/adaptivefusion/trajectory.py": "64218b903df9f1ffe339dfcbaa700675a3f9f8781a1b9bf33cf9605f9f3e6a62",
+    "python/audit_bridge_candidates.py": "de9904369cde3822d876daa0257fd1ebc224ead4be834b14af027c22005e9308",
+    "python/audit_landmark_identity.py": "4ce05819326d096da62f614b1d7d700a2879c2af6b7e43634bde268e3d02bea6",
+    "python/run_batch_reference.py": "807729f5e5a6f65eedeb0f20af3ea63e4404175d5b0c1ca58fbc492686bafd35",
+    "python/run_geometry_replay.py": "1d5636e09173034cd17cf4308c07e93a056ceb7d7830d05730e92207763f92a7",
+    "python/run_offline_backend.py": "7bb75156c6ce210b290023b18a7ad39f142b9ca467625daad558b17f86551fc0",
+    "tests/python/test_landmark_identity.py": "4152e933d99a014b5f0119c9f8d119d2d9b819a84435dc31218f95934a640d83"
+  },
+  "config": {
+    "window_each_side": 2,
+    "match_pixels": 2.0,
+    "minimum_pair_views": 2,
+    "minimum_keyframe_views": 3,
+    "cycle_translation_m": 0.03,
+    "cycle_rotation_rad": 0.02,
+    "geometry": {
+      "fb_pixels": 1.0,
+      "ownership_pixels": 2.0,
+      "depth_spread_m": 0.05,
+      "rigid_threshold_m": 0.03,
+      "ransac_trials": 256,
+      "seed": 17,
+      "minimum_fit": 12,
+      "minimum_validation": 6,
+      "minimum_ratio": 0.5
+    }
+  },
+  "inputs": {
+    "fr1_desk": {
+      "snapshot_sha256": "eeed7ad1e6f9babfb537f6b53265f80c7e3c906e337890b2441196bd251f9e21",
+      "dataset_archive_sha256": "e983d6830916e66dc4a46a71368046b149b283de87769690e7aa4e0b9483530c"
+    },
+    "fr1_room": {
+      "snapshot_sha256": "6e104427facb297fbb381bb0bf034ad2dd11fc842ce6c6dd79d841d589488748",
+      "dataset_archive_sha256": "5ace47a1d2e53696bc939a84999293a04a7226958e848a609666691fd3cc38da"
+    },
+    "fr1_teddy": {
+      "snapshot_sha256": "5548ed9251e58150f1206a1a2ad3ed8a18128724f0ffdc966b08c3479bedcf2b",
+      "dataset_archive_sha256": "56cf9d1ef1023470cb1812abdccfc4221afaea67586e7a5a2a5a4d75ce30232d"
+    }
+  },
+  "prior_protocol_sha256": "0a114b5ad484b44778d698faa4c6346706867c6770cfc46ae8bc884fbbd8ddc7",
+  "selection": "same weak/minimum-support cuts; two adjacent keyframes each side; all unordered pairs in each window, deduplicated across windows",
+  "pair_validation": "both directions LK plus FB <=1px; unique reciprocal native features within2px; identical cached depth provenance; same prior 3x3 depth and metric Kabsch/RANSAC even-source-ID fit, odd-source-ID validation",
+  "cycle_validation": "camera transforms T_ba and T_cb must compose to T_ca within0.03m/0.02rad; pair needs >=1 consistent accepted triangle and no failing accepted triangle",
+  "identity_validation": "different-ID inliers from qualified cross-cut pairs; >=2 distinct camera pairs and >=3 keyframes per identity; reject original same-frame multiple ownership, including transitive cluster conflicts",
+  "limits": {
+    "process_timeout_s": 300,
+    "address_space_gib": 8,
+    "threads": 1
+  },
+  "acceptance": "diagnostic only; at least one viable repeated identity across a weak cut would support a subsequent merge-model investigation, never immediate BA insertion; zero candidates means stop this frozen route and report failure to supply new constraints",
+  "limitations": [
+    "Previously seen test scenes; no fresh independent accuracy validation",
+    "Within-pair fit/validation and triangle views are correlated; no independent identity ground truth",
+    "Pair/group acceptance is not map accuracy or full observability",
+    "No pose prior, truth, merge, BA, online writeback or downloads"
+  ],
+  "stop": "Finish all three attempts; retain rejected pairs, every cycle, ownership conflicts, raw records and resource failures; no threshold/window/selection changes after real-image results",
+  "tests": {
+    "python_passed": 82,
+    "ctest_passed": 17,
+    "failed": 0,
+    "skipped": 0
+  }
+}

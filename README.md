@@ -8,7 +8,8 @@
 > rejects its known teddy degeneracy while retaining desk/room outputs exactly.
 > Safety acceptance passes, but teddy accuracy is not improved. A subsequent
 > [cached-feature bridge audit](#cached-feature-bridge-candidates) produces no
-> accepted new constraints. The strict default
+> accepted new constraints; the subsequent [short-window identity audit](#short-window-landmark-identity-audit)
+> also lacks sufficient support. The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
 
@@ -1603,3 +1604,79 @@ and preserves an unsuccessful attempt to supply stronger geometry. This route
 is not connected to BA or promoted. A separate next step could inspect short
 multi-frame tracks or verified duplicate-landmark identity; it must establish
 valid constraints before any new optimization or online claim.
+
+### Short-window landmark identity audit
+
+**No supported identity candidates; no new geometric or accuracy benefit.**
+The previous audit excluded targets near cached features. This Python-only
+follow-up explicitly examines existing feature identities in a four-keyframe
+window (two each side of the same weak/minimum-support cuts). It evaluates every
+unordered pair, including within-side controls, deduplicating pairs shared by
+windows. No feature detector, C++ interface, point/observation rewrite, BA,
+trajectory output, online feedback or data download is added.
+
+The [frozen protocol](results/landmark_identity_protocol.json), SHA-256
+`a4fadbe238bd3b71c42cb77b3c7dd598c9142a3486f8fa4accfa81a51f3684d9`, retains the
+prior LK (21 px, 3 levels, 30 iterations, 0.01 termination), forward/backward
+<=1 px, native depth, 0.05 m local depth-spread and 0.03 m rigid inlier gates.
+New identity matching requires a unique reciprocal cached feature within 2 px,
+using both image directions. Even source point IDs fit Kabsch/RANSAC (256 trials,
+seed 17); odd IDs validate without refitting. Minimum support stays 12 fit and
+6 validation inliers, each >=50% of its split. Existing same-ID matches are
+controls, not new identities. No cached pose, map coordinate or truth guides
+matching or geometric verification.
+
+Three accepted camera transforms must compose as `T_ca = T_cb T_ba`, within
+0.03 m translation and 0.02 rad rotation. A pair needs at least one accepted
+triangle and no failing accepted triangle. An identity then needs geometric
+inliers from two distinct cross-cut pairs and at least three keyframes.
+Original co-observation conflicts reject pairwise identities and entire
+transitive identity clusters. Repeated pair records do not increase evidence.
+These are necessary consistency checks, not independent identity truth:
+views and ID-parity splits remain correlated. The tool never merges points.
+
+| Sequence | Unique pairs | Depth-valid different-ID matches | Accepted rigid pairs | Identity candidates |
+|---|---:|---:|---:|---:|
+| desk | 6 | 2 | 0 | 0 |
+| room | 6 | 2 | 0 | 0 |
+| teddy | 21 | 5 | 0 | 0 |
+
+All **33 unique pairs fail split support before rigid fitting**. Therefore no
+real-data transform, triangle or identity is validated; only synthetic tests
+exercise those later gates. The largest depth-valid pool is 18 matches in teddy
+201/202, split 9/9, below the frozen 12-fit requirement. Nine different-ID matches
+are raw proposals, not nine verified duplicates. Six windows contain 36 pair
+references but only 33 unique pairs; neither repeated views nor windows are
+counted as independent scenes. These are the same previously seen sequences.
+[Every pair](results/landmark_identity_pairs.csv) and
+[every window](results/landmark_identity_windows.csv) retains its rejection,
+counts and resource costs. No post-result tuning or replacement window occurs.
+This does not prove there are no duplicates or image overlap; it establishes
+that this specific cached-feature/keyframe-LK route supplied no usable evidence.
+
+**82/82 Python and 17/17 CTest pass, zero skips.** Twelve new tests cover
+synthetic duplicate recovery, metric direction, independence from cached poses,
+immutable state, same-ID controls, native depth provenance, reciprocal ambiguity,
+repeated evidence, triangle order, and pairwise/transitive ownership conflicts.
+All three processes exit 0, while every geometric pair is explicitly rejected.
+Wall times are `0.42 / 0.92 / 1.02 s`, within 300 s/8 GiB budgets, with no timeout
+or OOM; these are candidate-audit costs, not SLAM performance. Input snapshot
+hashes and native cached-depth provenance pass. No truth or accuracy evaluator
+is read, and previous ATE results are unchanged.
+
+```bash
+PYTHONPATH=python python python/audit_landmark_identity.py \
+  --snapshot /path/to/input.snapshot --dataset /path/to/tum_sequence \
+  --output /path/to/new_identity_audit
+```
+
+Raw pair records, failed gates, image hashes, frozen source and test logs remain
+outside Git in `landmark-identity-v6-20261021`: 59 files, manifest SHA-256
+`0a562e5a657d78f57eb46a4fdea0249d24c68bd69a80238307576768c5b7c78b`.
+Cumulative contribution adds Python reciprocal identity evidence, transform-cycle
+checks and conflict-safe candidate grouping with auditable negative validation.
+OpenCV provides LK, NumPy/SciPy provide established numerical operations; no
+original solver or reliable merge claim is made. This frozen route stops without
+BA integration. A separately scoped ordinary-frame tracking audit could test
+whether shorter image intervals recover support; no such benefit is established
+here, and no threshold is relaxed to force acceptance.
