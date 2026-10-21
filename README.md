@@ -11,6 +11,8 @@
 > accepted new constraints; the subsequent [short-window identity audit](#short-window-landmark-identity-audit)
 > also lacks sufficient support. [Ordinary-frame transport](#ordinary-frame-track-comparison)
 > increases raw correspondence counts but still supplies no validated constraints.
+> A [candidate-pool repair](#candidate-observation-pool-and-minimal-feature-export-proposal)
+> recovers cached singletons, but its frozen comparison still fails geometry.
 > The strict default
 > remains unchanged. Online tracking benefit, reliable cross-scene operation and
 > dynamic/4D remain unproven or unimplemented.
