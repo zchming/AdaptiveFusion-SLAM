@@ -1,0 +1,304 @@
+{
+  "stage": "V18 ORB observation utilization controls",
+  "cases": 39,
+  "fit_arms": 78,
+  "evaluation_rows": 156,
+  "scope": "Two fixed ORB controls only; historical intrinsics; unchanged native PnP; no held-out checks",
+  "summary": [
+    {
+      "arm": "raw",
+      "scene": "all",
+      "pairs": 39,
+      "accurate_both": 14,
+      "applied": 0,
+      "applied_accurate_both": 0,
+      "raw_accurate_became_inaccurate": 0,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "accurate_both": 1,
+      "applied": 0,
+      "applied_accurate_both": 0,
+      "raw_accurate_became_inaccurate": 0,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "accurate_both": 2,
+      "applied": 0,
+      "applied_accurate_both": 0,
+      "raw_accurate_became_inaccurate": 0,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "accurate_both": 5,
+      "applied": 0,
+      "applied_accurate_both": 0,
+      "raw_accurate_became_inaccurate": 0,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "accurate_both": 6,
+      "applied": 0,
+      "applied_accurate_both": 0,
+      "raw_accurate_became_inaccurate": 0,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "V17_half",
+      "scene": "all",
+      "pairs": 39,
+      "accurate_both": 13,
+      "applied": 21,
+      "applied_accurate_both": 6,
+      "raw_accurate_became_inaccurate": 4,
+      "raw_inaccurate_became_accurate": 3
+    },
+    {
+      "arm": "V17_half",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "accurate_both": 2,
+      "applied": 4,
+      "applied_accurate_both": 2,
+      "raw_accurate_became_inaccurate": 0,
+      "raw_inaccurate_became_accurate": 1
+    },
+    {
+      "arm": "V17_half",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "accurate_both": 2,
+      "applied": 4,
+      "applied_accurate_both": 2,
+      "raw_accurate_became_inaccurate": 1,
+      "raw_inaccurate_became_accurate": 1
+    },
+    {
+      "arm": "V17_half",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "accurate_both": 4,
+      "applied": 2,
+      "applied_accurate_both": 1,
+      "raw_accurate_became_inaccurate": 1,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "V17_half",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "accurate_both": 5,
+      "applied": 11,
+      "applied_accurate_both": 1,
+      "raw_accurate_became_inaccurate": 2,
+      "raw_inaccurate_became_accurate": 1
+    },
+    {
+      "arm": "both_depth_all",
+      "scene": "all",
+      "pairs": 39,
+      "accurate_both": 7,
+      "applied": 26,
+      "applied_accurate_both": 4,
+      "raw_accurate_became_inaccurate": 9,
+      "raw_inaccurate_became_accurate": 2
+    },
+    {
+      "arm": "both_depth_all",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "accurate_both": 1,
+      "applied": 4,
+      "applied_accurate_both": 1,
+      "raw_accurate_became_inaccurate": 0,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "both_depth_all",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "accurate_both": 1,
+      "applied": 5,
+      "applied_accurate_both": 1,
+      "raw_accurate_became_inaccurate": 2,
+      "raw_inaccurate_became_accurate": 1
+    },
+    {
+      "arm": "both_depth_all",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "accurate_both": 2,
+      "applied": 4,
+      "applied_accurate_both": 1,
+      "raw_accurate_became_inaccurate": 3,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "both_depth_all",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "accurate_both": 3,
+      "applied": 13,
+      "applied_accurate_both": 1,
+      "raw_accurate_became_inaccurate": 4,
+      "raw_inaccurate_became_accurate": 1
+    },
+    {
+      "arm": "source_depth_all",
+      "scene": "all",
+      "pairs": 39,
+      "accurate_both": 6,
+      "applied": 26,
+      "applied_accurate_both": 3,
+      "raw_accurate_became_inaccurate": 9,
+      "raw_inaccurate_became_accurate": 1
+    },
+    {
+      "arm": "source_depth_all",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "accurate_both": 1,
+      "applied": 4,
+      "applied_accurate_both": 1,
+      "raw_accurate_became_inaccurate": 0,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "source_depth_all",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "accurate_both": 0,
+      "applied": 5,
+      "applied_accurate_both": 0,
+      "raw_accurate_became_inaccurate": 2,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "source_depth_all",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "accurate_both": 2,
+      "applied": 4,
+      "applied_accurate_both": 1,
+      "raw_accurate_became_inaccurate": 3,
+      "raw_inaccurate_became_accurate": 0
+    },
+    {
+      "arm": "source_depth_all",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "accurate_both": 3,
+      "applied": 13,
+      "applied_accurate_both": 1,
+      "raw_accurate_became_inaccurate": 4,
+      "raw_inaccurate_became_accurate": 1
+    }
+  ],
+  "metrics": {
+    "both_depth_all": {
+      "input_rows": 1261,
+      "reasons": {
+        "native estimator success; not accuracy certificate": 26,
+        "native estimator rejected": 5,
+        "insufficient fit support": 8
+      },
+      "process_failures": 0,
+      "timeouts": 0,
+      "max_rss_mib": 80.890625,
+      "summed_process_wall_s": 8.835472744999606,
+      "median_process_wall_s": 0.22166824700002508,
+      "accuracy_by_truth_mode": {
+        "nearest": 7,
+        "interpolated": 7
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.07217086273453613,
+            "p95": 0.8134459383537199
+          },
+          "rotation_deg": {
+            "median": 2.316942475147659,
+            "p95": 21.789673479906263
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.072553711810046,
+            "p95": 0.8134243499234078
+          },
+          "rotation_deg": {
+            "median": 2.2198561027539427,
+            "p95": 21.7930974308658
+          }
+        }
+      }
+    },
+    "source_depth_all": {
+      "input_rows": 1519,
+      "reasons": {
+        "native estimator success; not accuracy certificate": 26,
+        "native estimator rejected": 5,
+        "insufficient fit support": 8
+      },
+      "process_failures": 0,
+      "timeouts": 0,
+      "max_rss_mib": 80.84375,
+      "summed_process_wall_s": 8.931856710999455,
+      "median_process_wall_s": 0.2255948790000275,
+      "accuracy_by_truth_mode": {
+        "nearest": 6,
+        "interpolated": 6
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.05711657890371547,
+            "p95": 0.8134459383537199
+          },
+          "rotation_deg": {
+            "median": 2.7064618284602764,
+            "p95": 21.789673479906263
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.05894385764662301,
+            "p95": 0.8134243499234078
+          },
+          "rotation_deg": {
+            "median": 2.6346601241310434,
+            "p95": 21.7930974308658
+          }
+        }
+      }
+    }
+  },
+  "fit_wall_s": 17.86315393200016,
+  "preserved_existing_files": 211,
+  "changed_existing_files": [],
+  "exact_raw_fallbacks": 26,
+  "tests": {
+    "python_passed": 160,
+    "python_skipped": 0
+  },
+  "decision": "Do not adopt either arm; retain source-depth-all as the fair ORB control for future source-depth-only matcher comparisons.",
+  "next_candidate": "Shared RootSIFT observations: NN vs SIFT-LightGlue, with fixed PnP and a declared 2048 feature budget; requires next-stage authorization.",
+  "hashes": {
+    "fit_seal": "9fdda66694d8149c9bb94297a258bedfbfb69a90dd57fa19f2f312c52f2aa934",
+    "evaluation_report": "9d17153b6008e138eebfeb6212d1808d323963188410967d320fdc8fde8259b2",
+    "parent_fit_seal": "dbe090ab28bf94a1742052dc57aa4f78919c547d70fa89296f4c262610836986"
+  }
+}

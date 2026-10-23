@@ -1,0 +1,139 @@
+{
+  "scope": "Read-only analysis of existing V19 outputs, original depth maps, timestamps and GT; no inference, estimator fitting, pose update or new performance experiment.",
+  "cases": 39,
+  "damaged_pairs": 7,
+  "key_findings": [
+    "Timing/depth-model inconsistency is substantial for desk22-23 and teddy157-160/158-159/158-160, and also measurable in teddy110-112.",
+    "Room141-143 and142-143 have thin 3D support;141-143 has only1.3% inlier hull coverage. Their GT depth consistency is good.",
+    "A lower depth residual alone would favor the wrong pose in3/7 damaged cases."
+  ],
+  "timing": {
+    "fr1_desk/22": {
+      "rgb_depth_dt_ms": -15.711069107055664,
+      "gt_motion_m": 0.007077863899789142,
+      "gt_motion_deg": 1.6854887999925
+    },
+    "fr1_desk/23": {
+      "rgb_depth_dt_ms": -17.327070236206055,
+      "gt_motion_m": 0.00853486374554526,
+      "gt_motion_deg": 2.2033015485709
+    },
+    "fr1_room/141": {
+      "rgb_depth_dt_ms": -1.2378692626953125,
+      "gt_motion_m": 0.0003155962772640248,
+      "gt_motion_deg": 0.07752559815191012
+    },
+    "fr1_room/142": {
+      "rgb_depth_dt_ms": -1.9419193267822266,
+      "gt_motion_m": 0.0005981308808250689,
+      "gt_motion_deg": 0.10121007124340253
+    },
+    "fr1_room/143": {
+      "rgb_depth_dt_ms": -1.2650489807128906,
+      "gt_motion_m": 0.0003553417663443693,
+      "gt_motion_deg": 0.06624082389698671
+    },
+    "fr1_teddy/110": {
+      "rgb_depth_dt_ms": 9.39321517944336,
+      "gt_motion_m": 0.007172640430411329,
+      "gt_motion_deg": 0.4157075187676321
+    },
+    "fr1_teddy/112": {
+      "rgb_depth_dt_ms": 12.540817260742188,
+      "gt_motion_m": 0.008622968355679049,
+      "gt_motion_deg": 0.684410253253974
+    },
+    "fr1_teddy/157": {
+      "rgb_depth_dt_ms": -15.495061874389648,
+      "gt_motion_m": 0.0022149128965391726,
+      "gt_motion_deg": 0.4921938417267323
+    },
+    "fr1_teddy/158": {
+      "rgb_depth_dt_ms": -13.979911804199219,
+      "gt_motion_m": 0.0033514820606417597,
+      "gt_motion_deg": 1.480782379794074
+    },
+    "fr1_teddy/159": {
+      "rgb_depth_dt_ms": -19.402027130126953,
+      "gt_motion_m": 0.00685574649307781,
+      "gt_motion_deg": 1.90834914468775
+    },
+    "fr1_teddy/160": {
+      "rgb_depth_dt_ms": -15.592098236083984,
+      "gt_motion_m": 0.005626289688947494,
+      "gt_motion_deg": 0.4391730043381703
+    }
+  },
+  "common_grid": [
+    {
+      "scene": "fr1_desk",
+      "pair": "22-23",
+      "common_source_grid_points": 350,
+      "gt_rgb_time_median_m": 0.04320826669753636,
+      "gt_depth_time_median_m": 0.02932107866488387
+    },
+    {
+      "scene": "fr1_room",
+      "pair": "141-143",
+      "common_source_grid_points": 443,
+      "gt_rgb_time_median_m": 0.008850293761598627,
+      "gt_depth_time_median_m": 0.008874666480438664
+    },
+    {
+      "scene": "fr1_room",
+      "pair": "142-143",
+      "common_source_grid_points": 701,
+      "gt_rgb_time_median_m": 0.008135982909729167,
+      "gt_depth_time_median_m": 0.00835943443408782
+    },
+    {
+      "scene": "fr1_teddy",
+      "pair": "110-112",
+      "common_source_grid_points": 315,
+      "gt_rgb_time_median_m": 0.00865260941016155,
+      "gt_depth_time_median_m": 0.0036291287502523417
+    },
+    {
+      "scene": "fr1_teddy",
+      "pair": "157-160",
+      "common_source_grid_points": 304,
+      "gt_rgb_time_median_m": 0.06164476440347011,
+      "gt_depth_time_median_m": 0.045619819962794406
+    },
+    {
+      "scene": "fr1_teddy",
+      "pair": "158-159",
+      "common_source_grid_points": 437,
+      "gt_rgb_time_median_m": 0.13173492533710696,
+      "gt_depth_time_median_m": 0.05135183053081205
+    },
+    {
+      "scene": "fr1_teddy",
+      "pair": "158-160",
+      "common_source_grid_points": 310,
+      "gt_rgb_time_median_m": 0.06844917711069454,
+      "gt_depth_time_median_m": 0.034253280676061815
+    }
+  ],
+  "next_priority": "Keep LightGlue/PnP fixed; first test source-depth temporal registration using existing estimated frame poses, never GT. Treat weak/planar matching support as a separate factor.",
+  "next_comparison": {
+    "arms": [
+      "Existing full-observation V19 baseline (reuse)",
+      "Unwarped source depth on the common-valid observation subset",
+      "Time-registered source depth on the exact same common-valid subset"
+    ],
+    "pairs": 39,
+    "new_native_fits": 78,
+    "intervention": "Temporal source-depth registration only; same cached LightGlue matches, source IDs, target coordinates and PnP",
+    "motion_source": "Frozen raw estimated frame poses only; GT excluded from input construction",
+    "retain_all_failures": true,
+    "gt_for_evaluation_only": true
+  },
+  "secondary_candidate": "OpenCV USAC_MAGSAC 2D F/H verification and spatial/depth-support diagnostics as a separate later arm, without replacing PnP.",
+  "sources": [
+    "https://docs.opencv.org/3.4.20/d2/d3a/group__rgbd.html",
+    "https://docs.opencv.org/4.13.0/de/d3e/tutorial_usac.html",
+    "https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats"
+  ],
+  "evidence_directory": "${AFS_EVIDENCE_ROOT}/rootsift-v19-20261023-znsjvjn8/degradation-analysis"
+}

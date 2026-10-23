@@ -1,0 +1,363 @@
+{
+  "stage": "V19 shared RootSIFT matching comparison",
+  "cases": 39,
+  "new_arms": 78,
+  "evaluation_rows": 156,
+  "accuracy": "translation <= 0.03m and rotation <= 2deg under BOTH GT alignments; all fallbacks included",
+  "summary": [
+    {
+      "arm": "raw",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 0,
+      "accurate_both": 14,
+      "applied_accurate_both": 0,
+      "newly_damaged_raw_pairs": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 0,
+      "accurate_both": 1,
+      "applied_accurate_both": 0,
+      "newly_damaged_raw_pairs": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 0,
+      "accurate_both": 2,
+      "applied_accurate_both": 0,
+      "newly_damaged_raw_pairs": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 0,
+      "accurate_both": 5,
+      "applied_accurate_both": 0,
+      "newly_damaged_raw_pairs": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 0,
+      "accurate_both": 6,
+      "applied_accurate_both": 0,
+      "newly_damaged_raw_pairs": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "V17_half",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 21,
+      "accurate_both": 13,
+      "applied_accurate_both": 6,
+      "newly_damaged_raw_pairs": 4,
+      "rescued_raw_pairs": 3
+    },
+    {
+      "arm": "V17_half",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 2,
+      "applied_accurate_both": 2,
+      "newly_damaged_raw_pairs": 0,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "V17_half",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 2,
+      "applied_accurate_both": 2,
+      "newly_damaged_raw_pairs": 1,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "V17_half",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 2,
+      "accurate_both": 4,
+      "applied_accurate_both": 1,
+      "newly_damaged_raw_pairs": 1,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "V17_half",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 11,
+      "accurate_both": 5,
+      "applied_accurate_both": 1,
+      "newly_damaged_raw_pairs": 2,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "orb_source_depth_all",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 26,
+      "accurate_both": 6,
+      "applied_accurate_both": 3,
+      "newly_damaged_raw_pairs": 9,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "orb_source_depth_all",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 1,
+      "applied_accurate_both": 1,
+      "newly_damaged_raw_pairs": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "orb_source_depth_all",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 5,
+      "accurate_both": 0,
+      "applied_accurate_both": 0,
+      "newly_damaged_raw_pairs": 2,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "orb_source_depth_all",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 2,
+      "applied_accurate_both": 1,
+      "newly_damaged_raw_pairs": 3,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "orb_source_depth_all",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 13,
+      "accurate_both": 3,
+      "applied_accurate_both": 1,
+      "newly_damaged_raw_pairs": 4,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "rootsift_nn",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 29,
+      "accurate_both": 12,
+      "applied_accurate_both": 9,
+      "newly_damaged_raw_pairs": 7,
+      "rescued_raw_pairs": 5
+    },
+    {
+      "arm": "rootsift_nn",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 5,
+      "accurate_both": 4,
+      "applied_accurate_both": 4,
+      "newly_damaged_raw_pairs": 0,
+      "rescued_raw_pairs": 3
+    },
+    {
+      "arm": "rootsift_nn",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 0,
+      "applied_accurate_both": 0,
+      "newly_damaged_raw_pairs": 2,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "rootsift_nn",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 3,
+      "applied_accurate_both": 2,
+      "newly_damaged_raw_pairs": 2,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "rootsift_nn",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 16,
+      "accurate_both": 5,
+      "applied_accurate_both": 3,
+      "newly_damaged_raw_pairs": 3,
+      "rescued_raw_pairs": 2
+    },
+    {
+      "arm": "rootsift_lightglue",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 37,
+      "accurate_both": 15,
+      "applied_accurate_both": 14,
+      "newly_damaged_raw_pairs": 7,
+      "rescued_raw_pairs": 8
+    },
+    {
+      "arm": "rootsift_lightglue",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 4,
+      "applied_accurate_both": 4,
+      "newly_damaged_raw_pairs": 0,
+      "rescued_raw_pairs": 3
+    },
+    {
+      "arm": "rootsift_lightglue",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 2,
+      "applied_accurate_both": 2,
+      "newly_damaged_raw_pairs": 1,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "rootsift_lightglue",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 3,
+      "applied_accurate_both": 2,
+      "newly_damaged_raw_pairs": 2,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "rootsift_lightglue",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 21,
+      "accurate_both": 6,
+      "applied_accurate_both": 6,
+      "newly_damaged_raw_pairs": 4,
+      "rescued_raw_pairs": 4
+    }
+  ],
+  "metrics": {
+    "rootsift_nn": {
+      "matches": 4058,
+      "eligible_rows": 3057,
+      "reasons": {
+        "native estimator success; not accuracy certificate": 29,
+        "native estimator rejected": 10
+      },
+      "matching_s": 0.24548595700002807,
+      "matching_median_s": 0.007044451999945522,
+      "pose_worker_s": 9.103125300001238,
+      "solver_s": 0.089545541,
+      "peak_gpu_allocated_mib": 54.47021484375,
+      "peak_gpu_reserved_mib": 158.0,
+      "peak_pose_rss_mib": 80.99609375,
+      "median_inlier_cells": 8.0,
+      "accuracy_by_truth_mode": {
+        "nearest": 12,
+        "interpolated": 12
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.05246831008880475,
+            "p95": 0.43279089088908246
+          },
+          "rotation_deg": {
+            "median": 2.1395447068033784,
+            "p95": 9.225845462734702
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.055393172289370615,
+            "p95": 0.43248868827653614
+          },
+          "rotation_deg": {
+            "median": 1.8016059581179875,
+            "p95": 9.481421146865442
+          }
+        }
+      }
+    },
+    "rootsift_lightglue": {
+      "matches": 15254,
+      "eligible_rows": 11455,
+      "reasons": {
+        "native estimator success; not accuracy certificate": 37,
+        "native estimator rejected": 2
+      },
+      "matching_s": 1.0651545680002528,
+      "matching_median_s": 0.015839434000099573,
+      "pose_worker_s": 9.24601155100072,
+      "solver_s": 0.09835469299999999,
+      "peak_gpu_allocated_mib": 128.7373046875,
+      "peak_gpu_reserved_mib": 158.0,
+      "peak_pose_rss_mib": 81.16796875,
+      "median_inlier_cells": 11.0,
+      "accuracy_by_truth_mode": {
+        "nearest": 15,
+        "interpolated": 15
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.033017361681942935,
+            "p95": 0.15221464749386446
+          },
+          "rotation_deg": {
+            "median": 1.435082729798087,
+            "p95": 4.301110305298742
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.03337088693341498,
+            "p95": 0.15397311714431994
+          },
+          "rotation_deg": {
+            "median": 1.5126317449229885,
+            "p95": 4.109762095205047
+          }
+        }
+      }
+    }
+  },
+  "execution": {
+    "unique_images": 25,
+    "shared_extraction_s": 0.7006159129996377,
+    "model_load_s": 0.23925036800005728,
+    "matching_phase_wall_s": 3.022614029000124,
+    "pose_phase_wall_s": 18.59219188399993,
+    "matching_process_peak_rss_mib": 1522.2265625
+  },
+  "exact_raw_fallbacks": 12,
+  "matching_failures": 0,
+  "process_failures": 0,
+  "timeouts": 0,
+  "ooms": 0,
+  "validation": "Targeted NN mutuality/insufficient-neighbor and source-depth adaptation checks passed; no full regression rerun.",
+  "decision": "Keep LightGlue as the stronger matcher candidate; do not integrate online: 7 previously accurate raw pairs are still damaged.",
+  "attribution": "NN vs LightGlue shares identical 2048-budget RootSIFT features. ORB comparisons also change detector, descriptors and feature budget.",
+  "next": "Diagnose the seven damaged pairs on existing outputs, separating geometric support and depth/registration consistency before a new method change.",
+  "evidence": "${AFS_EVIDENCE_ROOT}/rootsift-v19-20261023-znsjvjn8"
+}
