@@ -56,6 +56,10 @@ target_compile_definitions(adaptivefusion_slam PRIVATE AFS_SOURCE_REVISION="${AF
 add_executable(replay_local_ba app/replay_local_ba.cpp)
 target_link_libraries(replay_local_ba PRIVATE adaptivefusion_slam)
 
+# Input/output adapter only: reuse the production PnP implementation unchanged.
+add_executable(native_pnp_pair app/native_pnp_pair.cpp)
+target_link_libraries(native_pnp_pair PRIVATE adaptivefusion_slam)
+
 target_link_libraries(adaptivefusion_slam
     PUBLIC
         Eigen3::Eigen

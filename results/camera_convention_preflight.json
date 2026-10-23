@@ -1,0 +1,532 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-22T12:04:08.887143+00:00",
+  "status": "planned_not_executed",
+  "stage": "V17 camera/data convention preflight and proposed pair baseline comparison",
+  "objective": "engineering accuracy and robustness gains using existing components; no algorithm novelty requirement",
+  "official_source": {
+    "url": "https://cvg.cit.tum.de/data/datasets/rgbd-dataset/file_formats",
+    "accessed_date": "2026-10-22",
+    "facts": {
+      "native_resolution": [
+        640,
+        480
+      ],
+      "rgb_png_bits": 8,
+      "depth_png_bits": 16,
+      "depth_units_per_metre": 5000,
+      "zero_depth": "missing",
+      "rgb_depth_pre_registered": true,
+      "additional_fr1_depth_factor_for_png": 1.0,
+      "recommended_registered_input_policy": "ROS default intrinsics without additional undistortion; this is a convention control, not certified true calibration"
+    }
+  },
+  "audit_summary": [
+    {
+      "scene": "fr1_xyz",
+      "index_images": {
+        "rgb": 798,
+        "depth": 798
+      },
+      "png_crc_verified": 1596,
+      "metadata_verified": 114,
+      "native_feature_depth_samples_verified": 113947,
+      "feature_cameras": [
+        [
+          517.3,
+          516.5,
+          318.6,
+          255.3
+        ]
+      ],
+      "depth_configs": [
+        [
+          5000.0,
+          0.1,
+          8.0
+        ]
+      ],
+      "processed_frames": 792,
+      "feature_rgb_depth_abs_offset_max_s": 0.014896869659423828,
+      "pairs": [
+        {
+          "pair": "23-24",
+          "sha256": "e3048158dbe6fd56c24f525aa39cba65e90b1736e9630ccdb55950c6db1db772",
+          "records": 36,
+          "even_fit_rows": 18,
+          "odd_check_rows": 18
+        },
+        {
+          "pair": "23-25",
+          "sha256": "2d4436744d1a54b60bf0ef24fb06000d737c781e132a060dea71ed3c6876eea8",
+          "records": 7,
+          "even_fit_rows": 4,
+          "odd_check_rows": 3
+        },
+        {
+          "pair": "23-26",
+          "sha256": "54522b0c0a3e0ef5a58a037dfacb5af3c6f189e971406aceb22b0ed5758d1aa2",
+          "records": 6,
+          "even_fit_rows": 3,
+          "odd_check_rows": 3
+        },
+        {
+          "pair": "24-25",
+          "sha256": "5a621405668f3c2b9a6b96789165f7c179d2070234c00d9baf67805f907e57d2",
+          "records": 21,
+          "even_fit_rows": 14,
+          "odd_check_rows": 7
+        },
+        {
+          "pair": "24-26",
+          "sha256": "ed096c0ecf7dc7ca5a545a1e4c2a75fc9a9450090de70753c400e6bbb75fa1d0",
+          "records": 18,
+          "even_fit_rows": 10,
+          "odd_check_rows": 8
+        },
+        {
+          "pair": "25-26",
+          "sha256": "099e23aaea932cfb740cea073eac6fd94459259fb12c0270bf585cee59e0d4ad",
+          "records": 130,
+          "even_fit_rows": 66,
+          "odd_check_rows": 64
+        }
+      ]
+    },
+    {
+      "scene": "fr1_desk",
+      "index_images": {
+        "rgb": 613,
+        "depth": 595
+      },
+      "png_crc_verified": 1208,
+      "metadata_verified": 81,
+      "native_feature_depth_samples_verified": 79844,
+      "feature_cameras": [
+        [
+          517.3,
+          516.5,
+          318.6,
+          255.3
+        ]
+      ],
+      "depth_configs": [
+        [
+          5000.0,
+          0.1,
+          8.0
+        ]
+      ],
+      "processed_frames": 573,
+      "feature_rgb_depth_abs_offset_max_s": 0.017548084259033203,
+      "pairs": [
+        {
+          "pair": "21-22",
+          "sha256": "80ef977d291d16afcf59b52b4da9d07bae29c212b7cd0e23abf7f463beb47a04",
+          "records": 43,
+          "even_fit_rows": 24,
+          "odd_check_rows": 19
+        },
+        {
+          "pair": "21-23",
+          "sha256": "35cdd48a07056c674c3ed67b5f9b984fcd86ee7ba001bd0dbea264f8a739f35a",
+          "records": 20,
+          "even_fit_rows": 8,
+          "odd_check_rows": 12
+        },
+        {
+          "pair": "21-24",
+          "sha256": "628206b096195ad7c1baa4c60877353d77cd7421c7106c30acdf81fa3898f31f",
+          "records": 2,
+          "even_fit_rows": 0,
+          "odd_check_rows": 2
+        },
+        {
+          "pair": "22-23",
+          "sha256": "13e7cf55860479b117bb0785de91d26da0dd6776059c85c27255e94829be201b",
+          "records": 42,
+          "even_fit_rows": 22,
+          "odd_check_rows": 20
+        },
+        {
+          "pair": "22-24",
+          "sha256": "116e65b4a3a087098667adf86e9eb6a264c2c5ed489ead7b034b823a72e80099",
+          "records": 33,
+          "even_fit_rows": 17,
+          "odd_check_rows": 16
+        },
+        {
+          "pair": "23-24",
+          "sha256": "509c7ff87f5f2b96f52384f9fc58929ff3da5dac0ef5e661fbd8c966d1c92bd0",
+          "records": 72,
+          "even_fit_rows": 37,
+          "odd_check_rows": 35
+        }
+      ]
+    },
+    {
+      "scene": "fr1_room",
+      "index_images": {
+        "rgb": 1362,
+        "depth": 1360
+      },
+      "png_crc_verified": 2722,
+      "metadata_verified": 246,
+      "native_feature_depth_samples_verified": 238580,
+      "feature_cameras": [
+        [
+          517.3,
+          516.5,
+          318.6,
+          255.3
+        ]
+      ],
+      "depth_configs": [
+        [
+          5000.0,
+          0.1,
+          8.0
+        ]
+      ],
+      "processed_frames": 1352,
+      "feature_rgb_depth_abs_offset_max_s": 0.018856048583984375,
+      "pairs": [
+        {
+          "pair": "141-142",
+          "sha256": "bb4613015e1b1d9d710670be0314d03299932c266037206a88fc7411d0ea61a4",
+          "records": 17,
+          "even_fit_rows": 11,
+          "odd_check_rows": 6
+        },
+        {
+          "pair": "141-143",
+          "sha256": "f5eb746b307eb93b22029c7705b1bf70f3eb44232e7da5da37435fc7fa503d6c",
+          "records": 9,
+          "even_fit_rows": 4,
+          "odd_check_rows": 5
+        },
+        {
+          "pair": "141-144",
+          "sha256": "c4799e245f487e66f46cafc161930362aec4eb7f0623f92d4daca51ec70a3d10",
+          "records": 5,
+          "even_fit_rows": 2,
+          "odd_check_rows": 3
+        },
+        {
+          "pair": "142-143",
+          "sha256": "066876c2e482177f0c4eceaf0f793c3843bdd0592dc7110f70454a6aa24f7058",
+          "records": 11,
+          "even_fit_rows": 6,
+          "odd_check_rows": 5
+        },
+        {
+          "pair": "142-144",
+          "sha256": "5eaae654be7f7003c1da096cde7814a90c29ff87d82104bf3ccda1403dfb27fe",
+          "records": 2,
+          "even_fit_rows": 1,
+          "odd_check_rows": 1
+        },
+        {
+          "pair": "143-144",
+          "sha256": "7ec1eed5e9deb79c799f831c41c1c5ccfec7a8dc4e1c541ff040a502b1a35cc2",
+          "records": 80,
+          "even_fit_rows": 33,
+          "odd_check_rows": 47
+        }
+      ]
+    },
+    {
+      "scene": "fr1_teddy",
+      "index_images": {
+        "rgb": 1419,
+        "depth": 1418
+      },
+      "png_crc_verified": 2837,
+      "metadata_verified": 269,
+      "native_feature_depth_samples_verified": 259676,
+      "feature_cameras": [
+        [
+          517.3,
+          516.5,
+          318.6,
+          255.3
+        ]
+      ],
+      "depth_configs": [
+        [
+          5000.0,
+          0.1,
+          8.0
+        ]
+      ],
+      "processed_frames": 1401,
+      "feature_rgb_depth_abs_offset_max_s": 0.019402027130126953,
+      "pairs": [
+        {
+          "pair": "110-111",
+          "sha256": "59e1a8fdf197808ccdb7d40cb0407e8ceb4f419c4d15bf6ac1355a21356dd9f6",
+          "records": 10,
+          "even_fit_rows": 5,
+          "odd_check_rows": 5
+        },
+        {
+          "pair": "110-112",
+          "sha256": "5dfec82f2598eeb8e4a71934bbfda0c2fc69fd667a8d4a3824db9b00264f0ff3",
+          "records": 4,
+          "even_fit_rows": 2,
+          "odd_check_rows": 2
+        },
+        {
+          "pair": "110-113",
+          "sha256": "c5b89a2eb9061464ff7a2e2c5a48b7e8e625809b7111e0f3da0d94f380588f31",
+          "records": 3,
+          "even_fit_rows": 2,
+          "odd_check_rows": 1
+        },
+        {
+          "pair": "111-112",
+          "sha256": "8a145c56c5f5ffb37766ccca3d0138cd4aeca93cab4abbfe4277a99c501f40d8",
+          "records": 7,
+          "even_fit_rows": 4,
+          "odd_check_rows": 3
+        },
+        {
+          "pair": "111-113",
+          "sha256": "a2834891887bba3e932b9710bf1430a2f06cd27e95c6c2d009b5dd4db90885f7",
+          "records": 1,
+          "even_fit_rows": 0,
+          "odd_check_rows": 1
+        },
+        {
+          "pair": "112-113",
+          "sha256": "5358ad9f10edbe9fbd0b56f435013f6e3a1c3c7b3c99457c23a5b9a47fa7a02b",
+          "records": 24,
+          "even_fit_rows": 13,
+          "odd_check_rows": 11
+        },
+        {
+          "pair": "157-158",
+          "sha256": "74576aff913f9b68bf45b1a66c10e0eafdc588b3826a7686246129eb5dfc2d40",
+          "records": 79,
+          "even_fit_rows": 40,
+          "odd_check_rows": 39
+        },
+        {
+          "pair": "157-159",
+          "sha256": "2cc71b8e4c3b21a3c9d5238c06274b25345abefa997785ed80e5c96c0667c9e8",
+          "records": 22,
+          "even_fit_rows": 13,
+          "odd_check_rows": 9
+        },
+        {
+          "pair": "157-160",
+          "sha256": "3558a4330c82843ef5c895213f7a791e7048e0a7657dcafb13c7711b9815fc00",
+          "records": 33,
+          "even_fit_rows": 15,
+          "odd_check_rows": 18
+        },
+        {
+          "pair": "158-159",
+          "sha256": "b9b20c90d7601d40eded9c3e4a31fa0f5a959a574e9f6b5cbea800a5d07d43b2",
+          "records": 19,
+          "even_fit_rows": 9,
+          "odd_check_rows": 10
+        },
+        {
+          "pair": "158-160",
+          "sha256": "11a1e740e25c0866ad473c12379363dce3328a30d05edba4abc7ce927f3ce81c",
+          "records": 17,
+          "even_fit_rows": 6,
+          "odd_check_rows": 11
+        },
+        {
+          "pair": "159-160",
+          "sha256": "176e77b50b841a60d1266527d781ff88cb8c770362b6ded52522fd8a2350ef79",
+          "records": 30,
+          "even_fit_rows": 8,
+          "odd_check_rows": 22
+        },
+        {
+          "pair": "201-202",
+          "sha256": "a28f28c7b422904243eb90649ef6d815b088cd4af896613fad63bd474b3477f2",
+          "records": 216,
+          "even_fit_rows": 105,
+          "odd_check_rows": 111
+        },
+        {
+          "pair": "201-203",
+          "sha256": "7aeb2706a338636fd602f5aa516ba0cac3fe281a14085b6c3f7ded01c7f002d1",
+          "records": 11,
+          "even_fit_rows": 9,
+          "odd_check_rows": 2
+        },
+        {
+          "pair": "201-204",
+          "sha256": "2a1220412152e7321668fc41a910042ed5471a25447ca181733f7ec421590230",
+          "records": 84,
+          "even_fit_rows": 45,
+          "odd_check_rows": 39
+        },
+        {
+          "pair": "202-203",
+          "sha256": "03f24c68983aea77a987fbde1a190a2f2b0a1e6e4013c78ab280fe8253c4798d",
+          "records": 7,
+          "even_fit_rows": 2,
+          "odd_check_rows": 5
+        },
+        {
+          "pair": "202-204",
+          "sha256": "1a29bfdf57faac55da300a1f797d073a0cda9d1b206af368dcd3b9b7d68571dc",
+          "records": 46,
+          "even_fit_rows": 20,
+          "odd_check_rows": 26
+        },
+        {
+          "pair": "202-205",
+          "sha256": "a5bf1f3c2a4802f9ee99f1bc9d8f353eb4c1cabd288cdfc552dd451c8c091675",
+          "records": 39,
+          "even_fit_rows": 22,
+          "odd_check_rows": 17
+        },
+        {
+          "pair": "203-204",
+          "sha256": "379ff87df473f5f1c5a5ed6b3aaf142a3adf6cb05ffe3ccccc49bc1949e427d8",
+          "records": 2,
+          "even_fit_rows": 0,
+          "odd_check_rows": 2
+        },
+        {
+          "pair": "203-205",
+          "sha256": "585875cffa8f5f823b0333d5e10817bad129de8f8b939f3c542a52c617679685",
+          "records": 0,
+          "even_fit_rows": 0,
+          "odd_check_rows": 0
+        },
+        {
+          "pair": "204-205",
+          "sha256": "4dd7404f8d6a9f695de2c0b203487903041b044c58b7c8c77330764a7047c3bc",
+          "records": 53,
+          "even_fit_rows": 31,
+          "odd_check_rows": 22
+        }
+      ]
+    }
+  ],
+  "camera_profiles": {
+    "historical_fr1_pinhole": {
+      "camera": [
+        517.3,
+        516.5,
+        318.6,
+        255.3
+      ],
+      "distortion": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "tum_recommended_ros_default": {
+      "camera": [
+        525.0,
+        525.0,
+        319.5,
+        239.5
+      ],
+      "distortion": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "comparison_plan": {
+    "executed": false,
+    "implementation_status": "native estimator input adapter not implemented; protocol only",
+    "estimators": {
+      "current_3d2d_huber_refinement": {
+        "implementation": "python/adaptivefusion/pair_model_comparison.py:refine_pair",
+        "initialization": "same frozen raw relative frame transform for both camera profiles",
+        "minimum_fit": 6,
+        "pixel_sigma": 2.0,
+        "huber_delta": 2.0,
+        "maximum_nfev": 100,
+        "tolerance": 1e-10
+      },
+      "existing_native_pnp_ransac": {
+        "implementation": "src/pnp_pose_estimator.cpp:PnpPoseEstimator::estimate",
+        "reuse_policy": "thin adapter to existing class, no new estimator; use retained native OpenCV 4.6 runtime rather than Python OpenCV 5 to avoid an extra version factor",
+        "ransac_flag": "SOLVEPNP_EPNP",
+        "iterations": 100,
+        "reprojection_threshold_pixels": 3.0,
+        "confidence": 0.99,
+        "minimum_correspondences": 6,
+        "minimum_inliers": 6,
+        "refinement": "existing SOLVEPNP_ITERATIVE on RANSAC inliers, existing refinement fallback",
+        "seeds": [
+          17,
+          23,
+          41,
+          67,
+          101
+        ]
+      }
+    },
+    "input_policy": [
+      "all 39 existing descriptor candidate pairs, including failed/rejected proposals",
+      "same source-feature ID even fit / odd check split in every arm",
+      "same original common target-depth-valid row eligibility; not a depth-independent sample",
+      "re-unproject original source pixels/raw depth with each profile; use same profile for target projection",
+      "no rematching, resampling, extra undistortion, image resizing, extra depth scaling or new gate",
+      "native C++ runtime may be invoked only after adapter synthetic/contract checks and explicit execution authorization"
+    ],
+    "raw_baseline": "retain the historical raw relative transforms as fixed returned-pose reference and fallback; these were estimated using the historical camera, so they are not a newly estimated ROS-default frontend baseline",
+    "measurement_units": {
+      "translation": "metres",
+      "rotation": "degrees",
+      "pixel": "native pixels"
+    },
+    "evaluation": [
+      "write and hash fit-only outputs before opening GT; decision inputs and GT evaluation remain separate",
+      "nearest association within 0.02s and bracketed interpolation, no extrapolation; two protocols are sensitivity checks, not independent observations",
+      "report every pose/failure/fallback and fixed seed; do not choose a best seed or pool seeds/time modes as independent scenes",
+      "report raw, historical local and native PnP arms; success fraction at 0.03m/2deg, per-scene medians/tails and newly degraded raw-accurate pairs",
+      "report estimator cost separately; 100 RANSAC draws are not equivalent to 100 nonlinear evaluations",
+      "all scenes/pairs previously inspected and failure-window selected; no fresh generalization claim"
+    ],
+    "decision_policy": [
+      "integrity/schema failure stops before fitting",
+      "no performance or default change from preflight; no automatic best-camera selection",
+      "any incomplete/timeout/OOM arm remains unavailable or failed, never dropped or silently reduced",
+      "future engineering continuation requires gains in at least two reused scenes, no newly returned pose crossing 0.03m/2deg from a raw-accurate pair, and no per-scene all-attempt median degradation >0.005m or >0.5deg in either timestamp protocol; these are engineering screening rules, not safety guarantees",
+      "freeze method and budgets before any new-sequence validation; a cached pair benefit alone does not authorize online integration"
+    ],
+    "resources": {
+      "device": "CPU",
+      "cpu_threads": 1,
+      "address_space_gib_per_process": 4,
+      "wall_limit_s_per_pair_arm": 60,
+      "downloads": false,
+      "weights": false
+    },
+    "stop": "only this preflight is authorized/executed now; do not build adapter, fit pairs, run BA/odometry, change defaults, train or tune V15 until separately authorized"
+  },
+  "source_sha256": {
+    "app/run_rgbd_odometry.cpp": "445703505afef60c6fabccadde0cd9d8c9efd73176a1da3a7ed78e2c8ebdf560",
+    "src/camera.cpp": "bf4b8f68a82a6f9fc9ace08f6aefa24766028e7e31efb8d3f7cbf199cbf7bdf9",
+    "src/pnp_pose_estimator.cpp": "650c31f9bd46b8eea76b038511d1704a7b3ab1bf257ecc77f2f781107520d3bf",
+    "src/rgbd_correspondence_builder.cpp": "81965c7898b9dfb1d537fd5440d2e8660985a9ed3533fbe09128facd83c11189",
+    "include/rgbd_correspondence_builder.h": "2ce9ac3e6ae6dcbec69dd39c5c76e2349fb99d5e8669af4da4a3ccbf8a6b19bc",
+    "python/compare_pair_models.py": "9baad7ff2f25d94e8f7c10fde9b4c2e756f9931d6af28dae4d22afc93ff8aaf2",
+    "python/adaptivefusion/pair_model_comparison.py": "0e417c6c302f014525c33a5312c0ffc4d34e6c45d016c093c7237fdf4ad414d4"
+  },
+  "limitations": [
+    "camera convention difference is verified; its effect on V15 failures is unmeasured",
+    "PNG CRC and matching cached depth values establish integrity/consistency, not metric depth accuracy",
+    "historical pipeline nearest-depth sampling and offline 3x3 eligibility remain distinct fixed protocols; do not mix native frame tracking with the frozen descriptor-pair comparison"
+  ]
+}
