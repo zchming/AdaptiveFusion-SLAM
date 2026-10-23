@@ -1,0 +1,510 @@
+{
+  "stage": "V22 frozen within-sequence image-disjoint holdout",
+  "cases": 48,
+  "images": 96,
+  "unique_rgb_hashes": 96,
+  "development_image_hash_overlap": 0,
+  "same_cardinality_checks": 48,
+  "planned_and_executed_native_calls": 240,
+  "evaluation_rows": 480,
+  "development_exclusion_s": 1.0,
+  "summary": [
+    {
+      "arm": "raw",
+      "scene": "all",
+      "pairs": 48,
+      "applied": 0,
+      "accurate_both": 45,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_xyz",
+      "pairs": 12,
+      "applied": 0,
+      "accurate_both": 12,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_desk",
+      "pairs": 12,
+      "applied": 0,
+      "accurate_both": 11,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_room",
+      "pairs": 12,
+      "applied": 0,
+      "accurate_both": 11,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_teddy",
+      "pairs": 12,
+      "applied": 0,
+      "accurate_both": 11,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "rootsift_lightglue",
+      "scene": "all",
+      "pairs": 48,
+      "applied": 48,
+      "accurate_both": 45,
+      "new_raw_damage": 1,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "rootsift_lightglue",
+      "scene": "fr1_xyz",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 12,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "rootsift_lightglue",
+      "scene": "fr1_desk",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 11,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "rootsift_lightglue",
+      "scene": "fr1_room",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 11,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "rootsift_lightglue",
+      "scene": "fr1_teddy",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 11,
+      "new_raw_damage": 1,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "F_MAGSAC",
+      "scene": "all",
+      "pairs": 48,
+      "applied": 48,
+      "accurate_both": 46,
+      "new_raw_damage": 1,
+      "rescued_raw_pairs": 2
+    },
+    {
+      "arm": "F_MAGSAC",
+      "scene": "fr1_xyz",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 12,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "F_MAGSAC",
+      "scene": "fr1_desk",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 12,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "F_MAGSAC",
+      "scene": "fr1_room",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 11,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "F_MAGSAC",
+      "scene": "fr1_teddy",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 11,
+      "new_raw_damage": 1,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "equal_count_subset_17",
+      "scene": "all",
+      "pairs": 48,
+      "applied": 48,
+      "accurate_both": 45,
+      "new_raw_damage": 2,
+      "rescued_raw_pairs": 2
+    },
+    {
+      "arm": "equal_count_subset_17",
+      "scene": "fr1_xyz",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 12,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "equal_count_subset_17",
+      "scene": "fr1_desk",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 12,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "equal_count_subset_17",
+      "scene": "fr1_room",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 11,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "equal_count_subset_17",
+      "scene": "fr1_teddy",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 10,
+      "new_raw_damage": 2,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "equal_count_subset_23",
+      "scene": "all",
+      "pairs": 48,
+      "applied": 48,
+      "accurate_both": 43,
+      "new_raw_damage": 2,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "equal_count_subset_23",
+      "scene": "fr1_xyz",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 12,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "equal_count_subset_23",
+      "scene": "fr1_desk",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 11,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "equal_count_subset_23",
+      "scene": "fr1_room",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 11,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "equal_count_subset_23",
+      "scene": "fr1_teddy",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 9,
+      "new_raw_damage": 2,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "equal_count_subset_41",
+      "scene": "all",
+      "pairs": 48,
+      "applied": 48,
+      "accurate_both": 43,
+      "new_raw_damage": 3,
+      "rescued_raw_pairs": 1
+    },
+    {
+      "arm": "equal_count_subset_41",
+      "scene": "fr1_xyz",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 12,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "equal_count_subset_41",
+      "scene": "fr1_desk",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 11,
+      "new_raw_damage": 0,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "equal_count_subset_41",
+      "scene": "fr1_room",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 10,
+      "new_raw_damage": 1,
+      "rescued_raw_pairs": 0
+    },
+    {
+      "arm": "equal_count_subset_41",
+      "scene": "fr1_teddy",
+      "pairs": 12,
+      "applied": 12,
+      "accurate_both": 10,
+      "new_raw_damage": 2,
+      "rescued_raw_pairs": 1
+    }
+  ],
+  "metrics": {
+    "rootsift_lightglue": {
+      "process_failures": 0,
+      "timeouts": 0,
+      "reasons": {
+        "native estimator success; not accuracy certificate": 48
+      },
+      "worker_s": 10.902281099006359,
+      "peak_worker_rss_mib": 81.3984375,
+      "accuracy_by_truth_mode": {
+        "nearest": 45,
+        "interpolated": 45
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.011537719872230463,
+            "p95": 0.029595972346919103
+          },
+          "rotation_deg": {
+            "median": 0.5794264304320096,
+            "p95": 1.6068639951697177
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.010966916690039156,
+            "p95": 0.028891042561144775
+          },
+          "rotation_deg": {
+            "median": 0.5608908523214426,
+            "p95": 1.4496844575570274
+          }
+        }
+      }
+    },
+    "F_MAGSAC": {
+      "process_failures": 0,
+      "timeouts": 0,
+      "reasons": {
+        "native estimator success; not accuracy certificate": 48
+      },
+      "worker_s": 10.867635021000751,
+      "peak_worker_rss_mib": 81.44140625,
+      "accuracy_by_truth_mode": {
+        "nearest": 46,
+        "interpolated": 46
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.012223467238567718,
+            "p95": 0.02390078193185345
+          },
+          "rotation_deg": {
+            "median": 0.5551762847564683,
+            "p95": 1.6199469675018492
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.012043176618368658,
+            "p95": 0.0242029256928677
+          },
+          "rotation_deg": {
+            "median": 0.5360309231524822,
+            "p95": 1.3595945867688224
+          }
+        }
+      }
+    },
+    "equal_count_subset_17": {
+      "process_failures": 0,
+      "timeouts": 0,
+      "reasons": {
+        "native estimator success; not accuracy certificate": 48
+      },
+      "worker_s": 10.885668032995454,
+      "peak_worker_rss_mib": 81.45703125,
+      "accuracy_by_truth_mode": {
+        "nearest": 46,
+        "interpolated": 45
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.012768140500790347,
+            "p95": 0.028291053680891874
+          },
+          "rotation_deg": {
+            "median": 0.5724444213691329,
+            "p95": 1.5265658694940545
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.01277558377865328,
+            "p95": 0.029227351134574624
+          },
+          "rotation_deg": {
+            "median": 0.5366497784536988,
+            "p95": 1.3264818399491063
+          }
+        }
+      }
+    },
+    "equal_count_subset_23": {
+      "process_failures": 0,
+      "timeouts": 0,
+      "reasons": {
+        "native estimator success; not accuracy certificate": 48
+      },
+      "worker_s": 10.904717863984843,
+      "peak_worker_rss_mib": 81.32421875,
+      "accuracy_by_truth_mode": {
+        "nearest": 43,
+        "interpolated": 43
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.011709734890070999,
+            "p95": 0.04339804688577167
+          },
+          "rotation_deg": {
+            "median": 0.5903030505489325,
+            "p95": 1.4835593450360989
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.011558612566268646,
+            "p95": 0.043108084704127095
+          },
+          "rotation_deg": {
+            "median": 0.611094335340456,
+            "p95": 1.4002756659721247
+          }
+        }
+      }
+    },
+    "equal_count_subset_41": {
+      "process_failures": 0,
+      "timeouts": 0,
+      "reasons": {
+        "native estimator success; not accuracy certificate": 48
+      },
+      "worker_s": 10.882258047990035,
+      "peak_worker_rss_mib": 81.3203125,
+      "accuracy_by_truth_mode": {
+        "nearest": 43,
+        "interpolated": 44
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.011025180999018181,
+            "p95": 0.033370549339227576
+          },
+          "rotation_deg": {
+            "median": 0.573799611825377,
+            "p95": 1.5227207747636178
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.011571939913741126,
+            "p95": 0.033402265560499945
+          },
+          "rotation_deg": {
+            "median": 0.5967148031496792,
+            "p95": 1.3736404869379508
+          }
+        }
+      }
+    }
+  },
+  "F_vs_LightGlue_gains": [
+    "fr1_desk/65-66"
+  ],
+  "F_vs_LightGlue_losses": [],
+  "selection": "12 vertex-disjoint consecutive-keyframe pairs per existing scene;1second buffer from every development image; evenly spaced candidate indices; selected before inference and GT",
+  "actual_scope": "within-sequence heldout keyframe pairs; not new-sequence generalization or full-trajectory tracking evaluation",
+  "no_GT_until": "Both LightGlue baseline and all4 MAGSAC/control arms fitted and sealed before either evaluator opened GT",
+  "no_parameter_tuning": true,
+  "new_nn_inference": false,
+  "new_training": false,
+  "matching_phase_s": 6.766309703998559,
+  "shared_extraction_s": 2.514423510998313,
+  "model_load_s": 0.26183634200060624,
+  "verification_phase_s": 1.0497674589969392,
+  "stage_wall_s": [
+    {
+      "stage": "matching",
+      "returncode": 0,
+      "wall_s": 11.246345939998719
+    },
+    {
+      "stage": "lightglue-fit",
+      "returncode": 0,
+      "wall_s": 11.819098962998396
+    },
+    {
+      "stage": "verification",
+      "returncode": 0,
+      "wall_s": 2.1879497800000536
+    },
+    {
+      "stage": "magsac-fit",
+      "returncode": 0,
+      "wall_s": 46.88164393099942
+    },
+    {
+      "stage": "lightglue-evaluation",
+      "returncode": 0,
+      "wall_s": 4.4783919239998795
+    },
+    {
+      "stage": "magsac-evaluation",
+      "returncode": 0,
+      "wall_s": 4.8453895969978475
+    }
+  ],
+  "peak_gpu_allocated_mib": 138.28955078125,
+  "peak_gpu_reserved_mib": 206.0,
+  "decision": "Retain F-MAGSAC as an offline candidate:46/48 vs45/48 LightGlue, one gain and no losses, above all equal-count controls. Still one previously accurate raw pair is damaged; do not enable online or by default.",
+  "evidence_directory": "${AFS_EVIDENCE_ROOT}/matching-holdout-v22-20261023-_nxmyaa4"
+}
