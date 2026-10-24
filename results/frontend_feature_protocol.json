@@ -1,0 +1,60 @@
+{
+  "schema": 9,
+  "frozen_at_utc": "2026-10-21T08:23:12.508352+00:00",
+  "source_commit": "136ef571cd2552d5827f7e97c21c7c3e4face393",
+  "source_sha256": {
+    "python/audit_landmark_identity.py": "4ce05819326d096da62f614b1d7d700a2879c2af6b7e43634bde268e3d02bea6",
+    "python/run_batch_reference.py": "807729f5e5a6f65eedeb0f20af3ea63e4404175d5b0c1ca58fbc492686bafd35",
+    "python/run_offline_backend.py": "7bb75156c6ce210b290023b18a7ad39f142b9ca467625daad558b17f86551fc0",
+    "python/audit_ordinary_tracks.py": "6d99d4c75abe2a10d463f213d72cf96a6ef990a80b4cc5f7500a7eb5d16f0adf",
+    "python/run_geometry_replay.py": "1d5636e09173034cd17cf4308c07e93a056ceb7d7830d05730e92207763f92a7",
+    "python/audit_bridge_candidates.py": "de9904369cde3822d876daa0257fd1ebc224ead4be834b14af027c22005e9308",
+    "python/audit_frontend_features.py": "eee9d6c8c21f24766722a1dbe3f70f9d2b8b84b10a0173be7feae659850aad19",
+    "python/adaptivefusion/state.py": "03e5271477ab616a0429805df780325eecb7a1361fe76219b41d41a68003e882",
+    "python/adaptivefusion/local_ba.py": "5c4a4418078a5e334bc345c011f4f76766064e4b10f7c0864a53e3efec137baa",
+    "python/adaptivefusion/__init__.py": "8cd89335fa44e3e8afd60e0af5cbe887033b79f41c0a56808621c5d488f47e23",
+    "python/adaptivefusion/schur.py": "30b4a5cc7b7c2ddf3132d867ce61cef1eefdef21c8323e800dee51a641ab6a91",
+    "python/adaptivefusion/evaluation.py": "273af0dfe142cf9a7ee5dadf3faeb06944c9b5140a210ee1d44eb5078915b452",
+    "python/adaptivefusion/offline.py": "f27ce90b50064b57c7ecb240e1d5d9ded9b030743b3d29517c983a6c6b633240",
+    "python/adaptivefusion/geometry.py": "ca71edd74ee8b7a26ee6b9352f136f547e42d8951fb38c4e72994c6216cb4918",
+    "python/adaptivefusion/observability.py": "6d9ba0e4b45829de162ad1d6e4267dc832de25b6891eb01c3743be332c029ed6",
+    "python/adaptivefusion/components.py": "be327a36982fbc09bdbd6aced5c2eb18e64bca49495ba0407c9b5755e5b6616c",
+    "python/adaptivefusion/observation_pool.py": "69a5f8a8df87a1b60082f77db1ed08c2b441f3131941788181baeb3c47765277",
+    "python/adaptivefusion/ordinary_tracks.py": "bd5bd9da14c9f539d43f1a6367a965038dfb365a1e0d474cc52f98744a87ee14",
+    "python/adaptivefusion/frontend_features.py": "016baa276145ecd9b3f01624cdce1e2b7f06f3a12fa80fab2ad2e5d47b4aa24c",
+    "python/adaptivefusion/landmark_identity.py": "111b20b2a857caa7647d25384cbdefb45cb396a09f3b642fb5abee65e45be31e",
+    "python/adaptivefusion/trajectory.py": "64218b903df9f1ffe339dfcbaa700675a3f9f8781a1b9bf33cf9605f9f3e6a62",
+    "python/adaptivefusion/bridge_candidates.py": "50021ee63dee05c70db43796f59bd29058af31bc72c03f6fb5b7dfbf3b4c4d01",
+    "include/geometry_snapshot.h": "0408d53c7f3375c0b301c0e9cfa723e59d3dad04dd86491859873fbb89b335ef",
+    "src/geometry_snapshot.cpp": "7ec02b50a15639290e0589dc358b0c8cb007d52bc73df9d9ffd073afc580a643",
+    "app/run_rgbd_odometry.cpp": "445703505afef60c6fabccadde0cd9d8c9efd73176a1da3a7ed78e2c8ebdf560",
+    "tests/test_geometry_snapshot.cpp": "5eff1a2c3736b6d286dd1877a4df6a7958e706f00a57eafd36866a268c801663",
+    "tests/python/test_frontend_features.py": "b6173af55f0970f4e1db5f8549d937c6440aac8120368bf9c7c75ac35c899a96"
+  },
+  "binary_sha256": "279a91dad3107bc1d36d4f8b273111cc7b2a82024eaeda18b7142364290469cc",
+  "development_sequence": "fr1_xyz",
+  "previously_seen_test_sequences": [
+    "fr1_desk",
+    "fr1_room",
+    "fr1_teddy"
+  ],
+  "sequence_frames": {
+    "fr1_xyz": 792,
+    "fr1_desk": 573,
+    "fr1_room": 1352,
+    "fr1_teddy": 1401
+  },
+  "interface": "AFS_FEATURES 1, once per keyframe after insertion before BA, native 32-byte ORB rows and full keypoint fields",
+  "export_controls": "xyz new-binary feature off/on, byte-identical trajectory/frame/snapshot states; tests feature on must exactly reproduce old v2 baseline trajectory and canonical snapshot state excluding source revision metadata; reject attach on mismatch",
+  "matching": "identical original full C++ feature rows for NumPy descriptor and LK controls; original C++ Hamming<=64, strict ratio0.75, mutual best; no tuning",
+  "geometry": "same baseline-selected minimum/weak cuts and 2-keyframe each side; native depth3x3 spread<=0.05m; metric source-feature-ID parity fit>=12/validation>=6, inlier threshold0.03m, ratios>=0.5, 256 RANSAC trials seed17; triangle translation<=0.03m/rotation<=0.02rad",
+  "limits": {
+    "process_timeout_s": 300,
+    "address_space_gib": 8,
+    "threads": 1,
+    "new_raw_output_bytes": 1073741824
+  },
+  "acceptance": "byte-exact descriptor fixture, 110 Python/17 CTest, no overwritten historical outputs, complete feature count and native depth agreement; supported cross-cut rigid pairs/cycles mean observation feasibility only, not landmark identity, BA trajectory accuracy or online benefit",
+  "stop": "stop on state/identity/depth mismatch or budget failure; preserve all partial/negative outputs; freeze before all real runs, no test tuning; no truth, map merge, BA model change, online writeback or downloads",
+  "source_provenance": "clean source build 136ef57; existing frontend/map/BA algorithm sources unchanged; old v2 controls use their retained binary/source c3876cb; old/new must match exactly before attaching features"
+}

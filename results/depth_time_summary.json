@@ -1,0 +1,319 @@
+{
+  "stage": "V20 estimated-trajectory source-depth temporal compensation",
+  "cases": 39,
+  "final_arms": 78,
+  "final_evaluation_rows": 156,
+  "summary": [
+    {
+      "arm": "raw",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 0,
+      "accurate_both": 14,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_benefits_retained": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 0,
+      "accurate_both": 1,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_benefits_retained": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 0,
+      "accurate_both": 2,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_benefits_retained": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 0,
+      "accurate_both": 5,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_benefits_retained": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 0,
+      "accurate_both": 6,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_benefits_retained": 0
+    },
+    {
+      "arm": "V19",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 37,
+      "accurate_both": 15,
+      "newly_damaged": 7,
+      "rescued": 8,
+      "v19_benefits_retained": 8
+    },
+    {
+      "arm": "V19",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 4,
+      "newly_damaged": 0,
+      "rescued": 3,
+      "v19_benefits_retained": 3
+    },
+    {
+      "arm": "V19",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 2,
+      "newly_damaged": 1,
+      "rescued": 1,
+      "v19_benefits_retained": 1
+    },
+    {
+      "arm": "V19",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 3,
+      "newly_damaged": 2,
+      "rescued": 0,
+      "v19_benefits_retained": 0
+    },
+    {
+      "arm": "V19",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 21,
+      "accurate_both": 6,
+      "newly_damaged": 4,
+      "rescued": 4,
+      "v19_benefits_retained": 4
+    },
+    {
+      "arm": "unwarped_common",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 37,
+      "accurate_both": 16,
+      "newly_damaged": 4,
+      "rescued": 6,
+      "v19_benefits_retained": 4
+    },
+    {
+      "arm": "unwarped_common",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 4,
+      "newly_damaged": 0,
+      "rescued": 3,
+      "v19_benefits_retained": 2
+    },
+    {
+      "arm": "unwarped_common",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 3,
+      "newly_damaged": 0,
+      "rescued": 1,
+      "v19_benefits_retained": 1
+    },
+    {
+      "arm": "unwarped_common",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 5,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_benefits_retained": 0
+    },
+    {
+      "arm": "unwarped_common",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 21,
+      "accurate_both": 4,
+      "newly_damaged": 4,
+      "rescued": 2,
+      "v19_benefits_retained": 1
+    },
+    {
+      "arm": "time_aligned_common",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 37,
+      "accurate_both": 16,
+      "newly_damaged": 3,
+      "rescued": 5,
+      "v19_benefits_retained": 3
+    },
+    {
+      "arm": "time_aligned_common",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 3,
+      "newly_damaged": 0,
+      "rescued": 2,
+      "v19_benefits_retained": 2
+    },
+    {
+      "arm": "time_aligned_common",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 2,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_benefits_retained": 0
+    },
+    {
+      "arm": "time_aligned_common",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 5,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_benefits_retained": 0
+    },
+    {
+      "arm": "time_aligned_common",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 21,
+      "accurate_both": 6,
+      "newly_damaged": 3,
+      "rescued": 3,
+      "v19_benefits_retained": 1
+    }
+  ],
+  "metrics": {
+    "unwarped_common": {
+      "reasons": {
+        "native estimator success; not accuracy certificate": 37,
+        "native estimator rejected": 2
+      },
+      "process_failures": 0,
+      "timeouts": 0,
+      "reused_fits": 33,
+      "input_rows": 10315,
+      "summed_measured_process_s": 9.506055955998818,
+      "peak_worker_rss_mib": 81.05078125,
+      "accuracy_by_truth_mode": {
+        "nearest": 16,
+        "interpolated": 16
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.031361704082408286,
+            "p95": 0.14788850697996014
+          },
+          "rotation_deg": {
+            "median": 1.534855464425128,
+            "p95": 4.769047260471383
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.03151130241742269,
+            "p95": 0.1494163374149744
+          },
+          "rotation_deg": {
+            "median": 1.4313902071202746,
+            "p95": 4.740179125153224
+          }
+        }
+      }
+    },
+    "time_aligned_common": {
+      "reasons": {
+        "native estimator success; not accuracy certificate": 37,
+        "native estimator rejected": 2
+      },
+      "process_failures": 0,
+      "timeouts": 0,
+      "reused_fits": 33,
+      "input_rows": 10315,
+      "summed_measured_process_s": 9.43442780399937,
+      "peak_worker_rss_mib": 81.21875,
+      "accuracy_by_truth_mode": {
+        "nearest": 16,
+        "interpolated": 17
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.03183483285227914,
+            "p95": 0.16021407001258067
+          },
+          "rotation_deg": {
+            "median": 1.2929227130644354,
+            "p95": 4.901952301238267
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.03131361027985437,
+            "p95": 0.16163077140212084
+          },
+          "rotation_deg": {
+            "median": 1.440315584284682,
+            "p95": 4.879700403936366
+          }
+        }
+      }
+    }
+  },
+  "common_observation_checks": 39,
+  "truth_used_for_compensation": false,
+  "implementation": "T_rgb_depth = inverse(T_wc(rgb)) @ T_wc(depth); adjacent valid raw estimated poses; forward projection + near-Z buffer; native scale5000; no filling",
+  "unique_sources": 19,
+  "source_preparation_s": 0.6713680569991993,
+  "final_execution_s": 4.19302023299997,
+  "new_native_calls_after_correction": 12,
+  "reused_native_fits": 66,
+  "v19_input_rows": 11455,
+  "common_input_rows": 10315,
+  "exact_raw_fallbacks": 4,
+  "same_observation_gains": [
+    "fr1_teddy/110-112",
+    "fr1_teddy/157-158",
+    "fr1_teddy/202-203"
+  ],
+  "same_observation_losses": [
+    "fr1_xyz/23-26",
+    "fr1_desk/21-24",
+    "fr1_teddy/112-113"
+  ],
+  "initial_attempt": {
+    "cases": 39,
+    "evaluation_rows": 156,
+    "motion_unavailable_pairs": 6,
+    "reason": "Extra50ms gap cap rejected6 desk pairs, corrected without changing matched rows or reading accuracy to choose the correction.",
+    "raw_fallbacks": 16,
+    "native_calls": 66
+  },
+  "focused_tests_passed": 5,
+  "full_regression_rerun": false,
+  "decision": "Do not adopt as a default. Same-observation compensation has3 accuracy gains and3 losses, and retains3/8 V19 rescued pairs versus4/8 without compensation.",
+  "evidence_directory": "${AFS_EVIDENCE_ROOT}/depth-time-v20-20261023-i9hllydh"
+}

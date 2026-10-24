@@ -1,0 +1,43 @@
+{
+  "scope": "Independent auxiliary output driven by native LK poses; no tracking/map/BA feedback",
+  "accuracy_sources": [
+    "live_cpp_signoff_summary.csv (V38)",
+    "independent_live_summary.csv (V39)"
+  ],
+  "latency_source": "independent_prefetch_summary.csv (V44)",
+  "latency_accuracy_evaluated": false,
+  "risk_controller_enabled": false,
+  "lightglue": {
+    "repository": "https://github.com/cvg/LightGlue",
+    "commit": "eb42fee2d71449efb0aa5c10549752b5d75384d8",
+    "weights": "sift_lightglue_v0-1_arxiv.pth",
+    "weights_sha256": "5b52b8d9982d43532dc042606b346bb9594c9f5a4bd6f64362c63866287b4ac0"
+  },
+  "confidence_source_sha256": "b5fec40c78a05d0e0f2e1f86b07865efb5d116f0cad7751f630e9db1a44ac1e6",
+  "native_versions": {
+    "OpenCV": "4.6.0",
+    "Ceres": "2.2.0",
+    "Eigen": "3.4.0"
+  },
+  "python_versions": {
+    "torch": "2.11.0+cu128",
+    "opencv": "5.0.0",
+    "numpy": "2.5.2",
+    "scipy": "1.18.1",
+    "Pillow": "12.3.0"
+  },
+  "evidence": {
+    "accuracy": [
+      "live-cpp-signoff-v38-20261024-zwhvijkh",
+      "independent-live-v39-20261024-477jkc84"
+    ],
+    "prefetch_development": "feature-prefetch-v43-20261024-tcd3ygwj",
+    "prefetch_independent": "project-delivery-v44-20261024-1o9cp3xh"
+  },
+  "source_summary_sha256": {
+    "live_cpp_signoff_summary.csv": "3e1230cfdc15352ef7b34172ff618061f55fabca521355d9e6db3a92ec2d0251",
+    "independent_live_summary.csv": "78fec636a8c415d5aa95a81835987604658b0a31e046ca017d92edb012a52d7f",
+    "source_prefetch_summary.json": "c02b128cd36414e551600f04a58834f0e605c889a42bde279e7c26a6ce4998b3",
+    "independent_prefetch_summary.csv": "853a03815ef99012007a6f632ee7155e4cd7ba284a41e97c20309b5e17829ba5"
+  }
+}

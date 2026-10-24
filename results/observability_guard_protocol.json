@@ -1,0 +1,250 @@
+{
+  "schema": 4,
+  "frozen_at_utc": "2026-10-21T03:15:28.588299+00:00",
+  "source_commit": "972a01cc962d06c92e2b7c77297a45b29b79a9f8",
+  "development_sequence": "fr1_xyz",
+  "test_sequences": [
+    {
+      "name": "fr1_desk",
+      "archive_root": "rgbd_dataset_freiburg1_desk",
+      "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_desk.tgz",
+      "head": {
+        "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_desk.tgz",
+        "status": 200,
+        "headers": {
+          "Date": "Tue, 20 Oct 2026 13:58:01 GMT",
+          "Server": "Apache/2.4.58 (Ubuntu)",
+          "Upgrade": "h2",
+          "Connection": "Upgrade, close",
+          "Last-Modified": "Fri, 30 Sep 2011 15:14:33 GMT",
+          "ETag": "\"1481328b-4ae2a151e2840\"",
+          "Accept-Ranges": "bytes",
+          "Content-Length": "344011403",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=1209600",
+          "Content-Type": "application/x-gzip"
+        }
+      }
+    },
+    {
+      "name": "fr1_room",
+      "archive_root": "rgbd_dataset_freiburg1_room",
+      "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_room.tgz",
+      "head": {
+        "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_room.tgz",
+        "status": 200,
+        "headers": {
+          "Date": "Tue, 20 Oct 2026 13:58:02 GMT",
+          "Server": "Apache/2.4.58 (Ubuntu)",
+          "Upgrade": "h2",
+          "Connection": "Upgrade, close",
+          "Last-Modified": "Fri, 30 Sep 2011 15:15:54 GMT",
+          "ETag": "\"2ea2318a-4ae2a19f21e80\"",
+          "Accept-Ranges": "bytes",
+          "Content-Length": "782381450",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=1209600",
+          "Content-Type": "application/x-gzip"
+        }
+      }
+    },
+    {
+      "name": "fr1_teddy",
+      "archive_root": "rgbd_dataset_freiburg1_teddy",
+      "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_teddy.tgz",
+      "head": {
+        "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_teddy.tgz",
+        "status": 200,
+        "headers": {
+          "Date": "Tue, 20 Oct 2026 13:58:04 GMT",
+          "Server": "Apache/2.4.58 (Ubuntu)",
+          "Upgrade": "h2",
+          "Connection": "Upgrade, close",
+          "Last-Modified": "Fri, 30 Sep 2011 15:16:32 GMT",
+          "ETag": "\"3461984b-4ae2a1c35f400\"",
+          "Accept-Ranges": "bytes",
+          "Content-Length": "878811211",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=1209600",
+          "Content-Type": "application/x-gzip"
+        }
+      }
+    }
+  ],
+  "selection": "three complete, predeclared independent Freiburg1 scenes; no replacement or subsequence selection",
+  "mode": "offline full-cache geometry and historical trajectory correction; no online writeback",
+  "python_source_sha256": {
+    "python/adaptivefusion/__init__.py": "8cd89335fa44e3e8afd60e0af5cbe887033b79f41c0a56808621c5d488f47e23",
+    "python/adaptivefusion/components.py": "be327a36982fbc09bdbd6aced5c2eb18e64bca49495ba0407c9b5755e5b6616c",
+    "python/adaptivefusion/evaluation.py": "273af0dfe142cf9a7ee5dadf3faeb06944c9b5140a210ee1d44eb5078915b452",
+    "python/adaptivefusion/geometry.py": "ca71edd74ee8b7a26ee6b9352f136f547e42d8951fb38c4e72994c6216cb4918",
+    "python/adaptivefusion/local_ba.py": "5c4a4418078a5e334bc345c011f4f76766064e4b10f7c0864a53e3efec137baa",
+    "python/adaptivefusion/observability.py": "6d9ba0e4b45829de162ad1d6e4267dc832de25b6891eb01c3743be332c029ed6",
+    "python/adaptivefusion/offline.py": "f27ce90b50064b57c7ecb240e1d5d9ded9b030743b3d29517c983a6c6b633240",
+    "python/adaptivefusion/schur.py": "30b4a5cc7b7c2ddf3132d867ce61cef1eefdef21c8323e800dee51a641ab6a91",
+    "python/adaptivefusion/state.py": "03e5271477ab616a0429805df780325eecb7a1361fe76219b41d41a68003e882",
+    "python/adaptivefusion/trajectory.py": "64218b903df9f1ffe339dfcbaa700675a3f9f8781a1b9bf33cf9605f9f3e6a62",
+    "python/run_batch_reference.py": "807729f5e5a6f65eedeb0f20af3ea63e4404175d5b0c1ca58fbc492686bafd35",
+    "python/run_geometry_replay.py": "1d5636e09173034cd17cf4308c07e93a056ceb7d7830d05730e92207763f92a7",
+    "python/run_offline_backend.py": "7bb75156c6ce210b290023b18a7ad39f142b9ca467625daad558b17f86551fc0"
+  },
+  "binaries_sha256": {
+    "run_rgbd_odometry": "db33b0b697bfa1462f80e2a31ff4b5baee99ffa63b694f1d447060ec6cb38e15",
+    "inspect_tum_dataset": "78363eca9d529ef61e5e43876b295a32ab3b69063c7d0ff81745f73c129cce04",
+    "replay_local_ba": "bdcee0a32f22a08b3cf85cd04fb774fcd1f97832303ac377b5c57c7e00fcaba2",
+    "evaluate_trajectory": "7afedb2960f401be78d30e6ab38fbf2aee2208feff220ead1dbba9dbb54da7e8"
+  },
+  "configuration": {
+    "risk_enabled": false,
+    "degradation": "none",
+    "image_resolution": "native 640x480",
+    "frames": "ALL synchronized pairs at 0.02s, exact inspect count",
+    "camera": [
+      517.3,
+      516.5,
+      318.6,
+      255.3
+    ],
+    "depth_scale": 5000,
+    "window": "all exported keyframes",
+    "min_point_observations": 2,
+    "fixed_pose": "first keyframe",
+    "initialization": "raw frontend poses and landmark birth positions",
+    "backend": "Python analytic block-Schur LM, usable acceptance, ceres-cost termination",
+    "max_iterations": 20,
+    "max_nfev": 200,
+    "solver_time_limit_s": 180,
+    "huber_delta_px": 2,
+    "depth_residual_weight": 100,
+    "lm_initial_damping": 0.001,
+    "correction": "gauge anchored continuous SO3/translation correction using full_history",
+    "observation_selection": "existing immutable frontend associations; no new matching",
+    "component_policy": "anchor for candidate, all for strict control; all other numerical settings unchanged",
+    "observability_check": "bridge-audit for guarded arms, structural for matched unguarded control"
+  },
+  "arms": [
+    "original v2 C++ baseline (frozen reference)",
+    "fresh anchor+structural control (must reproduce v3 unsafe/beneficial outputs)",
+    "anchor+bridge-audit guard",
+    "anchor+bridge-audit with whole-landmark holdout modulus10 (secondary)"
+  ],
+  "repetitions": 1,
+  "repetition_limit": "no test-time tuning; single cross-scene run, timing variance not estimated here; development repeats retained",
+  "evaluation": {
+    "truth_use": "independent evaluation only, after all inference",
+    "alignment": "SE3 no scale",
+    "association_tolerance_s": 0.02,
+    "rpe_interval_s": 1.0,
+    "rpe_both_endpoint_tolerance_s": 0.02,
+    "jump_translation_m": 0.2,
+    "jump_rotation_deg": 15,
+    "jump_max_adjacent_dt_s": 0.1
+  },
+  "acceptance": {
+    "mathematical": "14 new checks pass: reject named single/two/collinear witnesses before solver; allow ordinary noncollinear planar support; report non-temporal two-point blind spot, no universal observability claim",
+    "teddy_safety": "guard must reject before optimizer (nfev=0), preserve full state/timestamps/coverage, restore baseline metrics within1e-8 and add no jumps versus baseline",
+    "matched_control": "all fresh unguarded anchor outputs byte-identical to v3, including negative results",
+    "accepted_guard": "if guard finds no witness, output snapshot/trajectory must equal matched unguarded output; no numerical or history rule changes",
+    "tradeoff": "report every additional rejection and lost ATE benefit on desk/room; do not choose bypasses from truth; safety success is not accuracy improvement",
+    "cost": "8GiB address space;180s solver;900s process; audit <=5000ms on these fixed caches; same single-thread numerical env",
+    "full_system_gate": "remains unpassed if any full model/primary optimization rejects; do not relabel safe rejection as tracking or three-scene accuracy success"
+  },
+  "resources": {
+    "cpu": "local CPU only; no GPU, paid or cloud resources",
+    "thread_env": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "process_address_space_bytes": 8589934592,
+    "primary_process_wall_limit_s": 900,
+    "ceres_control_wall_limit_s": 900,
+    "baseline_export_wall_limit_s": 1800,
+    "network_attempts_per_archive": 3,
+    "network_attempt_wall_limit_s": 1800,
+    "maximum_total_extracted_bytes": 21474836480
+  },
+  "failure_policy": "retain all logs, partial outputs and nonzero exits; rejection/timeout/OOM is a failure even if rollback trajectory equals baseline; no parameter changes, replacement sequences, reduced frames, resolution or enlarged budgets; diagnose read-only only",
+  "stop_policy": "complete all frozen arms; report safety, accepted coverage and lost gains separately; do not alter tolerances, graph selection, budgets or defaults after real results",
+  "parent_protocol_sha256": "05e4b0287c952550bd165437b166bddebab96d131deacbd80b986b6cc082609a",
+  "study_status": "Same three previously seen sequences and exact v2 frontend observations. Conservative safety-guard ablation, not new scenes or online tracking.",
+  "safety_fix_files_sha256": {
+    "src/local_bundle_adjuster.cpp": "96a8d395932b47fa489aa3920ade835019af8498abaffa830807409dc04eac78",
+    "tests/test_local_bundle_adjuster.cpp": "525095d1639ac1b611928b71e457a94a5c0711c6353a3ab2870b72e3fcf341b2"
+  },
+  "verified_reused_archives": {
+    "fr1_desk": {
+      "sha256": "e983d6830916e66dc4a46a71368046b149b283de87769690e7aa4e0b9483530c",
+      "bytes": 344011403,
+      "counts": {
+        "rgb_indexed_images": 613,
+        "depth_indexed_images": 595
+      }
+    },
+    "fr1_room": {
+      "sha256": "5ace47a1d2e53696bc939a84999293a04a7226958e848a609666691fd3cc38da",
+      "bytes": 782381450,
+      "counts": {
+        "rgb_indexed_images": 1362,
+        "depth_indexed_images": 1360
+      }
+    },
+    "fr1_teddy": {
+      "sha256": "56cf9d1ef1023470cb1812abdccfc4221afaea67586e7a5a2a5a4d75ce30232d",
+      "bytes": 878811211,
+      "counts": {
+        "rgb_indexed_images": 1419,
+        "depth_indexed_images": 1418
+      }
+    }
+  },
+  "only_algorithm_change": "Optional read-only bipartite single-landmark articulation audit plus ordered-cut two-landmark/estimated-collinearity rejection before numerical optimization; defaults unchanged.",
+  "cached_input_provenance": {
+    "fr1_desk": {
+      "original.tum": "9796dd01df4230ab8e864d25efe4285207b3d0efffa6bf63d77269d4fb85a5e5",
+      "cache/complete.json": "859fdaf978e6a18f3709d04e25404c91ad8ac7dfcbdcde222d246c9468e3f392",
+      "cache/frames.txt": "e090ed4395d1930ce7a48fe6d45db0a64408949895a02e90098f5bc910b12861",
+      "cache-manifest.json": "5960b1cd309ee6384eac10bd4de74bd8bf7b591c491520b1bca64771b32d0060",
+      "primary/input.snapshot": "eeed7ad1e6f9babfb537f6b53265f80c7e3c906e337890b2441196bd251f9e21",
+      "holdout10/input.snapshot": "27c7a0fd4e1ae900fa20ba858d8c1f9e341236ec6acefd9145f96df43228ebca"
+    },
+    "fr1_room": {
+      "original.tum": "f364c0c4e8472f12ec2981465cb8af1010c708882430be3c672ebad26966cfbb",
+      "cache/complete.json": "b1e90129125854d5ac6d29c855cff202b68c6d03d6c8e49c2384fe5f8965e5ea",
+      "cache/frames.txt": "528b2d9541a326772b64528793a65bcecd37214700003c154155404f2284fad3",
+      "cache-manifest.json": "6ffc84ef73a4ad4758d3e04294c215b613b44418f1c794d6a8a718faa7866bc8",
+      "primary/input.snapshot": "6e104427facb297fbb381bb0bf034ad2dd11fc842ce6c6dd79d841d589488748",
+      "holdout10/input.snapshot": "4c627d73aaaad6df3f37013450d609068073f211fbc9f012f5137e9b2996b762"
+    },
+    "fr1_teddy": {
+      "original.tum": "4214c10cb0d1dea33473fa76ec187f3501abd79e77e59d33995c2ec46e04add2",
+      "cache/complete.json": "25717a2c2d15153f812965da8df4a97a5937ae788a279c5d9c4b6a8fd1d95883",
+      "cache/frames.txt": "6f28ea57e8c1c2ab073805c41c86ff477983b9114d0d4a8730670c0932688fc3",
+      "cache-manifest.json": "71cedd56615764ac6f59aafe95598da983ca929cb63547acd907c2492c0fdabb",
+      "primary/input.snapshot": "5548ed9251e58150f1206a1a2ad3ed8a18128724f0ffdc966b08c3479bedcf2b",
+      "holdout10/input.snapshot": "3cb197038b842704aaee6c4f8fa09d11668d709e5cdbff44bf3bae6fc8472a72"
+    }
+  },
+  "boundary_rule": "existing full-history SO3/translation interpolation with raw excluded KFs as identity knots, then exactly copy frames whose original anchor_id is excluded; tail ownership determines preservation. No new cross-component measurement.",
+  "control_rule": "same anchor component, same cache/input,20 iterations,max_nfev200,180s,Huber2,depth100,identical interpolation and ownership mask. Only pre-solver rejection is changed.",
+  "bridge_audit_tolerances": {
+    "relative_collinearity": 1e-08,
+    "absolute_spread_m": 1e-10,
+    "origin": "fixed from numerical synthetic examples before real-data audit; not chosen from trajectory truth"
+  },
+  "guard_comparison_provenance": {
+    "fr1_desk": {
+      "anchor/corrected.tum": "303140a35c46222c2320a15ae6890c0c849d0ab170a5ba5611ff36c69101dd84",
+      "holdout10/corrected.tum": "2697b76fb7d08498ee273d0d1757b6633acc9bdd1a7246e92f783e2e734f05e2"
+    },
+    "fr1_room": {
+      "anchor/corrected.tum": "3860bccccc4b176bbbe2e48deca516c4c2a10bb7629a0393c285079efdd99e61",
+      "holdout10/corrected.tum": "94e1c97bcfd5e3848c23c072a40c401087afb9c4309c41722a4e7a8c05514382"
+    },
+    "fr1_teddy": {
+      "anchor/corrected.tum": "0c48869429a00578b1f9be7bcfb4895b2c000a8e095fa5e571cc19a926265e46",
+      "holdout10/corrected.tum": "5df43d42a01b9546417de568d54dc8afb5dcf4b2791fb3049757978bc1b8dda1"
+    }
+  },
+  "limitations": "single-point separators anywhere; 2-point/collinear certificates only for ordered active-camera cuts; near-collinearity uses estimated coordinates; passing does not certify full rank. Some observable measurement sets may be rejected from degenerate initialization."
+}

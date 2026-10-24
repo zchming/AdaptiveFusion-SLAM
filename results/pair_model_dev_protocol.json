@@ -1,0 +1,72 @@
+{
+  "frozen_at_utc": "2026-10-21T13:08:33.960275+00:00",
+  "source_sha256": {
+    "python/evaluate_candidate_proposals.py": "64ea64264a8a104acde55b4e76c647993c52b8be7bf099b2f845efba7c909d89",
+    "python/audit_landmark_identity.py": "4ce05819326d096da62f614b1d7d700a2879c2af6b7e43634bde268e3d02bea6",
+    "python/compare_pair_models.py": "9baad7ff2f25d94e8f7c10fde9b4c2e756f9931d6af28dae4d22afc93ff8aaf2",
+    "python/run_batch_reference.py": "807729f5e5a6f65eedeb0f20af3ea63e4404175d5b0c1ca58fbc492686bafd35",
+    "python/run_offline_backend.py": "7bb75156c6ce210b290023b18a7ad39f142b9ca467625daad558b17f86551fc0",
+    "python/diagnose_candidate_proposals.py": "4305c008b254fdba078982b3a4d034d3e75a03c4b85cb7187942f4dd2f297ffa",
+    "python/audit_ordinary_tracks.py": "6d99d4c75abe2a10d463f213d72cf96a6ef990a80b4cc5f7500a7eb5d16f0adf",
+    "python/run_geometry_replay.py": "1d5636e09173034cd17cf4308c07e93a056ceb7d7830d05730e92207763f92a7",
+    "python/audit_bridge_candidates.py": "de9904369cde3822d876daa0257fd1ebc224ead4be834b14af027c22005e9308",
+    "python/audit_frontend_features.py": "eee9d6c8c21f24766722a1dbe3f70f9d2b8b84b10a0173be7feae659850aad19",
+    "python/adaptivefusion/proposal_diagnostics.py": "92a049798e9e135d88e42472503c143d0ec2ba09f3e247a2b813d6d4888f558c",
+    "python/adaptivefusion/state.py": "03e5271477ab616a0429805df780325eecb7a1361fe76219b41d41a68003e882",
+    "python/adaptivefusion/local_ba.py": "5c4a4418078a5e334bc345c011f4f76766064e4b10f7c0864a53e3efec137baa",
+    "python/adaptivefusion/__init__.py": "8cd89335fa44e3e8afd60e0af5cbe887033b79f41c0a56808621c5d488f47e23",
+    "python/adaptivefusion/schur.py": "30b4a5cc7b7c2ddf3132d867ce61cef1eefdef21c8323e800dee51a641ab6a91",
+    "python/adaptivefusion/candidate_validation.py": "23f5af7dfef4a268864daf912c6dfb0407cf3e9c8780a6ba9caf388ac38527a2",
+    "python/adaptivefusion/evaluation.py": "273af0dfe142cf9a7ee5dadf3faeb06944c9b5140a210ee1d44eb5078915b452",
+    "python/adaptivefusion/offline.py": "f27ce90b50064b57c7ecb240e1d5d9ded9b030743b3d29517c983a6c6b633240",
+    "python/adaptivefusion/geometry.py": "ca71edd74ee8b7a26ee6b9352f136f547e42d8951fb38c4e72994c6216cb4918",
+    "python/adaptivefusion/observability.py": "6d9ba0e4b45829de162ad1d6e4267dc832de25b6891eb01c3743be332c029ed6",
+    "python/adaptivefusion/components.py": "be327a36982fbc09bdbd6aced5c2eb18e64bca49495ba0407c9b5755e5b6616c",
+    "python/adaptivefusion/observation_pool.py": "69a5f8a8df87a1b60082f77db1ed08c2b441f3131941788181baeb3c47765277",
+    "python/adaptivefusion/ordinary_tracks.py": "bd5bd9da14c9f539d43f1a6367a965038dfb365a1e0d474cc52f98744a87ee14",
+    "python/adaptivefusion/frontend_features.py": "016baa276145ecd9b3f01624cdce1e2b7f06f3a12fa80fab2ad2e5d47b4aa24c",
+    "python/adaptivefusion/landmark_identity.py": "111b20b2a857caa7647d25384cbdefb45cb396a09f3b642fb5abee65e45be31e",
+    "python/adaptivefusion/trajectory.py": "64218b903df9f1ffe339dfcbaa700675a3f9f8781a1b9bf33cf9605f9f3e6a62",
+    "python/adaptivefusion/pair_model_comparison.py": "0e417c6c302f014525c33a5312c0ffc4d34e6c45d016c093c7237fdf4ad414d4",
+    "python/adaptivefusion/bridge_candidates.py": "50021ee63dee05c70db43796f59bd29058af31bc72c03f6fb5b7dfbf3b4c4d01",
+    "tests/python/test_pair_model_comparison.py": "368c43fa8fe15d8ffe2c50c891fc756b408ff241c9d87a794c8c078e25a3828f"
+  },
+  "config": {
+    "minimum_fit": 6,
+    "pixel_sigma": 2.0,
+    "metric_sigma_m": 0.01,
+    "huber_delta": 2.0,
+    "maximum_nfev": 100,
+    "tolerance": 1e-10
+  },
+  "prior_manifest_sha256": "6ecc104c81dfff66ece31e90396e16812963471e235590938a0142c75cab80c3",
+  "selection": "all six V9 xyz development candidate pairs including four rejected cases; no desk/room/teddy rerun",
+  "proposal_sha256": {
+    "23-24.json": "e3048158dbe6fd56c24f525aa39cba65e90b1736e9630ccdb55950c6db1db772",
+    "23-25.json": "2d4436744d1a54b60bf0ef24fb06000d737c781e132a060dea71ed3c6876eea8",
+    "23-26.json": "54522b0c0a3e0ef5a58a037dfacb5af3c6f189e971406aceb22b0ed5758d1aa2",
+    "24-25.json": "5a621405668f3c2b9a6b96789165f7c179d2070234c00d9baf67805f907e57d2",
+    "24-26.json": "ed096c0ecf7dc7ca5a545a1e4c2a75fc9a9450090de70753c400e6bbb75fa1d0",
+    "25-26.json": "099e23aaea932cfb740cea073eac6fd94459259fb12c0270bf585cee59e0d4ad"
+  },
+  "fit_split": "original source-feature-row even IDs; odd IDs are validation; do not use original inlier mask to select fit rows",
+  "primary": "matched raw-frame-pose initialization for both models on every pair; failed or skipped solves fully roll back and stay failures",
+  "secondary": "matched frozen RANSAC 3D-3D initialization for both models only when an existing model is available; report all, never select best after GT",
+  "solver": "SciPy trf 3-point numerical Jacobian, same 6-DoF local rotation and additive translation, block Huber delta2, max100 evaluations, strict convergence and finite cost/depth/Jacobian checks; no novel solver claim",
+  "model_units": "3D-3D Euclidean blocks /0.01m; 3D-2D pixel blocks /2px; these noise scales are fixed and imply different objectives, not equal physical weights",
+  "truth_use": "fit-only finalized before GT opens; nearest and bracketed interpolation only evaluation, no truth-driven fit/selection",
+  "continuation_criteria": "development evidence only: >=2 primary pairs with both models converged, 3D-2D meeting <=3cm/2deg in both time protocols and gaining >=5mm and10% translation with <=0.5deg rotation loss OR >=0.5deg and10% rotation with <=5mm translation loss; paired primary medians must not worsen >5mm/0.5deg; no extra 3D-2D solver failures. Passing permits proposing a newly frozen validation, not a trajectory/online claim. Failure stops this fixed comparison without tuning.",
+  "limitations": [
+    "previously seen development pairs; not fresh independent test",
+    "both arms use original target-depth-valid eligibility so target depth remains a selection dependency",
+    "no new RANSAC or matching; common raw initialization can fail on poor correspondences",
+    "3D-3D initialization is a secondary bias control, not ground-truth model selection",
+    "no map, BA, trajectory, risk scheduling or online changes"
+  ],
+  "limits": {
+    "timeout_s": 60,
+    "address_space_gib": 4,
+    "output_bytes": 10485760,
+    "blas_omp_mkl_threads": 1
+  }
+}

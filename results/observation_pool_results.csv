@@ -1,0 +1,13 @@
+sequence,pool,transport,unique_pairs,candidate_points,candidate_observations,singletons_recovered,reciprocal_matches,depth_valid_matches,different_id_matches,accepted_rigid_pairs,identity_candidates,paired_process_wall_s,paired_peak_rss_mib,inputs_unchanged,map_updated,accuracy_evaluated
+fr1_desk,shared,direct,6,7866,15844,0,12,8,2,0,0,0.5672460819987464,113.94921875,True,False,False
+fr1_desk,shared,chain,6,7866,15844,0,16,10,2,0,0,0.5672460819987464,113.94921875,True,False,False
+fr1_desk,all,direct,6,63252,71230,55386,20,12,12,0,0,3.970070122002653,234.01953125,True,False,False
+fr1_desk,all,chain,6,63252,71230,55386,31,19,19,0,0,3.970070122002653,234.01953125,True,False,False
+fr1_room,shared,direct,6,30433,61274,0,5,5,2,0,0,1.1167067290007253,149.11328125,True,False,False
+fr1_room,shared,chain,6,30433,61274,0,18,15,2,0,0,1.1167067290007253,149.11328125,True,False,False
+fr1_room,all,direct,6,181988,212829,151555,4,4,3,0,0,10.425773925999238,467.4609375,True,False,False
+fr1_room,all,chain,6,181988,212829,151555,13,12,9,0,0,10.425773925999238,467.4609375,True,False,False
+fr1_teddy,shared,direct,21,26669,53699,0,51,35,5,0,0,1.516681442000845,157.9453125,True,False,False
+fr1_teddy,shared,chain,21,26669,53699,0,56,36,3,0,0,1.516681442000845,157.9453125,True,False,False
+fr1_teddy,all,direct,21,192476,219506,165807,51,27,26,0,0,13.02958462999959,475.66015625,True,False,False
+fr1_teddy,all,chain,21,192476,219506,165807,76,41,39,0,0,13.02958462999959,475.66015625,True,False,False

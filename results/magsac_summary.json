@@ -1,0 +1,495 @@
+{
+  "stage": "V21 LightGlue F-MAGSAC++ verification",
+  "cases": 39,
+  "new_pose_arms": 156,
+  "new_evaluation_rows": 312,
+  "baseline_V19_rows": 78,
+  "summary": [
+    {
+      "arm": "raw",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 0,
+      "accurate_both": 14,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 0,
+      "accurate_both": 1,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 0,
+      "accurate_both": 2,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 0,
+      "accurate_both": 5,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "raw",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 0,
+      "accurate_both": 6,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "V19",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 37,
+      "accurate_both": 15,
+      "newly_damaged": 7,
+      "rescued": 8,
+      "v19_original_benefits_retained": 8
+    },
+    {
+      "arm": "V19",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 4,
+      "newly_damaged": 0,
+      "rescued": 3,
+      "v19_original_benefits_retained": 3
+    },
+    {
+      "arm": "V19",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 2,
+      "newly_damaged": 1,
+      "rescued": 1,
+      "v19_original_benefits_retained": 1
+    },
+    {
+      "arm": "V19",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 3,
+      "newly_damaged": 2,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "V19",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 21,
+      "accurate_both": 6,
+      "newly_damaged": 4,
+      "rescued": 4,
+      "v19_original_benefits_retained": 4
+    },
+    {
+      "arm": "F_MAGSAC",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 37,
+      "accurate_both": 17,
+      "newly_damaged": 5,
+      "rescued": 8,
+      "v19_original_benefits_retained": 6
+    },
+    {
+      "arm": "F_MAGSAC",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 4,
+      "newly_damaged": 0,
+      "rescued": 3,
+      "v19_original_benefits_retained": 2
+    },
+    {
+      "arm": "F_MAGSAC",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 2,
+      "newly_damaged": 1,
+      "rescued": 1,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "F_MAGSAC",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 5,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "F_MAGSAC",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 21,
+      "accurate_both": 6,
+      "newly_damaged": 4,
+      "rescued": 4,
+      "v19_original_benefits_retained": 4
+    },
+    {
+      "arm": "equal_count_subset_17",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 37,
+      "accurate_both": 15,
+      "newly_damaged": 6,
+      "rescued": 7,
+      "v19_original_benefits_retained": 4
+    },
+    {
+      "arm": "equal_count_subset_17",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 4,
+      "newly_damaged": 0,
+      "rescued": 3,
+      "v19_original_benefits_retained": 2
+    },
+    {
+      "arm": "equal_count_subset_17",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 3,
+      "newly_damaged": 1,
+      "rescued": 2,
+      "v19_original_benefits_retained": 1
+    },
+    {
+      "arm": "equal_count_subset_17",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 4,
+      "newly_damaged": 1,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "equal_count_subset_17",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 21,
+      "accurate_both": 4,
+      "newly_damaged": 4,
+      "rescued": 2,
+      "v19_original_benefits_retained": 1
+    },
+    {
+      "arm": "equal_count_subset_23",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 37,
+      "accurate_both": 18,
+      "newly_damaged": 3,
+      "rescued": 7,
+      "v19_original_benefits_retained": 5
+    },
+    {
+      "arm": "equal_count_subset_23",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 3,
+      "newly_damaged": 0,
+      "rescued": 2,
+      "v19_original_benefits_retained": 2
+    },
+    {
+      "arm": "equal_count_subset_23",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 2,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "equal_count_subset_23",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 4,
+      "newly_damaged": 1,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "equal_count_subset_23",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 21,
+      "accurate_both": 9,
+      "newly_damaged": 2,
+      "rescued": 5,
+      "v19_original_benefits_retained": 3
+    },
+    {
+      "arm": "equal_count_subset_41",
+      "scene": "all",
+      "pairs": 39,
+      "applied": 37,
+      "accurate_both": 15,
+      "newly_damaged": 6,
+      "rescued": 7,
+      "v19_original_benefits_retained": 6
+    },
+    {
+      "arm": "equal_count_subset_41",
+      "scene": "fr1_xyz",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 4,
+      "newly_damaged": 0,
+      "rescued": 3,
+      "v19_original_benefits_retained": 2
+    },
+    {
+      "arm": "equal_count_subset_41",
+      "scene": "fr1_desk",
+      "pairs": 6,
+      "applied": 6,
+      "accurate_both": 2,
+      "newly_damaged": 0,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "equal_count_subset_41",
+      "scene": "fr1_room",
+      "pairs": 6,
+      "applied": 4,
+      "accurate_both": 3,
+      "newly_damaged": 2,
+      "rescued": 0,
+      "v19_original_benefits_retained": 0
+    },
+    {
+      "arm": "equal_count_subset_41",
+      "scene": "fr1_teddy",
+      "pairs": 21,
+      "applied": 21,
+      "accurate_both": 6,
+      "newly_damaged": 4,
+      "rescued": 4,
+      "v19_original_benefits_retained": 4
+    }
+  ],
+  "metrics": {
+    "F_MAGSAC": {
+      "reasons": {
+        "native estimator success; not accuracy certificate": 37,
+        "native estimator rejected": 2
+      },
+      "process_failures": 0,
+      "timeouts": 0,
+      "native_worker_s": 8.945713817982323,
+      "native_solver_s": 0.094027599,
+      "peak_worker_rss_mib": 81.1171875,
+      "accuracy_by_truth_mode": {
+        "nearest": 17,
+        "interpolated": 17
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.031240193993151668,
+            "p95": 0.1121998569553021
+          },
+          "rotation_deg": {
+            "median": 1.5186455525017042,
+            "p95": 3.856399377999318
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.031142966952219225,
+            "p95": 0.11384446676132702
+          },
+          "rotation_deg": {
+            "median": 1.4772968743630739,
+            "p95": 3.490624312028788
+          }
+        }
+      }
+    },
+    "equal_count_subset_17": {
+      "reasons": {
+        "native estimator success; not accuracy certificate": 37,
+        "native estimator rejected": 2
+      },
+      "process_failures": 0,
+      "timeouts": 0,
+      "native_worker_s": 8.869901373007451,
+      "native_solver_s": 0.095153811,
+      "peak_worker_rss_mib": 81.1484375,
+      "accuracy_by_truth_mode": {
+        "nearest": 15,
+        "interpolated": 15
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.034489858741445105,
+            "p95": 0.180792967442645
+          },
+          "rotation_deg": {
+            "median": 1.6034107834551456,
+            "p95": 5.013243226798583
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.034520103122746414,
+            "p95": 0.1793463107926543
+          },
+          "rotation_deg": {
+            "median": 1.433047311361174,
+            "p95": 5.033688424009711
+          }
+        }
+      }
+    },
+    "equal_count_subset_23": {
+      "reasons": {
+        "native estimator success; not accuracy certificate": 37,
+        "native estimator rejected": 2
+      },
+      "process_failures": 0,
+      "timeouts": 0,
+      "native_worker_s": 8.861131841993483,
+      "native_solver_s": 0.095277974,
+      "peak_worker_rss_mib": 81.1875,
+      "accuracy_by_truth_mode": {
+        "nearest": 18,
+        "interpolated": 18
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.03008857864349802,
+            "p95": 0.1425862759341104
+          },
+          "rotation_deg": {
+            "median": 1.6962359319658176,
+            "p95": 4.8745690124070515
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.03201490406010138,
+            "p95": 0.14095599903970926
+          },
+          "rotation_deg": {
+            "median": 1.6011698948314903,
+            "p95": 4.637774544320809
+          }
+        }
+      }
+    },
+    "equal_count_subset_41": {
+      "reasons": {
+        "native estimator success; not accuracy certificate": 37,
+        "native estimator rejected": 2
+      },
+      "process_failures": 0,
+      "timeouts": 0,
+      "native_worker_s": 8.98791590100518,
+      "native_solver_s": 0.095560791,
+      "peak_worker_rss_mib": 81.296875,
+      "accuracy_by_truth_mode": {
+        "nearest": 15,
+        "interpolated": 15
+      },
+      "errors_by_truth_mode": {
+        "nearest": {
+          "translation_m": {
+            "median": 0.036784355107788304,
+            "p95": 0.1446105598958642
+          },
+          "rotation_deg": {
+            "median": 1.328570564781154,
+            "p95": 5.319052063548822
+          }
+        },
+        "interpolated": {
+          "translation_m": {
+            "median": 0.03622161018378376,
+            "p95": 0.14299690188608322
+          },
+          "rotation_deg": {
+            "median": 1.4378056067455103,
+            "p95": 4.953695519896811
+          }
+        }
+      }
+    }
+  },
+  "control_comparison": {
+    "control_accuracy": [
+      15,
+      18,
+      15
+    ],
+    "control_damage": [
+      6,
+      3,
+      6
+    ],
+    "median_control_accuracy": 15.0,
+    "median_control_damage": 6.0,
+    "F_accuracy": 17,
+    "F_damage": 5,
+    "counts_above_median_control": true,
+    "dominates_all_controls": false,
+    "interpretation": "F improves the typical control count and has lower interpolated translation/rotation P95 than each control, but subset23 has18 accurate/3 damaged; stable count advantage over subset selection not established."
+  },
+  "original_eligible_rows": 11455,
+  "F_eligible_rows": 10797,
+  "same_cardinality_checks": 39,
+  "F_successes": 39,
+  "H_successes": 39,
+  "verification_phase_s": 0.5472818210000696,
+  "F_solver_s": 0.05265457200948731,
+  "H_solver_s": 0.035127308998198714,
+  "verification_peak_rss_mib": 126.01171875,
+  "pose_phase_s": 36.44736966399796,
+  "exact_raw_fallbacks": 8,
+  "focused_tests_passed": 3,
+  "full_regression_rerun": false,
+  "candidate_decision": "Retain as a stronger offline candidate; do not enable by default or integrate online while5 raw-accurate cases are damaged and2 original benefits lost.",
+  "attribution": "One fixed F setting; three predeclared random equal-count input controls, not independent legacy PnP sampler seeds.",
+  "scope": "No new LightGlue inference, temporal compensation, BA, online tracking, commit or push. GT only after the fit seal.",
+  "evidence_directory": "${AFS_EVIDENCE_ROOT}/magsac-v21-20261023-eqj_iv2p"
+}

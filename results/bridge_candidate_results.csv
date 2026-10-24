@@ -1,0 +1,13 @@
+sequence,source_keyframe,target_keyframe,cut_crossing_landmarks,source_unshared_observations,existing_shared_landmarks,candidate_count,fit_count,validation_count,accepted,reason,accepted_proposals,process_wall_s,peak_rss_mib,snapshot_unchanged,ba_performed,accuracy_evaluated
+fr1_desk,22,23,4,13,4,0,0,0,False,insufficient split support,0,0.41643220799960545,106.69921875,True,False,False
+fr1_desk,23,22,4,44,4,0,0,0,False,insufficient split support,0,0.41643220799960545,106.69921875,True,False,False
+fr1_room,142,143,6,19,6,7,2,5,False,insufficient split support,0,0.8666159579988744,146.6875,True,False,False
+fr1_room,143,142,6,71,6,2,1,1,False,insufficient split support,0,0.8666159579988744,146.6875,True,False,False
+fr1_teddy,111,112,2,9,2,0,0,0,False,insufficient split support,0,0.9164895849971799,140.09375,True,False,False
+fr1_teddy,112,111,2,10,2,0,0,0,False,insufficient split support,0,0.9164895849971799,140.09375,True,False,False
+fr1_teddy,158,159,1,75,1,10,2,8,False,insufficient split support,0,0.9164895849971799,140.09375,True,False,False
+fr1_teddy,159,158,1,24,1,2,1,1,False,insufficient split support,0,0.9164895849971799,140.09375,True,False,False
+fr1_teddy,202,203,0,138,0,7,3,4,False,insufficient split support,0,0.9164895849971799,140.09375,True,False,False
+fr1_teddy,203,202,0,0,0,0,,,False,no eligible source observations,0,0.9164895849971799,140.09375,True,False,False
+fr1_teddy,203,204,0,0,0,0,,,False,no eligible source observations,0,0.9164895849971799,140.09375,True,False,False
+fr1_teddy,204,203,0,14,0,0,0,0,False,insufficient split support,0,0.9164895849971799,140.09375,True,False,False

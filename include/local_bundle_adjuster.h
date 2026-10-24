@@ -26,6 +26,10 @@ struct LocalBundleAdjustmentResult {
     std::size_t depth_observations_used = 0;
     double initial_reprojection_rmse = 0.0;
     double final_reprojection_rmse = 0.0;
+    int termination_type = -1;
+    int iterations = 0;
+    double initial_cost = 0.0;
+    double final_cost = 0.0;
 };
 
 class LocalBundleAdjuster {
