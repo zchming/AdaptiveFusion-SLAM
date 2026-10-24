@@ -60,6 +60,24 @@ target_link_libraries(replay_local_ba PRIVATE adaptivefusion_slam)
 add_executable(native_pnp_pair app/native_pnp_pair.cpp)
 target_link_libraries(native_pnp_pair PRIVATE adaptivefusion_slam)
 
+# Offline keyframe constraints only; independent of the tracking entry point.
+add_executable(offline_keyframe_pose_graph app/offline_keyframe_pose_graph.cpp)
+target_link_libraries(offline_keyframe_pose_graph PRIVATE adaptivefusion_slam)
+
+option(AFS_BUILD_AUXILIARY "Build the independent auxiliary pose tools" ON)
+if(AFS_BUILD_AUXILIARY)
+    add_executable(offline_confidence_pose_graph app/offline_confidence_pose_graph.cpp)
+    target_link_libraries(offline_confidence_pose_graph PRIVATE adaptivefusion_slam)
+
+    set(AFS_PRODUCTION_SOURCE "${PROJECT_SOURCE_DIR}/app/run_rgbd_odometry.cpp")
+    set(AFS_GENERATED_SOURCE "${PROJECT_BINARY_DIR}/observed_runner.inc")
+    include(cmake/GeneratePoseObserver.cmake)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${AFS_PRODUCTION_SOURCE}")
+    add_executable(run_streaming_odometry app/run_streaming_odometry.cpp)
+    target_compile_definitions(run_streaming_odometry PRIVATE AFS_LIVE_ENTRY="${AFS_GENERATED_SOURCE}")
+    target_link_libraries(run_streaming_odometry PRIVATE adaptivefusion_slam)
+endif()
+
 target_link_libraries(adaptivefusion_slam
     PUBLIC
         Eigen3::Eigen
