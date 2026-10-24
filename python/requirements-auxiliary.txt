@@ -1,0 +1,4 @@
+-r requirements.txt
+Pillow>=10,<13
+opencv-python>=4.8,<6
+torch>=2.6,<3
