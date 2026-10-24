@@ -230,6 +230,13 @@ LocalBundleAdjustmentResult LocalBundleAdjuster::optimize(
         return result;
     }
 
+    // An oldest keyframe with no eligible observations is not registered in
+    // Ceres. Fixing it would abort, and choosing another anchor would change
+    // this window's gauge policy. Skip atomically before modifying map state.
+    if (!problem.HasParameterBlock(pose_parameters.front().data())) {
+        return result;
+    }
+
     const auto compute_reprojection_rmse = [&]() {
         double squared_error_sum = 0.0;
         std::size_t observation_count = 0;
@@ -281,6 +288,10 @@ LocalBundleAdjustmentResult LocalBundleAdjuster::optimize(
 
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
+    result.termination_type = static_cast<int>(summary.termination_type);
+    result.iterations = static_cast<int>(summary.iterations.size());
+    result.initial_cost = summary.initial_cost;
+    result.final_cost = summary.final_cost;
     result.final_reprojection_rmse = compute_reprojection_rmse();
     if (!summary.IsSolutionUsable()) {
         return result;

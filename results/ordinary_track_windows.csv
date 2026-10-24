@@ -1,0 +1,13 @@
+sequence,arm,cut,original_crossing_landmarks,pair_count,accepted_rigid_pairs,accepted_triangles_tested,qualified_pairs,candidate_edges,candidate_clusters
+fr1_desk,direct,23,4,6,0,0,0,0,0
+fr1_desk,chain,23,4,6,0,0,0,0,0
+fr1_room,direct,143,6,6,0,0,0,0,0
+fr1_room,chain,143,6,6,0,0,0,0,0
+fr1_teddy,direct,112,2,6,0,0,0,0,0
+fr1_teddy,direct,159,1,6,0,0,0,0,0
+fr1_teddy,direct,203,0,6,0,0,0,0,0
+fr1_teddy,direct,204,0,6,0,0,0,0,0
+fr1_teddy,chain,112,2,6,0,0,0,0,0
+fr1_teddy,chain,159,1,6,0,0,0,0,0
+fr1_teddy,chain,203,0,6,0,0,0,0,0
+fr1_teddy,chain,204,0,6,0,0,0,0,0

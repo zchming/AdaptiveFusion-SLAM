@@ -1,388 +1,126 @@
 # AdaptiveFusion-SLAM
 
-**Proactive Tracking-Failure Forecasting and Risk-Adaptive Map Updating for Robust RGB-D SLAM**
+A C++17 RGB-D SLAM prototype with risk-adaptive mapping and an optional Python
+auxiliary pose service. The native pipeline uses ORB, LK optical flow,
+PnP-RANSAC and Ceres local bundle adjustment. The auxiliary service combines
+RootSIFT, LightGlue, MAGSAC geometry verification and observation confidence
+to produce a separate corrected trajectory.
 
-AdaptiveFusion-SLAM is a research-oriented RGB-D visual SLAM system designed to predict tracking degradation before complete failure and proactively protect the map from unreliable observations.
+## What it provides
 
-The project is implemented incrementally from a minimal SLAM pipeline instead of directly modifying an existing complete system. Its long-term goal is to provide a reproducible platform for studying tracking-failure forecasting, risk-aware frontend control, and selective map updating.
+- **Native RGB-D SLAM:** synchronized RGB/depth loading, frame tracking,
+  keyframes, sparse landmarks, local BA, geometric health signals and TUM output.
+- **Risk-adaptive mapping:** a temporal failure predictor controls feature,
+  keyframe and map updates to reduce work under visual degradation.
+- **Auxiliary pose correction:** low-frequency matching between frozen adjacent
+  keyframes, using the existing native PnP estimator and confidence-weighted pose
+  constraints while LK continues to process every frame.
+- **Bounded auxiliary scheduling:** default, sparse and causal source-prefetch
+  profiles, with explicit inputs, call budgets, failures and output freshness.
 
-> Current status: v0.1 research prototype. The complete causal RGB-D pipeline,
-> risk-adaptive policy, trajectory evaluation, runtime profiling, and controlled
-> degradation benchmark are runnable. The predictor is still trained on
-> synthetic episodes, so the research hypothesis is not yet validated across
-> real datasets.
+The auxiliary service receives the real C++ pose stream during dataset replay.
+It writes `raw.tum` and `corrected.tum`; corrections are applied to the separate
+output after receipt. Tracking, the map and local BA retain the original poses.
 
-## Quantitative Results
+## Measured results
 
-Full TUM `rgbd_dataset_freiburg1_xyz` sequence:
+### Auxiliary trajectory output
 
-| Metric | Baseline | Adaptive | Change |
+ATE RMSE on common valid timestamps, in centimeters; lower is better. These
+historical full-recording evaluations use the default auxiliary configuration
+with the risk controller disabled. RPY and 360 are development recordings;
+floor, plant and desk2 were held out from that service-development stage.
+
+| TUM Freiburg1 sequence | Native LK baseline | Auxiliary output | ATE change |
 |---|---:|---:|---:|
-| Valid poses | 792 | 792 | maintained |
-| Tracking success | 100% | 100% | maintained |
-| ATE RMSE | 0.062081 m | 0.062442 m | +0.58% |
-| RPE translation | 0.005518 m | 0.005537 m | +0.34% |
-| Keyframes | 114 | 92 | -19.3% |
-| Map points | 79,790 | 63,983 | -19.8% |
-| Local BA runs | 113 | 90 | -20.4% |
-| Mean frame time | 60.07 ms | 47.91 ms | -20.2% |
-| Throughput | 16.65 FPS | 20.87 FPS | +25.4% |
+| RPY | 8.27 | 9.47 | +14.4% |
+| 360 | 15.10 | 11.42 | −24.4% |
+| floor | 27.32 | 8.01 | −70.7% |
+| plant | 14.11 | 8.47 | −40.0% |
+| desk2 | 13.73 | 7.86 | −42.7% |
 
-Five controlled RGB degradation experiments are included: motion blur, low
-light, central occlusion, Gaussian noise, and every-tenth-frame loss.
+The auxiliary output improves ATE in four of five evaluated recordings. The
+RPY regression is retained. Keyframe assistance uses 423 calls across the three
+held-out recordings versus 2,970 pair evaluations in the historical every-frame
+comparison (85.8% fewer); this is a call-count reduction, not a frame-rate claim.
+[Metrics and tradeoffs](docs/results.md) · [CSV](results/trajectory_summary.csv)
 
-| Degradation | Mode | Success | ATE (m) | Keyframes | Map points | FPS |
-|---|---|---:|---:|---:|---:|---:|
-| Blur | baseline | 100% | 0.032742 | 17 | 10,046 | 14.66 |
-| Blur | adaptive | 100% | 0.032108 | 17 | 9,252 | 14.24 |
-| Dark | baseline | 100% | 0.025468 | 16 | 10,046 | 25.53 |
-| Dark | adaptive | 100% | 0.025000 | 17 | 10,099 | 24.80 |
-| Occlusion | baseline | 100% | 0.052648 | 22 | 17,623 | 23.70 |
-| Occlusion | adaptive | 100% | 0.054455 | 20 | 15,289 | 24.78 |
-| Noise | baseline | 100% | 0.025805 | 17 | 12,625 | 18.26 |
-| Noise | adaptive | 100% | 0.026300 | 18 | 11,933 | 17.85 |
-| Drop | baseline | 90% | 0.024499 | 17 | 12,015 | 23.38 |
-| Drop | adaptive | 90% | 0.023557 | 16 | 10,710 | 23.55 |
+### Original risk-adaptive mapping
 
-See the Chinese resume-ready description, the
-[full v0.1 report](results/stage_18_v0.1_release.md), and the
-[machine-readable experiment table](results/stage_18_degradation_comparison.csv).
+The original v0.1 XYZ evaluation processed all 792 RGB-D inputs: adaptive mode
+reduced map points by 19.8% and mean frame time by 20.2%, with ATE RMSE changing
+from 6.2081 to 6.2442 cm (+0.58%). Measured throughput was 16.65 → 20.87 FPS.
+These are the original mapping results, separate from the auxiliary service.
+[Original benchmark](results/stage_18_v0.1_release.md)
 
-## Motivation
+### Optional low-CPU scheduling
 
-Conventional visual SLAM systems usually react after tracking quality has already deteriorated:
+On the RPY development recording, source-prefetch reduced median auxiliary
+handoff latency from 193.5 to 154.3 ms with the same 64-call budget. On three
+recordings held out from prefetch development, median reductions were 5.0%,
+20.3% and 18.3%; floor P95 increased 13.6%. Sparse budgets can leave a long
+suffix without fresh corrections. The default profile remains available.
+[Complete latency data](results/auxiliary_latency.csv)
 
-- the number of valid matches becomes insufficient;
-- pose estimation fails;
-- the tracker enters a lost state;
-- unreliable observations have already contaminated the map.
+## Build and run the native pipeline
 
-AdaptiveFusion-SLAM investigates a proactive alternative:
-
-> Can recent geometric health signals be used to predict tracking failure several frames in advance, allowing the system to intervene before unreliable observations damage the trajectory and map?
-
-## Research Hypothesis
-
-Compared with reactive decisions based only on the current frame, short-horizon failure forecasting from temporal geometric health signals can:
-
-- reduce the number of tracking failures;
-- prevent unreliable map updates;
-- improve trajectory accuracy and recovery performance;
-- retain real-time execution.
-
-## Proposed Method
-
-### 1. Geometric Health Monitoring
-
-For every frame, the system records a geometric health vector:
-
-\[
-h_t =
-[
-r_{\text{inlier}},
-e_{\text{reproj}},
-e_{\text{fb}},
-H_{\text{spatial}},
-p_{\text{parallax}},
-r_{\text{depth}},
-\kappa
-]
-\]
-
-where:
-
-- \(r_{\text{inlier}}\): RANSAC inlier ratio;
-- \(e_{\text{reproj}}\): reprojection error;
-- \(e_{\text{fb}}\): forward-backward optical-flow error;
-- \(H_{\text{spatial}}\): spatial coverage of tracked features;
-- \(p_{\text{parallax}}\): frame-to-frame parallax;
-- \(r_{\text{depth}}\): valid-depth ratio;
-- \(\kappa\): geometric conditioning indicator.
-
-### 2. Short-Horizon Failure Forecasting
-
-Instead of examining only the current frame, the system uses a temporal window of recent health vectors to estimate:
-
-\[
-P(F_{t+1:t+H}=1 \mid h_{t-L+1:t})
-\]
-
-This represents the probability that tracking will fail within the next \(H\) frames, based on the previous \(L\) frames.
-
-Failure labels will be generated automatically from future tracking states and trajectory errors, avoiding manual frame-by-frame annotation.
-
-### 3. Risk-Adaptive Intervention
-
-The predicted failure risk controls the frontend and mapping policies:
-
-| Risk level | Planned intervention |
-|---|---|
-| Low | Continue efficient LK optical-flow tracking and normal map updates |
-| Medium | Add local ORB verification and evaluate early keyframe insertion |
-| High | Perform global ORB redetection and suspend unreliable map-point insertion |
-| Critical | Preserve the latest trusted map state and initiate recovery from a reference keyframe |
-
-The main purpose is not merely to report that tracking is unreliable, but to prevent uncertain observations from corrupting the map.
-
-## System Pipeline
-
-```text
-RGB-D image sequence
-        |
-        v
-Camera model and dataset synchronization
-        |
-        v
-ORB features + LK optical-flow tracking
-        |
-        v
-Pose estimation using RANSAC and PnP
-        |
-        v
-Per-frame geometric health vector
-        |
-        v
-Temporal tracking-failure predictor
-        |
-        v
-Risk-adaptive frontend and map-update policy
-        |
-        v
-Keyframes, map points, and local bundle adjustment
-        |
-        v
-Trajectory, sparse map, and evaluation results
-```
-
-## Evaluation Plan
-
-The system will be evaluated on real RGB-D sequences, including:
-
-- TUM RGB-D;
-- Bonn RGB-D Dynamic;
-- OpenLORIS-Scene.
-
-Controlled degradation experiments will additionally study:
-
-- motion blur;
-- reduced illumination;
-- partial occlusion;
-- dropped frames;
-- image noise.
-
-### SLAM Metrics
-
-- Absolute Trajectory Error (ATE);
-- Relative Pose Error (RPE);
-- tracking success rate;
-- number of tracking failures;
-- recovery time;
-- runtime per frame and FPS.
-
-### Forecasting Metrics
-
-- AUROC and AUPRC;
-- false-positive and false-negative rates;
-- Brier score;
-- expected calibration error;
-- average failure-warning lead time;
-- cross-dataset generalization.
-
-## Planned Ablation Study
-
-The final evaluation will compare:
-
-1. baseline RGB-D SLAM;
-2. reactive current-frame thresholding;
-3. temporal failure forecasting without intervention;
-4. forecasting with adaptive frontend control;
-5. forecasting with selective map updating;
-6. the complete AdaptiveFusion-SLAM system.
-
-## Build
-
-The project currently requires:
-
-- Ubuntu 24.04
-- C++17
-- CMake
-- Eigen3
-- OpenCV 4.6
-- Ceres Solver 2.2
-
-OpenCV is used for RGB-D image loading, ORB features, descriptor matching, and
-LK optical flow. Ceres performs local bundle adjustment. g2o and additional
-dependencies will be enabled when their corresponding modules are implemented.
+Linux, a C++17 compiler, CMake ≥3.16, Eigen3, OpenCV ≥4.6 and Ceres ≥2.2 are
+required. The published native evaluation used OpenCV 4.6.0 and Ceres 2.2.0.
 
 ```bash
-cmake -S . -B build
-cmake --build build
-./build/run_slam
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j4
 ctest --test-dir build --output-on-failure
+
+# DATASET is a TUM RGB-D sequence directory.
+./build/run_rgbd_odometry "$DATASET" "$NEW_OUTPUT/baseline.tum" 1000000
+
+# Optional original risk controller.
+./build/run_rgbd_odometry "$DATASET" "$NEW_OUTPUT/adaptive.tum" 1000000 \
+    results/stage_16_simulated_risk_model.txt
 ```
 
-Expected output at the current stage:
+Create a fresh output directory first. Supply an explicit frame limit instead
+of `1000000` for a shorter run. Dataset associations use the existing native
+loader. Data, weights, vendor sources and generated outputs stay outside Git.
 
-```text
-Original pixel: 320 240
-3D point in camera coordinates: 0.00541272 -0.0592449 2
-Projected pixel: 320 240
-Round-trip error: 0
-Camera model test passed.
-```
+## Run the auxiliary service
 
-Inspect a TUM RGB-D sequence by passing the directory that contains `rgb.txt`
-and `depth.txt`:
+The optional service uses Python, PyTorch, SIFT/RootSIFT and LightGlue with a
+CUDA GPU. The native tracking and graph components remain C++.
 
-```bash
-./build/inspect_tum_dataset /path/to/tum_sequence
-```
+1. Install the Python dependencies and pinned LightGlue checkout.
+2. Export an unmodified native baseline cache to freeze keyframe input IDs.
+3. Prepare explicit data, weight, binary and CPU paths; choose a frozen profile.
+4. Run the C++ stream and auxiliary worker together, retaining both trajectories.
 
-The optional second argument sets the maximum RGB-to-depth timestamp difference
-in seconds. Its default value is `0.02`.
+[Setup and commands](docs/auxiliary_service.md) ·
+[Configuration](configs/auxiliary.json) ·
+[Evaluation and recovery](docs/reproducibility.md)
 
-Run the current feature frontend on two consecutive synchronized RGB-D frames:
+## Repository
 
-```bash
-./build/run_feature_frontend /path/to/tum_sequence 0
-```
+| Path | Contents |
+|---|---|
+| `include/`, `src/`, `app/` | Native tracking, mapping, evaluation and pose tools |
+| `python/adaptivefusion/` | Geometry, confidence, transport and evaluation helpers |
+| `python/` | Auxiliary services and explicit freeze/select/run entry points |
+| `configs/` | Portable frozen matching and resource configuration |
+| `tests/` | Native and Python checks |
+| `results/` | Compact measurements, protocols and representative failures |
+| `docs/` | Usage, results and reproduction |
 
-The final argument is the zero-based index of the first frame. The program
-loads that frame and the following frame, extracts ORB features, and reports
-ORB matches, LK tracks, and valid metric RGB-D correspondences. The current
-demo uses the TUM Freiburg 1 RGB intrinsics `(517.3, 516.5, 318.6, 255.3)` and
-the TUM depth scale `5000`; other sequences require their own calibration.
+## Scope and references
 
-Run the current RGB-D visual odometry loop and write a TUM-format trajectory:
+The delivered extension provides independent pose output for recorded RGB-D
+sequences. Its measured benefits concern trajectory accuracy, auxiliary work
+and delivery latency. Corrected-map optimization, feedback into tracking/BA,
+loop closure and a joint risk-controller-plus-auxiliary benchmark are future
+integration work. Low-CPU/prefetch runs were evaluated without ground truth;
+they do not establish a new absolute-accuracy result.
 
-```bash
-./build/run_rgbd_odometry /path/to/tum_sequence trajectory.txt
-```
-
-An optional third argument limits the number of processed frames. Only
-initialized or successfully tracked frames enter the trajectory; lost frames
-do not replace the latest trusted reference frame.
-
-After training or obtaining a compatible risk model, enable the causal online
-adaptive loop with:
-
-```bash
-./build/run_rgbd_odometry \
-    /path/to/tum_sequence trajectory.txt 1000 risk_model.txt
-```
-
-Set `1000` to the desired maximum frame count; omitting the model keeps baseline
-mode. The runner additionally writes `.health.csv`, `.failure_dataset.csv`,
-`.risk.csv`, and `.summary.csv` files beside the trajectory. The summary
-contains tracking failures and recoveries, map size, runtime percentiles, and
-FPS. Add an optional degradation mode for a reproducible stress test:
-
-```bash
-./build/run_rgbd_odometry \
-    /path/to/tum_sequence degraded.txt 200 - blur
-```
-
-The supported modes are `none`, `blur`, `dark`, `occlusion`, `noise`, and
-`drop`. Passing `-` keeps baseline control while retaining the fifth argument
-position.
-
-## Current Runnable Pipeline
-
-The implemented frontend currently connects these modules:
-
-```text
-TUM rgb.txt + depth.txt
-        |
-        v
-One-to-one timestamp synchronization
-        |
-        v
-RGB image + 16-bit depth image loading
-        |
-        v
-Grayscale conversion and ORB extraction in both frames
-        |
-        +---------------------------+
-        |                           |
-        v                           v
-Hamming descriptor matching   Pyramidal LK optical flow
-        |                           |
-        v                           v
-Ratio + mutual filtering      Forward-backward filtering
-        |                           |
-        +-------------+-------------+
-                      |
-                      v
-         Accepted 2D-to-2D correspondences
-                      |
-                      v
-      First-frame 16-bit depth validation
-                      |
-                      v
-       Raw depth / 5000 = metric depth
-                      |
-                      v
-          Camera::pixelToCamera()
-                      |
-                      v
-         Metric 3D-to-2D correspondences
-                      |
-                      v
-               PnP + RANSAC
-                      |
-                      v
-       Inlier-refined relative camera pose
-                      |
-                      v
-     Inlier ratio + mean reprojection error
-                      |
-                      v
-      Invert and accumulate relative pose
-                      |
-                      v
-        World-from-camera trajectory
-                      |
-                      v
-            TUM trajectory file
-                      |
-                      v
-     Trusted-pose keyframe selection
-                      |
-                      v
- Valid-depth features transformed to world
-                      |
-                      v
-       Sparse map points + observations
-```
-
-The camera projection model is now connected to LK tracks through validated
-depth measurements. PnP/RANSAC now converts the metric correspondences into a
-relative rotation and translation while rejecting geometric outliers.
-The odometry loop keeps a trusted reference frame, uses LK as its normal path,
-falls back to ORB matching after LK/PnP failure, and excludes lost frames from
-the accumulated trajectory.
-Trusted poses may become keyframes after minimum spacing and motion checks.
-Only their valid-depth ORB features create metric world map points; invalid
-frames cannot enter the sparse map.
-
-## Project Structure
-
-```text
-AdaptiveFusion-SLAM/
-├── app/
-├── include/
-├── src/
-├── config/
-├── evaluation/
-├── experiments/
-├── docs/
-├── results/
-├── CMakeLists.txt
-└── README.md
-```
-
-The structure will grow incrementally as each module becomes runnable and testable.
-
-## License
-
-A license will be selected before the first public release.
+The implementation builds on [LightGlue](https://github.com/cvg/LightGlue),
+[OpenCV](https://github.com/opencv/opencv),
+[Ceres Solver](https://github.com/ceres-solver/ceres-solver) and
+[TUM RGB-D](https://cvg.cit.tum.de/data/datasets/rgbd-dataset).
+Upstream source and model terms apply to their respective components.

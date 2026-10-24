@@ -1,0 +1,55 @@
+{
+  "schema": 5,
+  "frozen_at_utc": "2026-10-21T07:12:31.720744+00:00",
+  "base_commit": "3d950a0fe48326c0971b824835d48ae0b21f7a53",
+  "source_sha256": {
+    "python/adaptivefusion/bridge_candidates.py": "50021ee63dee05c70db43796f59bd29058af31bc72c03f6fb5b7dfbf3b4c4d01",
+    "python/audit_bridge_candidates.py": "de9904369cde3822d876daa0257fd1ebc224ead4be834b14af027c22005e9308",
+    "tests/python/test_bridge_candidates.py": "12523270904113364d03f69f29b9c1a8b4e7b8ea09aeb2743065b4fa77a0ba76"
+  },
+  "config": {
+    "fb_pixels": 1.0,
+    "ownership_pixels": 2.0,
+    "depth_spread_m": 0.05,
+    "rigid_threshold_m": 0.03,
+    "ransac_trials": 256,
+    "seed": 17,
+    "minimum_fit": 12,
+    "minimum_validation": 6,
+    "minimum_ratio": 0.5
+  },
+  "inputs": {
+    "fr1_desk": {
+      "snapshot_sha256": "eeed7ad1e6f9babfb537f6b53265f80c7e3c906e337890b2441196bd251f9e21",
+      "dataset_archive_sha256": "e983d6830916e66dc4a46a71368046b149b283de87769690e7aa4e0b9483530c"
+    },
+    "fr1_room": {
+      "snapshot_sha256": "6e104427facb297fbb381bb0bf034ad2dd11fc842ce6c6dd79d841d589488748",
+      "dataset_archive_sha256": "5ace47a1d2e53696bc939a84999293a04a7226958e848a609666691fd3cc38da"
+    },
+    "fr1_teddy": {
+      "snapshot_sha256": "5548ed9251e58150f1206a1a2ad3ed8a18128724f0ffdc966b08c3479bedcf2b",
+      "dataset_archive_sha256": "56cf9d1ef1023470cb1812abdccfc4221afaea67586e7a5a2a5a4d75ce30232d"
+    }
+  },
+  "selection": "all adjacent temporal cuts with fewer than 3 crossing landmarks, otherwise the first minimum-support cut; both directions; >32 cuts refuses rather than truncates",
+  "inference": "OpenCV LK from existing cached observations only; native-depth provenance; target ownership exclusion; Kabsch/RANSAC even-ID fit, odd-ID verification; no pose prior or ground truth",
+  "limits": {
+    "process_timeout_s": 300,
+    "address_space_gib": 8,
+    "threads": 1
+  },
+  "acceptance": "diagnostic only; report all proposals, rejected pairs, nonzero exits and resource failures; candidate acceptance does not authorize adding BA observations or establish point identity/absolute pose accuracy",
+  "retry_provenance": {
+    "previous_protocol_sha256": "4ba6ca492a444f6456c4d48dae44f10e492836ff66187ae98d81bf8ead48fbb9",
+    "previous_outcome": "all three failed before image matching: importer falsely rejected disjoint equal-cost associations",
+    "repair": "allow commuting disjoint ties; keep rejecting conflicting eligible ties; no changes to candidate configuration or cut selection"
+  },
+  "stop": "Finish these three previously seen sequences without changes to thresholds/selection; no BA, map mutation, online writeback, new downloads or test-set tuning",
+  "checks": {
+    "python_passed": 70,
+    "ctest_passed": 17,
+    "skipped": 0,
+    "initial_synthetic_failure": "A half-contaminated fit split rejected a competing model; retained as explicit negative regression without algorithm changes"
+  }
+}

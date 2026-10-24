@@ -1,0 +1,93 @@
+{
+  "status": "frozen_before_holdout_inference",
+  "scope": "LightGlue post-match 2D verification; no temporal compensation, BA, online tracking, commit or push",
+  "cases": 48,
+  "cache": "New RootSIFT+LightGlue outputs on48 preselected pairs; model and parameters frozen fromV19/V21",
+  "depth": "Original V19 source-only sample_depth eligibility; scale5000; no time warp",
+  "camera": [
+    517.3,
+    516.5,
+    318.6,
+    255.3
+  ],
+  "fundamental": {
+    "implementation": "OpenCV findFundamentalMat USAC_MAGSAC",
+    "input": "all cached LightGlue 2D matches before depth filtering",
+    "minimum_input_matches": 8,
+    "threshold_px": 3.0,
+    "confidence": 0.999,
+    "max_iterations": 10000,
+    "parameter_search": false
+  },
+  "homography": {
+    "role": "diagnostic_only_no_input_gate_or_pose",
+    "method": "USAC_MAGSAC",
+    "threshold_px": 3.0,
+    "confidence": 0.999,
+    "max_iterations": 10000
+  },
+  "arms": [
+    {
+      "name": "holdout_lightglue_reference",
+      "new_native_fits": 48
+    },
+    {
+      "name": "F_MAGSAC",
+      "new_native_fits_max": 48
+    },
+    {
+      "name": "equal_count_subset_17",
+      "input_subset_seed": 17,
+      "new_native_fits_max": 48
+    },
+    {
+      "name": "equal_count_subset_23",
+      "input_subset_seed": 23,
+      "new_native_fits_max": 48
+    },
+    {
+      "name": "equal_count_subset_41",
+      "input_subset_seed": 41,
+      "new_native_fits_max": 48
+    }
+  ],
+  "subset_controls": "Uniform without replacement from V19 original source-depth-valid rows, same count as F_MAGSAC eligible rows; original source-index order; retain all three controls",
+  "undefined_control": "If verification fails and no valid cardinality exists, label control unavailable and return exact raw pose; retain pair in denominator",
+  "native_pnp": "Unchanged V19 binary and parameters, requested seed17; no claim that global seeds vary legacy local sampler",
+  "verification_randomness": "Requested OpenCV global seed17, record implementation behavior; one fixed F/H configuration, no claim of independent trials from global seed setting",
+  "minimum_native_rows": 6,
+  "fallback": "Exact raw transform for every failure, with separate verification/support/native/process reasons",
+  "evaluation": "GT only after fit seal; both nearest and interpolated alignment must pass3cm/2deg; preserve every negative outcome",
+  "primary_metrics": [
+    "accurate_returned",
+    "accurate_applied",
+    "new_raw_damage",
+    "V19_eight_benefits_retained",
+    "continuous_error_tails",
+    "coverage_and_resources"
+  ],
+  "advance": "No tuning after results. Compare actual heldout raw damage, accuracy, original development conclusions, all equal-count controls and resource costs; no automatic online integration.",
+  "observed_local_api": {
+    "opencv": "5.0.0",
+    "findFundamentalMat_present": true,
+    "USAC_MAGSAC_present": true,
+    "estimator_called_this_turn": false
+  },
+  "resources": {
+    "new_native_fits_max": 240,
+    "new_lightglue_inference": 48,
+    "new_training": 0
+  },
+  "sources": [
+    "https://docs.opencv.org/4.13.0/de/d3e/tutorial_usac.html",
+    "https://github.com/danini/magsac"
+  ],
+  "stage": "V22 within-sequence image-disjoint holdout",
+  "development_reference_cases": 39,
+  "selection": {
+    "pairs_per_scene": 12,
+    "image_disjoint": true,
+    "development_temporal_buffer_s": 1.0,
+    "rule": "Consecutive keyframes, valid raw endpoints, greedy vertex-disjoint candidates, evenly spaced candidate indices; no GT or match-quality selection"
+  }
+}

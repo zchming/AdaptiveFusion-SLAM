@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "frozen_at_utc": "2026-10-20T13:58:02.019955+00:00",
+  "source_commit": "3bf94912ce1647ad7042df5933b01ed21395e15e",
+  "development_sequence": "fr1_xyz",
+  "test_sequences": [
+    {
+      "name": "fr1_desk",
+      "archive_root": "rgbd_dataset_freiburg1_desk",
+      "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_desk.tgz",
+      "head": {
+        "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_desk.tgz",
+        "status": 200,
+        "headers": {
+          "Date": "Tue, 20 Oct 2026 13:58:01 GMT",
+          "Server": "Apache/2.4.58 (Ubuntu)",
+          "Upgrade": "h2",
+          "Connection": "Upgrade, close",
+          "Last-Modified": "Fri, 30 Sep 2011 15:14:33 GMT",
+          "ETag": "\"1481328b-4ae2a151e2840\"",
+          "Accept-Ranges": "bytes",
+          "Content-Length": "344011403",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=1209600",
+          "Content-Type": "application/x-gzip"
+        }
+      }
+    },
+    {
+      "name": "fr1_room",
+      "archive_root": "rgbd_dataset_freiburg1_room",
+      "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_room.tgz",
+      "head": {
+        "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_room.tgz",
+        "status": 200,
+        "headers": {
+          "Date": "Tue, 20 Oct 2026 13:58:02 GMT",
+          "Server": "Apache/2.4.58 (Ubuntu)",
+          "Upgrade": "h2",
+          "Connection": "Upgrade, close",
+          "Last-Modified": "Fri, 30 Sep 2011 15:15:54 GMT",
+          "ETag": "\"2ea2318a-4ae2a19f21e80\"",
+          "Accept-Ranges": "bytes",
+          "Content-Length": "782381450",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=1209600",
+          "Content-Type": "application/x-gzip"
+        }
+      }
+    },
+    {
+      "name": "fr1_teddy",
+      "archive_root": "rgbd_dataset_freiburg1_teddy",
+      "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_teddy.tgz",
+      "head": {
+        "url": "https://webshare.cvg.cit.tum.de/g/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_teddy.tgz",
+        "status": 200,
+        "headers": {
+          "Date": "Tue, 20 Oct 2026 13:58:04 GMT",
+          "Server": "Apache/2.4.58 (Ubuntu)",
+          "Upgrade": "h2",
+          "Connection": "Upgrade, close",
+          "Last-Modified": "Fri, 30 Sep 2011 15:16:32 GMT",
+          "ETag": "\"3461984b-4ae2a1c35f400\"",
+          "Accept-Ranges": "bytes",
+          "Content-Length": "878811211",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=1209600",
+          "Content-Type": "application/x-gzip"
+        }
+      }
+    }
+  ],
+  "selection": "three complete, predeclared independent Freiburg1 scenes; no replacement or subsequence selection",
+  "mode": "offline full-cache geometry and historical trajectory correction; no online writeback",
+  "python_source_sha256": {
+    "python/adaptivefusion/__init__.py": "8cd89335fa44e3e8afd60e0af5cbe887033b79f41c0a56808621c5d488f47e23",
+    "python/adaptivefusion/evaluation.py": "273af0dfe142cf9a7ee5dadf3faeb06944c9b5140a210ee1d44eb5078915b452",
+    "python/adaptivefusion/geometry.py": "ca71edd74ee8b7a26ee6b9352f136f547e42d8951fb38c4e72994c6216cb4918",
+    "python/adaptivefusion/local_ba.py": "ba91a4ee2d9b2797cafc4f5dba4b421124e6afedce290ac427aefcb384827e2d",
+    "python/adaptivefusion/offline.py": "5d4b9c4c4cbee71f3075b262c2f2ca8721cc4ea24759d8b7ea0cc049473e4d71",
+    "python/adaptivefusion/schur.py": "30b4a5cc7b7c2ddf3132d867ce61cef1eefdef21c8323e800dee51a641ab6a91",
+    "python/adaptivefusion/state.py": "03e5271477ab616a0429805df780325eecb7a1361fe76219b41d41a68003e882",
+    "python/adaptivefusion/trajectory.py": "64218b903df9f1ffe339dfcbaa700675a3f9f8781a1b9bf33cf9605f9f3e6a62",
+    "python/run_batch_reference.py": "b50a49a356a87bc55d6ec642952f9fb9f4bf87502f9a82b9dee348c8e079fbfd",
+    "python/run_geometry_replay.py": "1d5636e09173034cd17cf4308c07e93a056ceb7d7830d05730e92207763f92a7",
+    "python/run_offline_backend.py": "7bb75156c6ce210b290023b18a7ad39f142b9ca467625daad558b17f86551fc0"
+  },
+  "binaries_sha256": {
+    "run_rgbd_odometry": "e341f00c410910e621f38b6b6234123cd035df62e832cfe20f9619748b8928b0",
+    "inspect_tum_dataset": "78363eca9d529ef61e5e43876b295a32ab3b69063c7d0ff81745f73c129cce04",
+    "replay_local_ba": "0d3fb59c4f60f9224646f90a80713ffc777d3b611b76b5eb1d3694eccc978eec",
+    "evaluate_trajectory": "7afedb2960f401be78d30e6ab38fbf2aee2208feff220ead1dbba9dbb54da7e8"
+  },
+  "configuration": {
+    "risk_enabled": false,
+    "degradation": "none",
+    "image_resolution": "native 640x480",
+    "frames": "ALL synchronized pairs at 0.02s, exact inspect count",
+    "camera": [
+      517.3,
+      516.5,
+      318.6,
+      255.3
+    ],
+    "depth_scale": 5000,
+    "window": "all exported keyframes",
+    "min_point_observations": 2,
+    "fixed_pose": "first keyframe",
+    "initialization": "raw frontend poses and landmark birth positions",
+    "backend": "Python analytic block-Schur LM, usable acceptance, ceres-cost termination",
+    "max_iterations": 20,
+    "max_nfev": 200,
+    "solver_time_limit_s": 180,
+    "huber_delta_px": 2,
+    "depth_residual_weight": 100,
+    "lm_initial_damping": 0.001,
+    "correction": "gauge anchored continuous SO3/translation correction using full_history",
+    "observation_selection": "existing immutable frontend associations; no new matching"
+  },
+  "arms": [
+    "original C++ baseline trajectory plus export",
+    "Python batch default (primary)",
+    "Ceres same exact batch input, matching 20 iteration configuration (solver control)",
+    "Python batch with whole-landmark holdout modulus10 (secondary geometry validation)"
+  ],
+  "repetitions": 1,
+  "repetition_limit": "no test-time tuning; single cross-scene run, timing variance not estimated here; development repeats retained",
+  "evaluation": {
+    "truth_use": "independent evaluation only, after all inference",
+    "alignment": "SE3 no scale",
+    "association_tolerance_s": 0.02,
+    "rpe_interval_s": 1.0,
+    "rpe_both_endpoint_tolerance_s": 0.02,
+    "jump_translation_m": 0.2,
+    "jump_rotation_deg": 15,
+    "jump_max_adjacent_dt_s": 0.1
+  },
+  "acceptance": {
+    "all_three_primary_runs_must_be_accepted": true,
+    "ate_improve_ge_5percent_scenes": 2,
+    "median_ate_relative_improvement_min": 0.05,
+    "per_scene_ate_allowed_degradation": "max(3% of baseline, 0.002 m)",
+    "per_scene_1s_rpe_translation_allowed_degradation": "max(5% of baseline, 0.0005 m)",
+    "per_scene_1s_rpe_rotation_allowed_degradation": "max(5% of baseline, 0.05 deg)",
+    "coverage": "same timestamps/matched cohort, no lost coverage or extra jumps",
+    "runtime": "offline primary process <=900s, solver <=180s, peak RSS <=8GiB; baseline export <=1800s; no online FPS claim",
+    "heldout": "secondary: disclose pixel/depth error and invalid predictions; training residual alone is insufficient"
+  },
+  "resources": {
+    "cpu": "local CPU only; no GPU, paid or cloud resources",
+    "thread_env": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "process_address_space_bytes": 8589934592,
+    "primary_process_wall_limit_s": 900,
+    "ceres_control_wall_limit_s": 900,
+    "baseline_export_wall_limit_s": 1800,
+    "network_attempts_per_archive": 3,
+    "network_attempt_wall_limit_s": 1800,
+    "maximum_total_extracted_bytes": 21474836480
+  },
+  "failure_policy": "retain all logs, partial outputs and nonzero exits; rejection/timeout/OOM is a failure even if rollback trajectory equals baseline; no parameter changes, replacement sequences, reduced frames, resolution or enlarged budgets; diagnose read-only only",
+  "stop_policy": "finish all declared scenes/arms where inputs valid, then report pass/fail and stop this frozen test; no online work"
+}

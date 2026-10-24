@@ -1,0 +1,564 @@
+{
+  "schema": 1,
+  "status": "completed_engineering_screen_failed",
+  "parent_preflight_sha256": "4039fc966e7591110b2769f5486846e23fb0a4f496d41595c292a2547e75ce26",
+  "execution_protocol_sha256": "40368d15fa0c91030cfbd4eec99cb6013e0d3eaae40a655343486506e0de740c",
+  "fit_only_sha256": "846101daf7df380aef7a8c7dd270df09527d92633caca885c96503661ea84d49",
+  "fit_seal_sha256": "dbe090ab28bf94a1742052dc57aa4f78919c547d70fa89296f4c262610836986",
+  "assessment_rules_sha256": "b161f86afefb3320c9777595e1dc8f849a9315659fdbddcc738a53bd854afed4",
+  "native_binary_sha256": "e991ede1b8f7f350725577943479ced0793d85323a30144df45cc71bc8784d8b",
+  "native_opencv_version": "4.6.0",
+  "source_sha256": {
+    "CMakeLists.txt": "effe5e355d1223dc463d8f4eed3e6727e0afd289cfb825bdb5e457a5d389fd3d",
+    "app/native_pnp_pair.cpp": "872dbcce0abf539eb3b1ba1a4f411ac1d8f1bd5fccbdd82a5fe4219f7b16bb15",
+    "python/adaptivefusion/native_pnp.py": "48c9356971ae204958ad49c262075cd3399fc1013d5e04a73aac0e6ae5402f1a",
+    "python/run_camera_pnp_comparison.py": "3c896d2db7ee74043e91471a5ebfad1b6884a5fd7a182fa5758a3420cba693a1",
+    "tests/python/test_native_pnp.py": "65fe61c8d7f9b48aa843fa2bfc52312b96ab782e0aba5c65a7b0af72a8def334",
+    "tests/python/test_camera_pnp_comparison.py": "3f385c053b31b086d9daea235f657ac76ff7c97a7e66b58067b0ad043783a465"
+  },
+  "distinct_pairs": 39,
+  "attempted_arms": 468,
+  "evaluation_rows": 936,
+  "unavailable_truth": {},
+  "historical_reproduction": {
+    "pairs": 39,
+    "applied_and_reason_identical": true,
+    "maximum_transform_difference": 0.0
+  },
+  "tests": {
+    "cpp_passed": 17,
+    "python_passed": 155,
+    "skipped": 0,
+    "synthetic_native_contract_tests": 6,
+    "synthetic_input_and_seal_tests": 5
+  },
+  "costs": {
+    "current_3d2d_huber_refinement": {
+      "attempts": 78,
+      "applied": 46,
+      "returned_failure": 32,
+      "process_seconds_total": 19.482661402999383,
+      "process_seconds_median": 0.2426079844999549,
+      "estimator_seconds_median": 0.005613300499931029,
+      "estimator_seconds_p95": 0.018064661449989118,
+      "estimator_seconds_max": 0.05810465099989415,
+      "peak_rss_kib_max": 85200,
+      "outer_process_failures": 0,
+      "native_process_failures": 0,
+      "timeouts": 0,
+      "failure_reasons": {
+        "insufficient fit support": 28,
+        "nonpositive prediction; roll back": 2,
+        "solver did not converge": 2
+      }
+    },
+    "existing_native_pnp_ransac": {
+      "attempts": 390,
+      "applied": 210,
+      "returned_failure": 180,
+      "process_seconds_total": 97.20074216100102,
+      "process_seconds_median": 0.24228759749996698,
+      "estimator_seconds_median": 0.000436327,
+      "estimator_seconds_p95": 0.0026067203499999998,
+      "estimator_seconds_max": 0.003526799,
+      "peak_rss_kib_max": 82984,
+      "outer_process_failures": 0,
+      "native_process_failures": 0,
+      "timeouts": 0,
+      "failure_reasons": {
+        "insufficient fit support": 140,
+        "native estimator rejected": 40
+      }
+    }
+  },
+  "configurations": [
+    {
+      "camera_profile": "historical_fr1_pinhole",
+      "estimator": "current_3d2d_huber_refinement",
+      "seed": null,
+      "pairs": 39,
+      "applied": 23,
+      "returned_accurate_both": 10,
+      "applied_accurate_both": 5,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/22-23",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_room/142-143",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/158-160"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/24-26",
+        "fr1_desk/22-23",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_room/142-143",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/158-160",
+        "fr1_teddy/159-160",
+        "fr1_teddy/201-203"
+      ],
+      "qualified_gains": [
+        "fr1_xyz/23-24",
+        "fr1_teddy/157-158",
+        "fr1_teddy/157-159"
+      ],
+      "gain_reused_scenes": [
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "historical_fr1_pinhole",
+      "estimator": "existing_native_pnp_ransac",
+      "seed": 17,
+      "pairs": 39,
+      "applied": 21,
+      "returned_accurate_both": 13,
+      "applied_accurate_both": 6,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/24-25",
+        "fr1_xyz/24-26",
+        "fr1_desk/21-22",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-159",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/159-160",
+        "fr1_teddy/204-205"
+      ],
+      "qualified_gains": [
+        "fr1_xyz/23-24",
+        "fr1_desk/22-24",
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_desk",
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "historical_fr1_pinhole",
+      "estimator": "existing_native_pnp_ransac",
+      "seed": 23,
+      "pairs": 39,
+      "applied": 21,
+      "returned_accurate_both": 13,
+      "applied_accurate_both": 6,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/24-25",
+        "fr1_xyz/24-26",
+        "fr1_desk/21-22",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-159",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/159-160",
+        "fr1_teddy/204-205"
+      ],
+      "qualified_gains": [
+        "fr1_xyz/23-24",
+        "fr1_desk/22-24",
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_desk",
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "historical_fr1_pinhole",
+      "estimator": "existing_native_pnp_ransac",
+      "seed": 41,
+      "pairs": 39,
+      "applied": 21,
+      "returned_accurate_both": 13,
+      "applied_accurate_both": 6,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/24-25",
+        "fr1_xyz/24-26",
+        "fr1_desk/21-22",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-159",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/159-160",
+        "fr1_teddy/204-205"
+      ],
+      "qualified_gains": [
+        "fr1_xyz/23-24",
+        "fr1_desk/22-24",
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_desk",
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "historical_fr1_pinhole",
+      "estimator": "existing_native_pnp_ransac",
+      "seed": 67,
+      "pairs": 39,
+      "applied": 21,
+      "returned_accurate_both": 13,
+      "applied_accurate_both": 6,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/24-25",
+        "fr1_xyz/24-26",
+        "fr1_desk/21-22",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-159",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/159-160",
+        "fr1_teddy/204-205"
+      ],
+      "qualified_gains": [
+        "fr1_xyz/23-24",
+        "fr1_desk/22-24",
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_desk",
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "historical_fr1_pinhole",
+      "estimator": "existing_native_pnp_ransac",
+      "seed": 101,
+      "pairs": 39,
+      "applied": 21,
+      "returned_accurate_both": 13,
+      "applied_accurate_both": 6,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/24-25",
+        "fr1_xyz/24-26",
+        "fr1_desk/21-22",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-159",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/159-160",
+        "fr1_teddy/204-205"
+      ],
+      "qualified_gains": [
+        "fr1_xyz/23-24",
+        "fr1_desk/22-24",
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_desk",
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "tum_recommended_ros_default",
+      "estimator": "current_3d2d_huber_refinement",
+      "seed": null,
+      "pairs": 39,
+      "applied": 23,
+      "returned_accurate_both": 9,
+      "applied_accurate_both": 4,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/22-23",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_room/142-143",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/158-160"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/24-26",
+        "fr1_desk/22-23",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_room/142-143",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/158-160",
+        "fr1_teddy/159-160",
+        "fr1_teddy/201-203"
+      ],
+      "qualified_gains": [
+        "fr1_xyz/23-24",
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "tum_recommended_ros_default",
+      "estimator": "existing_native_pnp_ransac",
+      "seed": 17,
+      "pairs": 39,
+      "applied": 21,
+      "returned_accurate_both": 11,
+      "applied_accurate_both": 4,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/23-24",
+        "fr1_xyz/24-26",
+        "fr1_desk/21-22",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-159",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/159-160",
+        "fr1_teddy/204-205"
+      ],
+      "qualified_gains": [
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "tum_recommended_ros_default",
+      "estimator": "existing_native_pnp_ransac",
+      "seed": 23,
+      "pairs": 39,
+      "applied": 21,
+      "returned_accurate_both": 11,
+      "applied_accurate_both": 4,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/23-24",
+        "fr1_xyz/24-26",
+        "fr1_desk/21-22",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-159",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/159-160",
+        "fr1_teddy/204-205"
+      ],
+      "qualified_gains": [
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "tum_recommended_ros_default",
+      "estimator": "existing_native_pnp_ransac",
+      "seed": 41,
+      "pairs": 39,
+      "applied": 21,
+      "returned_accurate_both": 11,
+      "applied_accurate_both": 4,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/23-24",
+        "fr1_xyz/24-26",
+        "fr1_desk/21-22",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-159",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/159-160",
+        "fr1_teddy/204-205"
+      ],
+      "qualified_gains": [
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "tum_recommended_ros_default",
+      "estimator": "existing_native_pnp_ransac",
+      "seed": 67,
+      "pairs": 39,
+      "applied": 21,
+      "returned_accurate_both": 11,
+      "applied_accurate_both": 4,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/23-24",
+        "fr1_xyz/24-26",
+        "fr1_desk/21-22",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-159",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/159-160",
+        "fr1_teddy/204-205"
+      ],
+      "qualified_gains": [
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    },
+    {
+      "camera_profile": "tum_recommended_ros_default",
+      "estimator": "existing_native_pnp_ransac",
+      "seed": 101,
+      "pairs": 39,
+      "applied": 21,
+      "returned_accurate_both": 11,
+      "applied_accurate_both": 4,
+      "raw_accurate_both": 14,
+      "newly_inaccurate_pairs": [
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159"
+      ],
+      "material_regression_pairs": [
+        "fr1_xyz/23-24",
+        "fr1_xyz/24-26",
+        "fr1_desk/21-22",
+        "fr1_desk/23-24",
+        "fr1_room/141-142",
+        "fr1_teddy/157-159",
+        "fr1_teddy/157-160",
+        "fr1_teddy/158-159",
+        "fr1_teddy/159-160",
+        "fr1_teddy/204-205"
+      ],
+      "qualified_gains": [
+        "fr1_teddy/157-158"
+      ],
+      "gain_reused_scenes": [
+        "fr1_teddy"
+      ],
+      "all_scene_medians_non_degrading": false,
+      "process_complete": true,
+      "engineering_screen_pass": false
+    }
+  ],
+  "seed_limitation": {
+    "requested_seeds": [
+      17,
+      23,
+      41,
+      67,
+      101
+    ],
+    "pair_camera_groups_with_identical_pose_and_inliers": 78,
+    "total_pair_camera_groups": 78,
+    "effective_sampler_randomization": false,
+    "finding": "OpenCV 4.6 legacy solvePnPRansac uses RANSACPointSetRegistrator with local RNG((uint64)-1); cv::setRNGSeed does not change that sampler. The five requested seed runs are deterministic repetitions, not five effective random trials. Original solver and row ordering were retained; no unplanned sampler replacement.",
+    "primary_sources": [
+      "https://github.com/opencv/opencv/blob/4.6.0/modules/calib3d/src/solvepnp.cpp#L285",
+      "https://github.com/opencv/opencv/blob/4.6.0/modules/calib3d/src/ptsetreg.cpp#L158"
+    ]
+  },
+  "scope": "fixed cached correspondences/eligibility, two camera profiles, native EPNP RANSAC versus frozen local Huber refinement; no rematching, V15 tuning, BA or online integration",
+  "conclusion": "Native PnP with historical K partially improves over local refinement, but all four combinations fail the engineering screen versus raw. Recommended ROS-default K does not improve aggregate success on these selected reused pairs. No default change or integration.",
+  "raw_evidence_directory_name": "camera-pnp-v17-20261022-2fg1754z"
+}

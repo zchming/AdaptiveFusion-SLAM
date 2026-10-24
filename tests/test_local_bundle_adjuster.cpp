@@ -60,6 +60,74 @@ adaptive_fusion_slam::Frame makeFrame(
     return frame;
 }
 
+bool checkMissingAnchorRollback(
+    const adaptive_fusion_slam::Camera& camera,
+    const std::vector<Eigen::Vector3d>& points,
+    std::size_t window_begin) {
+    std::vector<adaptive_fusion_slam::Keyframe> keyframes;
+    for (std::size_t index = 0; index < window_begin + 3; ++index) {
+        Eigen::Isometry3d pose = Eigen::Isometry3d::Identity();
+        pose.translation().x() = 0.1 * static_cast<double>(index);
+        keyframes.emplace_back(
+            index, makeFrame(index, pose, pose, points, camera));
+    }
+    std::vector<adaptive_fusion_slam::MapPoint> map_points;
+    for (std::size_t index = 0; index < points.size(); ++index) {
+        // Only the two newest frames share landmarks. The oldest pose in the
+        // active window has no residual, even though the problem is nonempty.
+        map_points.emplace_back(
+            index, points[index],
+            keyframes[window_begin + 1].descriptors().row(
+                static_cast<int>(index)),
+            adaptive_fusion_slam::MapObservation{window_begin + 1, index});
+        map_points.back().addObservation({window_begin + 2, index});
+        keyframes[window_begin + 1].associateMapPoint(index, index);
+        keyframes[window_begin + 2].associateMapPoint(index, index);
+    }
+    const auto original_keyframes = keyframes;
+    const auto original_points = map_points;
+    adaptive_fusion_slam::LocalBundleAdjustmentConfig config;
+    config.window_size = 3;
+    const auto result = adaptive_fusion_slam::LocalBundleAdjuster(camera, config)
+                            .optimize(keyframes, map_points);
+    bool passed = check(!result.optimized,
+                        "missing anchor must skip optimization without aborting");
+    passed &= check(result.observations_used == 2 * points.size(),
+                    "missing-anchor regression must have eligible observations");
+    passed &= check(result.iterations == 0 && result.termination_type == -1,
+                    "missing anchor must not invoke the solver");
+    passed &= check(result.keyframes_optimized == 0 &&
+                        result.map_points_optimized == 0,
+                    "skipped optimization must not report updated states");
+    for (std::size_t index = 0; index < keyframes.size(); ++index) {
+        passed &= check(
+            (keyframes[index].poseWorldFromCamera().matrix().array() ==
+             original_keyframes[index].poseWorldFromCamera().matrix().array())
+                .all(),
+            "all poses, including external frames, must remain exactly unchanged");
+        passed &= check(keyframes[index].mapPointIds() ==
+                            original_keyframes[index].mapPointIds(),
+                        "keyframe associations must remain unchanged");
+    }
+    for (std::size_t index = 0; index < map_points.size(); ++index) {
+        passed &= check(
+            (map_points[index].positionWorld().array() ==
+             original_points[index].positionWorld().array()).all(),
+            "all landmark coordinates must remain exactly unchanged");
+        const auto& observations = map_points[index].observations();
+        const auto& original = original_points[index].observations();
+        passed &= check(observations.size() == original.size(),
+                        "landmark observations must remain unchanged");
+        for (std::size_t j = 0; j < observations.size() && j < original.size(); ++j) {
+            passed &= check(
+                observations[j].keyframe_id == original[j].keyframe_id &&
+                    observations[j].feature_index == original[j].feature_index,
+                "landmark observation identities must remain unchanged");
+        }
+    }
+    return passed;
+}
+
 }  // namespace
 
 int main() {
@@ -108,6 +176,8 @@ int main() {
     const auto result = optimizer.optimize(keyframes, map_points);
 
     bool passed = true;
+    passed &= checkMissingAnchorRollback(camera, true_points, 0);
+    passed &= checkMissingAnchorRollback(camera, true_points, 1);
     passed &= check(result.optimized, "optimization should produce a solution");
     passed &= check(result.keyframes_optimized == 2,
                     "both local keyframes should participate");

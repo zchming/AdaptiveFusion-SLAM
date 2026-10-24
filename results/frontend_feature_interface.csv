@@ -1,0 +1,5 @@
+sequence,keyframes,native_features,trajectory_byte_identical,frame_stream_byte_identical,canonical_snapshot_files_identical,control,native_depth_samples_exact,feature_count_matches_health,descriptor_bytes,feature_sidecar_bytes,export_mean_ms,export_p95_ms,export_total_ms,frontend_on_wall_s,frontend_peak_rss_mib,python_matching_wall_s
+fr1_xyz,114,113947,True,True,227,same clean binary export off,True,True,3646304,19727573,1.4370800263157895,1.49659835,163.827123,18.214747555997747,309.71875,1.2685111690007034
+fr1_desk,81,79844,True,True,161,retained v2 baseline; source revision metadata normalized,True,True,2555008,13822407,1.414022913580247,1.525545,114.535856,11.549926642001083,244.01953125,1.1173004289994424
+fr1_room,246,238580,True,True,491,retained v2 baseline; source revision metadata normalized,True,True,7634560,41454196,1.4394803536585363,1.565009,354.11216699999994,36.7660971769983,616.08984375,0.7670113559979654
+fr1_teddy,269,259676,True,True,533,retained v2 baseline; source revision metadata normalized,True,True,8309632,45167900,1.433372539033457,1.5669537999999998,385.577213,38.692447322999215,678.61328125,2.621493124999688

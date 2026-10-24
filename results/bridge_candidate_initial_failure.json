@@ -1,0 +1,73 @@
+{
+  "protocol": {
+    "schema": 5,
+    "frozen_at_utc": "2026-10-21T07:11:26.226312+00:00",
+    "base_commit": "3d950a0fe48326c0971b824835d48ae0b21f7a53",
+    "source_sha256": {
+      "python/adaptivefusion/bridge_candidates.py": "50021ee63dee05c70db43796f59bd29058af31bc72c03f6fb5b7dfbf3b4c4d01",
+      "python/audit_bridge_candidates.py": "2442bb07e83674dcef52194e13e17b8c802a6bbba403cac00b01981f9cbaf118",
+      "tests/python/test_bridge_candidates.py": "ccaff903f3f47cf46f34e0e8cb01f70a661bea28893d108f241c1106c226f049"
+    },
+    "config": {
+      "fb_pixels": 1.0,
+      "ownership_pixels": 2.0,
+      "depth_spread_m": 0.05,
+      "rigid_threshold_m": 0.03,
+      "ransac_trials": 256,
+      "seed": 17,
+      "minimum_fit": 12,
+      "minimum_validation": 6,
+      "minimum_ratio": 0.5
+    },
+    "inputs": {
+      "fr1_desk": {
+        "snapshot_sha256": "eeed7ad1e6f9babfb537f6b53265f80c7e3c906e337890b2441196bd251f9e21",
+        "dataset_archive_sha256": "e983d6830916e66dc4a46a71368046b149b283de87769690e7aa4e0b9483530c"
+      },
+      "fr1_room": {
+        "snapshot_sha256": "6e104427facb297fbb381bb0bf034ad2dd11fc842ce6c6dd79d841d589488748",
+        "dataset_archive_sha256": "5ace47a1d2e53696bc939a84999293a04a7226958e848a609666691fd3cc38da"
+      },
+      "fr1_teddy": {
+        "snapshot_sha256": "5548ed9251e58150f1206a1a2ad3ed8a18128724f0ffdc966b08c3479bedcf2b",
+        "dataset_archive_sha256": "56cf9d1ef1023470cb1812abdccfc4221afaea67586e7a5a2a5a4d75ce30232d"
+      }
+    },
+    "selection": "all adjacent temporal cuts with fewer than 3 crossing landmarks, otherwise the first minimum-support cut; both directions; >32 cuts refuses rather than truncates",
+    "inference": "OpenCV LK from existing cached observations only; native-depth provenance; target ownership exclusion; Kabsch/RANSAC even-ID fit, odd-ID verification; no pose prior or ground truth",
+    "limits": {
+      "process_timeout_s": 300,
+      "address_space_gib": 8,
+      "threads": 1
+    },
+    "acceptance": "diagnostic only; report all proposals, rejected pairs, nonzero exits and resource failures; candidate acceptance does not authorize adding BA observations or establish point identity/absolute pose accuracy",
+    "stop": "Finish these three previously seen sequences without changes to thresholds/selection; no BA, map mutation, online writeback, new downloads or test-set tuning",
+    "checks": {
+      "python_passed": 69,
+      "ctest_passed": 17,
+      "skipped": 0,
+      "initial_synthetic_failure": "A half-contaminated fit split rejected a competing model; retained as explicit negative regression without algorithm changes"
+    }
+  },
+  "attempts": {
+    "fr1_desk": {
+      "returncode": 1,
+      "timeout": false,
+      "wall_s": 0.36666686500029755,
+      "snapshot_unchanged": true
+    },
+    "fr1_room": {
+      "returncode": 1,
+      "timeout": false,
+      "wall_s": 0.7662903370001004,
+      "snapshot_unchanged": true
+    },
+    "fr1_teddy": {
+      "returncode": 1,
+      "timeout": false,
+      "wall_s": 0.7191655909991823,
+      "snapshot_unchanged": true
+    }
+  },
+  "interpretation": "all failed before image matching due to overstrict importer; zero geometric/performance result; original source and logs retained outside Git"
+}
