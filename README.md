@@ -8,27 +8,30 @@ to produce a separate corrected trajectory.
 
 ## Core contributions and key gains
 
-- **Original system — risk-adaptive RGB-D SLAM:** use temporal geometric-health
-  signals to control keyframe and map updates. On TUM Freiburg1 XYZ (792 inputs),
-  throughput rises **16.65 → 20.87 FPS (+25.4%)** and map points fall **19.8%**,
-  with ATE RMSE **6.2081 → 6.2442 cm (+0.58%)**.
-- **Added — learning-assisted trajectory correction:** combine
-  RootSIFT + LightGlue + MAGSAC with native PnP and confidence-weighted pose
-  constraints. Against native LK with risk control disabled, corrected-output
-  ATE RMSE falls **24.4%–70.7% in four of five recordings**; floor improves
-  **27.32 → 8.01 cm**.
-- **Added — asynchronous keyframe assistance:** connect the Python worker to
-  the C++ pose stream, retaining per-frame LK, dual trajectories and failure
-  fallback. Across floor/plant/desk2, keyframe assistance uses **423 vs 2,970
-  calls (85.8% fewer)** than the historical per-frame LightGlue + MAGSAC scheme.
-- **Added — causal source-feature prefetch:** extract already-arrived source
-  features only while the worker is idle. With unchanged low-CPU settings and
-  call budgets, median auxiliary delivery latency falls **20.3% on plant** and
-  **18.3% on desk2** relative to sparse assistance without prefetch.
+- **End-to-end RGB-D SLAM:** implement RGB-D synchronization, ORB/LK tracking,
+  PnP-RANSAC, sparse mapping and Ceres local BA, together with geometric-health
+  monitoring, temporal failure prediction and ATE/RPE evaluation. TUM Freiburg1
+  XYZ produces **792/792 valid poses**.
+- **Risk-adaptive compute and mapping:** use predicted tracking risk to control
+  matching, keyframe insertion and map writes. On XYZ, throughput rises
+  **16.65 → 20.87 FPS (+25.4%)**, map points fall **19.8%**, and ATE RMSE changes
+  **6.2081 → 6.2442 cm (+0.58%)**.
+- **Confidence-weighted trajectory refinement:** combine
+  RootSIFT + LightGlue + MAGSAC with native PnP and constraints weighted by
+  reprojection and depth consistency. Against native LK with risk control
+  disabled, independent corrected-output ATE RMSE falls **24.4%–70.7% in four
+  of five recordings**; floor improves **27.32 → 8.01 cm**.
+- **Efficient asynchronous assistance:** retain per-frame LK and use a C++/Python
+  service for keyframe constraints, dual trajectories and failure fallback.
+  Across floor/plant/desk2, this uses **423 vs 2,970 matching calls (85.8% fewer)**
+  than the historical per-frame LightGlue + MAGSAC comparison.
+- **Causal feature scheduling:** pre-extract already-arrived source features
+  only while the worker is idle. At unchanged low-CPU settings and call budgets,
+  median auxiliary delivery latency falls **20.3% on plant** and **18.3% on desk2**
+  relative to sparse assistance without prefetch.
 
-These gains come from separate mapping, accuracy and latency evaluations;
-auxiliary corrections remain independent outputs. [Full results, including
-regressions](#measured-results), follow below.
+Each gain uses its stated comparison and configuration; trajectory corrections
+remain separate outputs. [Detailed measurements and regressions](#measured-results).
 
 ## What it provides
 
