@@ -6,6 +6,30 @@ PnP-RANSAC and Ceres local bundle adjustment. The auxiliary service combines
 RootSIFT, LightGlue, MAGSAC geometry verification and observation confidence
 to produce a separate corrected trajectory.
 
+## Core contributions and key gains
+
+- **Original system — risk-adaptive RGB-D SLAM:** use temporal geometric-health
+  signals to control keyframe and map updates. On TUM Freiburg1 XYZ (792 inputs),
+  throughput rises **16.65 → 20.87 FPS (+25.4%)** and map points fall **19.8%**,
+  with ATE RMSE **6.2081 → 6.2442 cm (+0.58%)**.
+- **Added — learning-assisted trajectory correction:** combine
+  RootSIFT + LightGlue + MAGSAC with native PnP and confidence-weighted pose
+  constraints. Against native LK with risk control disabled, corrected-output
+  ATE RMSE falls **24.4%–70.7% in four of five recordings**; floor improves
+  **27.32 → 8.01 cm**.
+- **Added — asynchronous keyframe assistance:** connect the Python worker to
+  the C++ pose stream, retaining per-frame LK, dual trajectories and failure
+  fallback. Across floor/plant/desk2, keyframe assistance uses **423 vs 2,970
+  calls (85.8% fewer)** than the historical per-frame LightGlue + MAGSAC scheme.
+- **Added — causal source-feature prefetch:** extract already-arrived source
+  features only while the worker is idle. With unchanged low-CPU settings and
+  call budgets, median auxiliary delivery latency falls **20.3% on plant** and
+  **18.3% on desk2** relative to sparse assistance without prefetch.
+
+These gains come from separate mapping, accuracy and latency evaluations;
+auxiliary corrections remain independent outputs. [Full results, including
+regressions](#measured-results), follow below.
+
 ## What it provides
 
 - **Native RGB-D SLAM:** synchronized RGB/depth loading, frame tracking,
